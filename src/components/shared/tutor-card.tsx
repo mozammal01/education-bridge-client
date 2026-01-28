@@ -26,6 +26,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
                 alt={tutor.user.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
+                unoptimized={true}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground">
