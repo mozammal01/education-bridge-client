@@ -16,31 +16,31 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "SkillBridge - Connect with Expert Tutors",
-    template: "%s | SkillBridge",
+    default: "EduBridge - Connect with Expert Tutors",
+    template: "%s | EduBridge",
   },
   description:
-    "SkillBridge connects learners with expert tutors. Browse profiles, view availability, and book sessions instantly. Learn anything, anytime.",
+    "EduBridge connects learners with expert tutors. Browse profiles, view availability, and book sessions instantly. Learn anything, anytime.",
   keywords: [
     "tutoring",
     "online learning",
     "education",
     "tutors",
-    "skill development",
+    "education bridge",
     "learning platform",
   ],
-  authors: [{ name: "SkillBridge Team" }],
+  authors: [{ name: "EduBridge Team" }],
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "SkillBridge",
-    title: "SkillBridge - Connect with Expert Tutors",
+    siteName: "EduBridge",
+    title: "EduBridge - Connect with Expert Tutors",
     description:
       "Connect with expert tutors and learn anything. Browse profiles, view availability, and book sessions instantly.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SkillBridge - Connect with Expert Tutors",
+    title: "EduBridge - Connect with Expert Tutors",
     description:
       "Connect with expert tutors and learn anything. Browse profiles, view availability, and book sessions instantly.",
   },

@@ -47,7 +47,7 @@ export function Footer() {
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                <span>support@skillbridge.com</span>
+                <span>support@edubridge.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
@@ -115,7 +115,7 @@ export function Footer() {
         {/* bottom bar */}
         <div className="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} SkillBridge. All rights reserved.
+            © {currentYear} EduBridge. All rights reserved.
           </p>
           
           <div className="flex items-center gap-4">

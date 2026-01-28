@@ -416,7 +416,7 @@ export const TESTIMONIALS = [
     name: "Alex Thompson",
     role: "University Student",
     avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop",
-    content: "SkillBridge helped me go from struggling in calculus to getting an A. My tutor Sarah made complex concepts so easy to understand!",
+    content: "EduBridge helped me go from struggling in calculus to getting an A. My tutor Sarah made complex concepts so easy to understand!",
     rating: 5,
   },
   {
