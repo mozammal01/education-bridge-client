@@ -1,0 +1,51 @@
+import Link from "next/link";
+import { 
+  Calculator, 
+  Atom, 
+  Languages, 
+  Code, 
+  Music, 
+  Briefcase, 
+  Palette, 
+  GraduationCap,
+  LucideIcon 
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Category } from "@/types";
+
+// map category icons to lucide components
+const iconMap: Record<string, LucideIcon> = {
+  Calculator,
+  Atom,
+  Languages,
+  Code,
+  Music,
+  Briefcase,
+  Palette,
+  GraduationCap,
+};
+
+interface CategoryCardProps {
+  category: Category;
+  className?: string;
+}
+
+export function CategoryCard({ category, className }: CategoryCardProps) {
+  const Icon = iconMap[category.icon || "GraduationCap"] || GraduationCap;
+
+  return (
+    <Link
+      href={`/tutors?category=${category.slug}`}
+      className={cn(
+        "group flex flex-col items-center p-6 bg-card border rounded-xl hover:border-primary/50 hover:shadow-md transition-all duration-200",
+        className
+      )}
+    >
+      <div className="p-3 bg-primary/10 rounded-xl mb-4 group-hover:bg-primary/20 transition-colors">
+        <Icon className="h-6 w-6 text-primary" />
+      </div>
+      <h3 className="font-medium text-center mb-1">{category.name}</h3>
+      <p className="text-sm text-muted-foreground">{category.tutorCount} tutors</p>
+    </Link>
+  );
+}
