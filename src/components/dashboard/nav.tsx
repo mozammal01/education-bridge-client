@@ -8,6 +8,8 @@ import {
   User,
   BookOpen,
   Clock,
+  Users,
+  FolderOpen,
   type LucideIcon 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,12 +27,20 @@ const studentNav: NavItem[] = [
   { label: "Profile", href: "/dashboard/profile", icon: User },
 ];
 
-// tutor nav items (for later use)
+// tutor nav items
 export const tutorNav: NavItem[] = [
   { label: "Overview", href: "/tutor/dashboard", icon: LayoutDashboard },
   { label: "Sessions", href: "/tutor/sessions", icon: BookOpen },
   { label: "Availability", href: "/tutor/availability", icon: Clock },
   { label: "Profile", href: "/tutor/profile", icon: User },
+];
+
+// admin nav items
+export const adminNav: NavItem[] = [
+  { label: "Overview", href: "/admin", icon: LayoutDashboard },
+  { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Bookings", href: "/admin/bookings", icon: Calendar },
+  { label: "Categories", href: "/admin/categories", icon: FolderOpen },
 ];
 
 interface DashboardNavProps {
@@ -45,7 +55,7 @@ export function DashboardNav({ items = studentNav, onNavigate }: DashboardNavPro
     <nav className="p-4 space-y-1">
       {items.map((item) => {
         const isActive = pathname === item.href || 
-          (item.href !== "/dashboard" && item.href !== "/tutor/dashboard" && pathname.startsWith(item.href));
+          (item.href !== "/dashboard" && item.href !== "/tutor/dashboard" && item.href !== "/admin" && pathname.startsWith(item.href));
 
         return (
           <Link
