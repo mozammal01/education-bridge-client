@@ -1,136 +1,200 @@
-// ============================================
-// SkillBridge Type Definitions
-// ============================================
-
+// User Types
 export type UserRole = "student" | "tutor" | "admin";
 
-export type BookingStatus = "confirmed" | "completed" | "cancelled";
-
-// User Types
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
   avatar?: string;
-  createdAt: Date;
-  isBanned?: boolean;
+  phone?: string;
+  createdAt: string;
+  isActive: boolean;
 }
 
-export interface Student extends User {
-  role: "student";
-  bookings?: Booking[];
-  reviews?: Review[];
-}
-
-export interface Tutor extends User {
-  role: "tutor";
-  profile?: TutorProfile;
-}
-
-// Tutor Profile
+// Tutor Types
 export interface TutorProfile {
   id: string;
   userId: string;
+  user: User;
   bio: string;
   headline: string;
   hourlyRate: number;
-  subjects: string[];
-  categories: Category[];
   experience: number; // years
   education: string;
+  subjects: string[];
+  categories: Category[];
+  languages: string[];
   rating: number;
   totalReviews: number;
   totalStudents: number;
   totalSessions: number;
-  availability: AvailabilitySlot[];
-  languages: string[];
-  location?: string;
-  videoIntroUrl?: string;
   isVerified: boolean;
-  createdAt: Date;
+  availability: Availability[];
+  reviews: Review[];
+  createdAt: string;
 }
 
-// Category
+// Category Types
 export interface Category {
   id: string;
   name: string;
   slug: string;
-  icon?: string;
   description?: string;
-  tutorCount?: number;
+  icon?: string;
+  tutorCount: number;
 }
 
-// Availability
-export interface AvailabilitySlot {
+// Availability Types
+export interface Availability {
   id: string;
-  dayOfWeek: number; // 0-6, Sunday = 0
+  tutorId: string;
+  dayOfWeek: number; // 0-6 (Sunday-Saturday)
   startTime: string; // HH:mm format
-  endTime: string;
+  endTime: string; // HH:mm format
   isAvailable: boolean;
 }
 
-// Booking
+export interface TimeSlot {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  isBooked: boolean;
+}
+
+// Booking Types
+export type BookingStatus = "confirmed" | "completed" | "cancelled";
+
 export interface Booking {
   id: string;
   studentId: string;
-  student?: User;
+  student: User;
   tutorId: string;
-  tutor?: User & { profile?: TutorProfile };
+  tutor: TutorProfile;
   subject: string;
-  date: Date;
+  date: string;
   startTime: string;
   endTime: string;
-  duration: number; // in minutes
+  duration: number; // minutes
+  totalPrice: number;
   status: BookingStatus;
-  price: number;
   notes?: string;
   meetingLink?: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
-// Review
+// Review Types
 export interface Review {
   id: string;
-  studentId: string;
-  student?: User;
-  tutorId: string;
-  tutor?: User;
   bookingId: string;
+  studentId: string;
+  student: User;
+  tutorId: string;
   rating: number;
   comment: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
-// Search & Filter
-export interface TutorFilters {
-  search?: string;
-  category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minRating?: number;
-  sortBy?: "rating" | "price_low" | "price_high" | "reviews";
-  availability?: string;
-}
-
-// Stats
+// Stats Types
 export interface DashboardStats {
   totalBookings: number;
-  completedSessions: number;
-  upcomingSessions: number;
-  totalEarnings?: number;
-  totalSpent?: number;
-  averageRating?: number;
+  upcomingBookings: number;
+  completedBookings: number;
+  totalSpent?: number; // for students
+  totalEarned?: number; // for tutors
+  averageRating?: number; // for tutors
 }
 
-// Admin Stats
 export interface AdminStats {
   totalUsers: number;
   totalStudents: number;
   totalTutors: number;
   totalBookings: number;
   totalRevenue: number;
-  activeUsers: number;
   newUsersThisMonth: number;
   bookingsThisMonth: number;
+}
+
+// Filter Types
+export interface TutorFilters {
+  search?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  language?: string;
+  sortBy?: "rating" | "price" | "experience" | "reviews";
+  sortOrder?: "asc" | "desc";
+}
+
+// Pagination Types
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+// Form Types
+export interface LoginForm {
+  email: string;
+  password: string;
+}
+
+export interface RegisterForm {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: UserRole;
+}
+
+export interface TutorProfileForm {
+  headline: string;
+  bio: string;
+  hourlyRate: number;
+  experience: number;
+  education: string;
+  subjects: string[];
+  languages: string[];
+}
+
+export interface BookingForm {
+  tutorId: string;
+  subject: string;
+  date: string;
+  timeSlot: string;
+  notes?: string;
+}
+
+export interface ReviewForm {
+  bookingId: string;
+  rating: number;
+  comment: string;
+}
+
+// Navigation Types
+export interface NavItem {
+  label: string;
+  href: string;
+  icon?: string;
+  children?: NavItem[];
+}
+
+// Notification Types
+export interface Notification {
+  id: string;
+  userId: string;
+  type: "booking" | "review" | "message" | "system";
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
 }
