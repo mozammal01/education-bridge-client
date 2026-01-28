@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { 
   BadgeCheck, 
   Clock, 
@@ -9,15 +8,12 @@ import {
   BookOpen, 
   Globe, 
   GraduationCap,
-  Calendar,
-  MessageSquare,
   Share2,
   Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { StarRating } from "@/components/shared";
 import { BookingCard } from "./booking-card";
 import { ReviewsList } from "./reviews-list";

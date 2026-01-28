@@ -62,7 +62,7 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
     filters.language,
   ].filter(Boolean).length;
 
-  const FilterContent = () => (
+  const filterContent = (
     <div className="space-y-6">
       {/* Categories */}
       <div>
@@ -188,7 +188,7 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
               <SheetTitle>Filters</SheetTitle>
             </SheetHeader>
             <div className="mt-6">
-              <FilterContent />
+              {filterContent}
             </div>
           </SheetContent>
         </Sheet>
@@ -196,7 +196,7 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
 
       {/* desktop sidebar filter */}
       <div className="hidden lg:block">
-        <FilterContent />
+        {filterContent}
       </div>
     </div>
   );
