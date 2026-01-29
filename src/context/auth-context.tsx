@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/sign-out", {
+      const res = await fetch("http://localhost:5000/api/auth/signout", {
         method: "POST",
         credentials: "include",
       });
@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error("Failed to logout");
       }
       setUser(null);
+      toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout failed:", error);
       // Still clear user locally even if API fails

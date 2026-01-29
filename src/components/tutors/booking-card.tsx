@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, Clock, MessageSquare, Video } from "lucide-react";
+import { Calendar, Clock, MessageSquare, Video, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
+import { bookingsService } from "@/services";
+import { useAuth } from "@/context/auth-context";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface BookingCardProps {
   tutor: TutorProfile;
@@ -30,6 +34,44 @@ const nextDays = Array.from({ length: 5 }, (_, i) => {
 export function BookingCard({ tutor }: BookingCardProps) {
   const [selectedDate, setSelectedDate] = useState(nextDays[0].date);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [isBooking, setIsBooking] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleBookSession = async () => {
+    if (!user) {
+      toast.error("Please login to book a session");
+      router.push("/login");
+      return;
+    }
+
+    if (!selectedTime) {
+      toast.error("Please select a time slot");
+      return;
+    }
+
+    setIsBooking(true);
+    try {
+      // Calculate end time (1 hour after start)
+      const [hours, minutes] = selectedTime.split(":");
+      const endHour = (parseInt(hours) + 1).toString().padStart(2, "0");
+      const endTime = `${endHour}:${minutes}`;
+
+      await bookingsService.createBooking({
+        tutorId: tutor.userId || tutor.id,
+        date: selectedDate,
+        startTime: selectedTime,
+        endTime: endTime,
+      });
+
+      toast.success("Session booked successfully!");
+      router.push("/dashboard/bookings");
+    } catch (error) {
+      toast.error((error as Error).message || "Failed to book session");
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   return (
     <Card className="shadow-lg">
@@ -45,7 +87,7 @@ export function BookingCard({ tutor }: BookingCardProps) {
           </Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* date selection */}
         <div>
@@ -103,8 +145,20 @@ export function BookingCard({ tutor }: BookingCardProps) {
 
         {/* actions */}
         <div className="space-y-3">
-          <Button className="w-full" size="lg" disabled={!selectedTime}>
-            Book Session - ${tutor.hourlyRate}
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={!selectedTime || isBooking}
+            onClick={handleBookSession}
+          >
+            {isBooking ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Booking...
+              </>
+            ) : (
+              `Book Session - $${tutor.hourlyRate}`
+            )}
           </Button>
           <Button variant="outline" className="w-full" size="lg">
             <MessageSquare className="w-4 h-4 mr-2" />

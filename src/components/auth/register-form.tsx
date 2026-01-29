@@ -15,11 +15,11 @@ export function RegisterForm() {
     name: "",
     email: "",
     password: "",
+    role: UserRole.STUDENT
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.STUDENT);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +31,7 @@ export function RegisterForm() {
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      role: selectedRole,
+      role: formData.role,
     };
 
     console.log("Sending registration data:", submitData);
@@ -77,52 +77,52 @@ export function RegisterForm() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setSelectedRole(UserRole.STUDENT)}
+              onClick={() => setFormData({ ...formData, role: UserRole.STUDENT })}
               className={cn(
                 "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
-                selectedRole === UserRole.STUDENT
+                formData.role === UserRole.STUDENT
                   ? "border-primary bg-primary/5"
                   : "border-muted hover:border-muted-foreground/30"
               )}
             >
               <div className={cn(
                 "p-2 rounded-lg",
-                selectedRole === UserRole.STUDENT ? "bg-primary/10" : "bg-muted"
+                formData.role === UserRole.STUDENT ? "bg-primary/10" : "bg-muted"
               )}>
                 <GraduationCap className={cn(
                   "h-5 w-5",
-                  selectedRole === UserRole.STUDENT ? "text-primary" : "text-muted-foreground"
+                  formData.role === UserRole.STUDENT ? "text-primary" : "text-muted-foreground"
                 )} />
               </div>
               <span className={cn(
                 "text-sm font-medium",
-                selectedRole === UserRole.STUDENT ? "text-primary" : "text-muted-foreground"
+                formData.role === UserRole.STUDENT ? "text-primary" : "text-muted-foreground"
               )}>
                 Learn
               </span>
             </button>
             <button
               type="button"
-              onClick={() => setSelectedRole(UserRole.TUTOR)}
+              onClick={() => setFormData({ ...formData, role: UserRole.TUTOR })}
               className={cn(
                 "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
-                selectedRole === UserRole.TUTOR
+                formData.role === UserRole.TUTOR
                   ? "border-primary bg-primary/5"
                   : "border-muted hover:border-muted-foreground/30"
               )}
             >
               <div className={cn(
                 "p-2 rounded-lg",
-                selectedRole === UserRole.TUTOR ? "bg-primary/10" : "bg-muted"
+                formData.role === UserRole.TUTOR ? "bg-primary/10" : "bg-muted"
               )}>
                 <BookOpen className={cn(
                   "h-5 w-5",
-                  selectedRole === UserRole.TUTOR ? "text-primary" : "text-muted-foreground"
+                  formData.role === UserRole.TUTOR ? "text-primary" : "text-muted-foreground"
                 )} />
               </div>
               <span className={cn(
                 "text-sm font-medium",
-                selectedRole === UserRole.TUTOR ? "text-primary" : "text-muted-foreground"
+                formData.role === UserRole.TUTOR ? "text-primary" : "text-muted-foreground"
               )}>
                 Teach
               </span>
@@ -222,7 +222,7 @@ export function RegisterForm() {
               Creating account...
             </>
           ) : (
-            `Create ${selectedRole === UserRole.STUDENT ? "Student" : selectedRole === UserRole.TUTOR ? "Tutor" : "Admin"} Account`
+            `Create ${formData.role === UserRole.STUDENT ? "Student" : formData.role === UserRole.TUTOR ? "Tutor" : "Admin"} Account`
           )}
         </Button>
 

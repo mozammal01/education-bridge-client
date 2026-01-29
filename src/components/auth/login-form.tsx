@@ -35,13 +35,22 @@ export function LoginForm() {
       });
 
       const data = await res.json();
+      console.log("Login response:", data);
 
       if (!res.ok) {
         // Get error message from backend response
         throw new Error(data.message || "Failed to login");
       }
 
-      login(data.user);
+      // Check if user data exists
+      const userData = data.user || data.data;
+      console.log("User data:", userData);
+
+      if (!userData) {
+        throw new Error("No user data received from server");
+      }
+
+      login(userData);
       toast.success("Logged in successfully");
       router.push("/");
     } catch (error) {

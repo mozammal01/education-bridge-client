@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { TutorCard } from "@/components/shared";
 import { TutorsFilter, type FilterState } from "./tutors-filter";
 import { MOCK_TUTORS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { tutorsService } from "@/services";
+import { TutorProfile } from "@/types";
 
 export function TutorsListing() {
   const [filters, setFilters] = useState<FilterState>({
@@ -17,45 +19,53 @@ export function TutorsListing() {
     language: "",
   });
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [tutors, setTutors] = useState<TutorProfile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredTutors = useMemo(() => {
-    return MOCK_TUTORS.filter((tutor) => {
-      // search
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        const matchesSearch =
-          tutor.user.name.toLowerCase().includes(searchLower) ||
-          tutor.subjects.some((s) => s.toLowerCase().includes(searchLower)) ||
-          tutor.headline.toLowerCase().includes(searchLower);
-        if (!matchesSearch) return false;
-      }
+  useEffect(() => {
+    const fetchTutors = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await tutorsService.getTutors({
+          category: filters.category || undefined,
+          minPrice: filters.priceRange?.min,
+          maxPrice: filters.priceRange?.max,
+          minRating: filters.minRating || undefined,
+          search: filters.search || undefined,
+        });
 
-      // category
-      if (filters.category) {
-        const matchesCat = tutor.categories.some((c) => c.slug === filters.category);
-        if (!matchesCat) return false;
-      }
-
-      // price
-      if (filters.priceRange) {
-        if (tutor.hourlyRate < filters.priceRange.min || tutor.hourlyRate > filters.priceRange.max) {
-          return false;
+        if (response.data) {
+          // Handle both array and object with tutors property
+          const tutorData = Array.isArray(response.data)
+            ? response.data
+            : (response.data as { tutors?: TutorProfile[] }).tutors || [];
+          setTutors(tutorData);
+        } else {
+          // Fallback to mock data if API returns empty
+          setTutors(MOCK_TUTORS);
         }
+      } catch (err) {
+        console.error("Failed to fetch tutors:", err);
+        setError("Failed to load tutors");
+        // Fallback to mock data on error
+        setTutors(MOCK_TUTORS);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // rating
-      if (filters.minRating && tutor.rating < filters.minRating) {
-        return false;
-      }
-
-      // language
-      if (filters.language && !tutor.languages.includes(filters.language)) {
-        return false;
-      }
-
-      return true;
-    });
+    fetchTutors();
   }, [filters]);
+
+  // Client-side filtering for language (if API doesn't support it)
+  const filteredTutors = tutors.filter((tutor) => {
+    if (filters.language && tutor.languages && !tutor.languages.includes(filters.language)) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="grid lg:grid-cols-[280px_1fr] gap-8">
@@ -71,9 +81,15 @@ export function TutorsListing() {
         {/* top bar */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-muted-foreground">
-            <span className="font-medium text-foreground">{filteredTutors.length}</span> tutors found
+            {isLoading ? (
+              "Loading..."
+            ) : (
+              <>
+                <span className="font-medium text-foreground">{filteredTutors.length}</span> tutors found
+              </>
+            )}
           </p>
-          
+
           <div className="flex items-center gap-2">
             {/* mobile filter - shows on mobile only via TutorsFilter */}
             <div className="lg:hidden">
@@ -100,8 +116,25 @@ export function TutorsListing() {
           </div>
         </div>
 
+        {/* loading state */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* error state */}
+        {error && !isLoading && (
+          <div className="text-center py-16 bg-red-50 rounded-xl">
+            <p className="text-red-600 mb-2">{error}</p>
+            <Button variant="link" onClick={() => window.location.reload()}>
+              Try again
+            </Button>
+          </div>
+        )}
+
         {/* tutors grid/list */}
-        {filteredTutors.length > 0 ? (
+        {!isLoading && !error && filteredTutors.length > 0 && (
           <div
             className={cn(
               viewMode === "grid"
@@ -117,7 +150,10 @@ export function TutorsListing() {
               />
             ))}
           </div>
-        ) : (
+        )}
+
+        {/* empty state */}
+        {!isLoading && !error && filteredTutors.length === 0 && (
           <div className="text-center py-16 bg-muted/30 rounded-xl">
             <p className="text-muted-foreground mb-2">No tutors found matching your criteria</p>
             <Button variant="link" onClick={() => setFilters({

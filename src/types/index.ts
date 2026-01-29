@@ -9,7 +9,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: UserRole | string;
   avatar?: string;
   phone?: string;
   createdAt: string;
@@ -68,7 +68,7 @@ export interface TimeSlot {
 }
 
 // Booking Types
-export type BookingStatus = "confirmed" | "completed" | "cancelled";
+export type BookingStatus = "CONFIRMED" | "COMPLETED" | "CANCELLED";
 
 export interface Booking {
   id: string;

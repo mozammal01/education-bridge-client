@@ -1,12 +1,41 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CategoryCard, SectionHeader, FadeIn, StaggerContainer, StaggerItem } from "@/components/shared";
 import { CATEGORIES } from "@/lib/constants";
+import { categoriesService } from "@/services";
+import { Category } from "@/types";
 
 export function CategoriesSection() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesService.getCategories();
+        if (response.data) {
+          const categoryData = Array.isArray(response.data)
+            ? response.data
+            : (response.data as { categories?: Category[] }).categories || [];
+          setCategories(categoryData);
+        } else {
+          setCategories(CATEGORIES);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+        setCategories(CATEGORIES);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
@@ -17,13 +46,19 @@ export function CategoriesSection() {
           />
         </FadeIn>
 
-        <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
-          {CATEGORIES.map((category) => (
-            <StaggerItem key={category.id}>
-              <CategoryCard category={category} />
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+            {categories.map((category) => (
+              <StaggerItem key={category.id}>
+                <CategoryCard category={category} />
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        )}
 
         <FadeIn delay={0.4}>
           <div className="text-center">

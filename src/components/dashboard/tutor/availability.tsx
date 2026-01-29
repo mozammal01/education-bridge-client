@@ -78,9 +78,43 @@ export function TutorAvailability() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true);
-    setTimeout(() => setSaving(false), 1500);
+    try {
+      // Convert availability to API format
+      const availabilityData = Object.entries(availability)
+        .filter(([_, day]) => day.enabled && day.slots.length > 0)
+        .flatMap(([dayIndex, day]) =>
+          day.slots.map((slot) => ({
+            dayOfWeek: parseInt(dayIndex),
+            startTime: slot.start,
+            endTime: slot.end,
+            isAvailable: true,
+          }))
+        );
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/tutor/availability`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ availability: availabilityData }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save availability");
+      }
+
+      // Show success message (you could add toast here)
+      alert("Availability saved successfully!");
+    } catch (error) {
+      console.error("Failed to save availability:", error);
+      alert("Failed to save availability. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

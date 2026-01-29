@@ -7,27 +7,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_TUTORS, LANGUAGES } from "@/lib/constants";
-
-const currentTutor = MOCK_TUTORS[0];
+import { LANGUAGES } from "@/lib/constants";
+import { useAuth } from "@/context/auth-context";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 export function TutorProfileSettings() {
+  const { user } = useAuth();
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    headline: currentTutor.headline,
-    bio: currentTutor.bio,
-    hourlyRate: currentTutor.hourlyRate,
-    experience: currentTutor.experience,
-    education: currentTutor.education,
-    subjects: currentTutor.subjects,
-    languages: currentTutor.languages,
+    headline: "",
+    bio: "",
+    hourlyRate: 50,
+    experience: 1,
+    education: "",
+    subjects: [] as string[],
+    languages: [] as string[],
   });
   const [newSubject, setNewSubject] = useState("");
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setTimeout(() => setSaving(false), 1500);
+    try {
+      await api.put("/tutor/profile", {
+        bio: formData.bio,
+        hourlyRate: formData.hourlyRate,
+        experience: formData.experience,
+      });
+      toast.success("Profile updated successfully");
+    } catch{
+      toast.error("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const addSubject = () => {
@@ -65,17 +78,17 @@ export function TutorProfileSettings() {
           <div className="flex items-center gap-6">
             <div className="relative">
               <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted">
-                {currentTutor.user.avatar ? (
+                {user?.avatar ? (
                   <Image
-                    src={currentTutor.user.avatar}
-                    alt={currentTutor.user.name}
+                    src={user.avatar}
+                    alt={user.name || "Tutor"}
                     width={96}
                     height={96}
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl font-bold">
-                    {currentTutor.user.name.split(" ").map((n) => n[0]).join("")}
+                  <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
+                    {user?.name?.split(" ").map((n) => n[0]).join("") || "T"}
                   </div>
                 )}
               </div>

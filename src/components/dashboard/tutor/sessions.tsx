@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Calendar, Clock, Video, MoreVertical, CheckCircle, MessageSquare } from "lucide-react";
+import { Calendar, Clock, Video, MoreVertical, CheckCircle, MessageSquare, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,33 +13,69 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { MOCK_BOOKINGS, MOCK_TUTORS } from "@/lib/constants";
-import type { BookingStatus } from "@/types";
+import { bookingsService } from "@/services";
+import { toast } from "sonner";
+import type { Booking, BookingStatus } from "@/types";
 
-const currentTutor = MOCK_TUTORS[0];
-const tutorBookings = MOCK_BOOKINGS.filter((b) => b.tutorId === currentTutor.id);
-
-type TabType = "all" | "confirmed" | "completed" | "cancelled";
+type TabType = "all" | BookingStatus;
 
 const tabs: { label: string; value: TabType }[] = [
   { label: "All", value: "all" },
-  { label: "Upcoming", value: "confirmed" },
-  { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
+  { label: "Upcoming", value: "CONFIRMED" },
+  { label: "Completed", value: "COMPLETED" },
+  { label: "Cancelled", value: "CANCELLED" },
 ];
 
-const statusColors: Record<BookingStatus, string> = {
-  confirmed: "bg-primary/10 text-primary",
-  completed: "bg-emerald-100 text-emerald-700",
-  cancelled: "bg-red-100 text-red-700",
+const statusColors: Record<string, string> = {
+  CONFIRMED: "bg-primary/10 text-primary",
+  COMPLETED: "bg-emerald-100 text-emerald-700",
+  CANCELLED: "bg-red-100 text-red-700",
 };
 
 export function TutorSessions() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
+  const [sessions, setSessions] = useState<Booking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredSessions = activeTab === "all"
-    ? tutorBookings
-    : tutorBookings.filter((b) => b.status === activeTab);
+  const fetchSessions = async () => {
+    try {
+      const res = await bookingsService.getBookings();
+      const data = res.data;
+      if (data) {
+        setSessions(Array.isArray(data) ? data : data.bookings || []);
+      }
+    } catch {
+      toast.error("Failed to load sessions");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const handleComplete = async (id: string) => {
+    try {
+      await bookingsService.updateBookingStatus(id, "COMPLETED");
+      toast.success("Session marked complete");
+      fetchSessions();
+    } catch {
+      toast.error("Failed to update");
+    }
+  };
+
+  const filtered = activeTab === "all"
+    ? sessions
+    : sessions.filter((s) => s.status === activeTab);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -48,7 +84,6 @@ export function TutorSessions() {
         <p className="text-muted-foreground">View and manage your teaching sessions</p>
       </div>
 
-      {/* tabs */}
       <div className="flex gap-2 border-b pb-2 overflow-x-auto">
         {tabs.map((tab) => (
           <button
@@ -58,7 +93,7 @@ export function TutorSessions() {
               "px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap",
               activeTab === tab.value
                 ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                : "text-muted-foreground hover:bg-muted"
             )}
           >
             {tab.label}
@@ -66,29 +101,31 @@ export function TutorSessions() {
         ))}
       </div>
 
-      {/* sessions list */}
-      {filteredSessions.length > 0 ? (
+      {filtered.length > 0 ? (
         <div className="space-y-4">
-          {filteredSessions.map((session) => (
+          {filtered.map((session) => (
             <Card key={session.id}>
               <CardContent className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {/* student info */}
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted shrink-0">
-                      {session.student.avatar && (
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                      {session.student?.avatar ? (
                         <Image
                           src={session.student.avatar}
-                          alt={session.student.name}
+                          alt=""
                           width={48}
                           height={48}
                           className="object-cover"
                         />
+                      ) : (
+                        <span className="text-lg font-bold text-muted-foreground">
+                          {session.student?.name?.charAt(0) || "S"}
+                        </span>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold">{session.student.name}</p>
-                      <p className="text-muted-foreground">{session.subject}</p>
+                      <p className="font-semibold">{session.student?.name || "Student"}</p>
+                      <p className="text-muted-foreground">{session.subject || "Session"}</p>
                       <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5" />
@@ -106,17 +143,15 @@ export function TutorSessions() {
                     </div>
                   </div>
 
-                  {/* right side */}
                   <div className="flex items-center gap-3 sm:flex-col sm:items-end">
                     <Badge className={cn("font-normal", statusColors[session.status])}>
                       {session.status}
                     </Badge>
-                    <p className="font-semibold">${session.totalPrice}</p>
+                    {session.totalPrice && <p className="font-semibold">${session.totalPrice}</p>}
                   </div>
 
-                  {/* actions */}
                   <div className="flex items-center gap-2">
-                    {session.status === "confirmed" && (
+                    {session.status === "CONFIRMED" && (
                       <>
                         <Button size="sm" className="gap-1.5">
                           <Video className="w-4 h-4" />
@@ -133,7 +168,7 @@ export function TutorSessions() {
                               <MessageSquare className="w-4 h-4 mr-2" />
                               Message Student
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleComplete(session.id)}>
                               <CheckCircle className="w-4 h-4 mr-2" />
                               Mark Complete
                             </DropdownMenuItem>
@@ -141,7 +176,7 @@ export function TutorSessions() {
                         </DropdownMenu>
                       </>
                     )}
-                    {session.status === "completed" && (
+                    {session.status === "COMPLETED" && (
                       <Button variant="outline" size="sm" disabled>
                         <CheckCircle className="w-4 h-4 mr-1.5" />
                         Completed
@@ -149,15 +184,6 @@ export function TutorSessions() {
                     )}
                   </div>
                 </div>
-
-                {session.notes && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">Student notes: </span>
-                      {session.notes}
-                    </p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           ))}

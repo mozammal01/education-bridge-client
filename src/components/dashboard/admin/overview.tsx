@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
-  DollarSign, 
-  TrendingUp, 
+import {
+  Users,
+  GraduationCap,
+  BookOpen,
+  DollarSign,
+  TrendingUp,
   ArrowRight,
   Calendar,
   UserPlus
@@ -15,10 +15,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MOCK_USERS, MOCK_BOOKINGS, MOCK_TUTORS } from "@/lib/constants";
 
 const totalUsers = MOCK_USERS.length;
-const totalStudents = MOCK_USERS.filter((u) => u.role === "student").length;
+const totalStudents = MOCK_USERS.filter((u) => u.role === "STUDENT").length;
 const totalTutors = MOCK_TUTORS.length;
 const totalBookings = MOCK_BOOKINGS.length;
-const totalRevenue = MOCK_BOOKINGS.filter((b) => b.status === "completed").reduce((acc, b) => acc + b.totalPrice, 0);
+const totalRevenue = MOCK_BOOKINGS.filter((b) => b.status === "COMPLETED").reduce((acc, b) => acc + b.totalPrice, 0);
 
 const stats = [
   {

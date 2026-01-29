@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Calendar, Clock, MoreVertical, Eye, XCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Calendar, Clock, MoreVertical, Eye, XCircle, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,36 +14,75 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { MOCK_BOOKINGS } from "@/lib/constants";
-import type { BookingStatus } from "@/types";
+import { bookingsService } from "@/services";
+import { toast } from "sonner";
+import type { Booking, BookingStatus } from "@/types";
 
-type TabType = "all" | "confirmed" | "completed" | "cancelled";
+type TabType = "all" | BookingStatus;
 
 const tabs: { label: string; value: TabType }[] = [
   { label: "All", value: "all" },
-  { label: "Upcoming", value: "confirmed" },
-  { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
+  { label: "Upcoming", value: "CONFIRMED" },
+  { label: "Completed", value: "COMPLETED" },
+  { label: "Cancelled", value: "CANCELLED" },
 ];
 
-const statusColors: Record<BookingStatus, string> = {
-  confirmed: "bg-primary/10 text-primary",
-  completed: "bg-emerald-100 text-emerald-700",
-  cancelled: "bg-red-100 text-red-700",
+const statusColors: Record<string, string> = {
+  CONFIRMED: "bg-primary/10 text-primary",
+  COMPLETED: "bg-emerald-100 text-emerald-700",
+  CANCELLED: "bg-red-100 text-red-700",
 };
 
 export function BookingsManagement() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredBookings = MOCK_BOOKINGS.filter((booking) => {
-    const matchesTab = activeTab === "all" || booking.status === activeTab;
-    const matchesSearch = 
-      booking.student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.tutor.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.subject.toLowerCase().includes(searchQuery.toLowerCase());
+  const fetchBookings = async () => {
+    try {
+      const res = await bookingsService.getBookings();
+      const data = res.data;
+      if (data) {
+        setBookings(Array.isArray(data) ? data : data.bookings || []);
+      }
+    } catch {
+      toast.error("Failed to load bookings");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const handleCancel = async (id: string) => {
+    try {
+      await bookingsService.updateBookingStatus(id, "CANCELLED");
+      toast.success("Booking cancelled");
+      fetchBookings();
+    } catch {
+      toast.error("Failed to cancel");
+    }
+  };
+
+  const filtered = bookings.filter((b) => {
+    const matchesTab = activeTab === "all" || b.status === activeTab;
+    const matchesSearch =
+      b.student?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      b.tutor?.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      b.subject?.toLowerCase().includes(search.toLowerCase());
     return matchesTab && matchesSearch;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -52,15 +91,14 @@ export function BookingsManagement() {
         <p className="text-muted-foreground">View and manage all platform bookings</p>
       </div>
 
-      {/* search & tabs */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search bookings..."
             className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
@@ -78,51 +116,46 @@ export function BookingsManagement() {
         </div>
       </div>
 
-      {/* bookings list */}
       <div className="space-y-4">
-        {filteredBookings.length > 0 ? (
-          filteredBookings.map((booking) => (
+        {filtered.length > 0 ? (
+          filtered.map((booking) => (
             <Card key={booking.id}>
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-4">
-                  {/* student & tutor */}
                   <div className="flex items-center gap-6 flex-1">
-                    {/* student */}
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={booking.student.avatar} />
+                        <AvatarImage src={booking.student?.avatar} />
                         <AvatarFallback>
-                          {booking.student.name.split(" ").map((n) => n[0]).join("")}
+                          {booking.student?.name?.charAt(0) || "S"}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="text-xs text-muted-foreground">Student</p>
-                        <p className="font-medium text-sm">{booking.student.name}</p>
+                        <p className="font-medium text-sm">{booking.student?.name || "Student"}</p>
                       </div>
                     </div>
 
                     <div className="text-muted-foreground">→</div>
 
-                    {/* tutor */}
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={booking.tutor.user.avatar} />
+                        <AvatarImage src={booking.tutor?.user?.avatar} />
                         <AvatarFallback>
-                          {booking.tutor.user.name.split(" ").map((n) => n[0]).join("")}
+                          {booking.tutor?.user?.name?.charAt(0) || "T"}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="text-xs text-muted-foreground">Tutor</p>
-                        <p className="font-medium text-sm">{booking.tutor.user.name}</p>
+                        <p className="font-medium text-sm">{booking.tutor?.user?.name || "Tutor"}</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* subject & time */}
                   <div className="flex items-center gap-6 text-sm">
                     <div>
                       <p className="text-xs text-muted-foreground">Subject</p>
-                      <p className="font-medium">{booking.subject}</p>
+                      <p className="font-medium">{booking.subject || "Session"}</p>
                     </div>
                     <div className="flex items-center gap-4 text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -139,12 +172,11 @@ export function BookingsManagement() {
                     </div>
                   </div>
 
-                  {/* status & price */}
                   <div className="flex items-center gap-4">
                     <Badge className={cn("font-normal", statusColors[booking.status])}>
                       {booking.status}
                     </Badge>
-                    <p className="font-semibold">${booking.totalPrice}</p>
+                    {booking.totalPrice && <p className="font-semibold">${booking.totalPrice}</p>}
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -157,8 +189,11 @@ export function BookingsManagement() {
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
-                        {booking.status === "confirmed" && (
-                          <DropdownMenuItem className="text-destructive">
+                        {booking.status === "CONFIRMED" && (
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleCancel(booking.id)}
+                          >
                             <XCircle className="w-4 h-4 mr-2" />
                             Cancel Booking
                           </DropdownMenuItem>

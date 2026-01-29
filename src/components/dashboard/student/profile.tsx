@@ -1,27 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Camera, Mail, Phone, User, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MOCK_USERS } from "@/lib/constants";
-
-const currentUser = MOCK_USERS[4];
+import { useAuth } from "@/context/auth-context";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 export function StudentProfile() {
+  const { user } = useAuth();
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    name: currentUser.name,
-    email: currentUser.email,
-    phone: currentUser.phone || "",
+    name: "",
+    email: "",
+    phone: "",
   });
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+    }
+  }, [user]);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setTimeout(() => setSaving(false), 1500);
+    try {
+      await api.put("/student/profile", {
+        name: formData.name,
+        phone: formData.phone,
+      });
+      toast.success("Profile updated successfully");
+    } catch {
+      toast.error("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -40,17 +61,17 @@ export function StudentProfile() {
           <div className="flex items-center gap-6">
             <div className="relative">
               <div className="w-24 h-24 rounded-full overflow-hidden bg-muted">
-                {currentUser.avatar ? (
+                {user?.avatar ? (
                   <Image
-                    src={currentUser.avatar}
-                    alt={currentUser.name}
+                    src={user.avatar}
+                    alt={user.name || "User"}
                     width={96}
                     height={96}
                     className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
-                    {currentUser.name.split(" ").map((n) => n[0]).join("")}
+                    {user?.name?.split(" ").map((n) => n[0]).join("") || "U"}
                   </div>
                 )}
               </div>

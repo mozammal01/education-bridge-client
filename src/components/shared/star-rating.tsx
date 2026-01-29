@@ -52,7 +52,7 @@ export function StarRating({
       </div>
       {showValue && (
         <span className={cn("font-medium text-foreground", textSize[size])}>
-          {rating.toFixed(1)}
+          {rating?.toFixed(1)}
         </span>
       )}
     </div>

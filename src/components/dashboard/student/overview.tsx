@@ -1,57 +1,88 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Clock, BookOpen, TrendingUp, ArrowRight } from "lucide-react";
+import { Calendar, Clock, BookOpen, TrendingUp, ArrowRight, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_BOOKINGS, MOCK_USERS } from "@/lib/constants";
-
-const currentUser = MOCK_USERS[4];
-
-// filter bookings for current user
-const userBookings = MOCK_BOOKINGS.filter((b) => b.studentId === currentUser.id);
-const upcomingBookings = userBookings.filter((b) => b.status === "confirmed");
-const completedBookings = userBookings.filter((b) => b.status === "completed");
-
-const stats = [
-  {
-    label: "Upcoming Sessions",
-    value: upcomingBookings.length,
-    icon: Calendar,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    label: "Completed",
-    value: completedBookings.length,
-    icon: BookOpen,
-    color: "text-emerald-600",
-    bg: "bg-emerald-100",
-  },
-  {
-    label: "Hours Learned",
-    value: completedBookings.length,
-    icon: Clock,
-    color: "text-amber-600",
-    bg: "bg-amber-100",
-  },
-  {
-    label: "Total Spent",
-    value: `$${completedBookings.reduce((acc, b) => acc + b.totalPrice, 0)}`,
-    icon: TrendingUp,
-    color: "text-violet-600",
-    bg: "bg-violet-100",
-  },
-];
+import { useAuth } from "@/context/auth-context";
+import { bookingsService } from "@/services";
+import { Booking } from "@/types";
 
 export function StudentOverview() {
+  const { user } = useAuth();
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await bookingsService.getBookings();
+        if (response.data) {
+          const bookingData = Array.isArray(response.data)
+            ? response.data
+            : (response.data as { bookings?: Booking[] }).bookings || [];
+          setBookings(bookingData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch bookings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
+
+  const upcomingBookings = bookings.filter((b) => b.status === "CONFIRMED");
+  const completedBookings = bookings.filter((b) => b.status === "COMPLETED");
+
+  const stats = [
+    {
+      label: "Upcoming Sessions",
+      value: upcomingBookings.length,
+      icon: Calendar,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      label: "Completed",
+      value: completedBookings.length,
+      icon: BookOpen,
+      color: "text-emerald-600",
+      bg: "bg-emerald-100",
+    },
+    {
+      label: "Hours Learned",
+      value: completedBookings.length,
+      icon: Clock,
+      color: "text-amber-600",
+      bg: "bg-amber-100",
+    },
+    {
+      label: "Total Spent",
+      value: `$${completedBookings.reduce((acc, b) => acc + (b.totalPrice || 0), 0)}`,
+      icon: TrendingUp,
+      color: "text-violet-600",
+      bg: "bg-violet-100",
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* greeting */}
       <div>
-        <h1 className="text-2xl font-bold">Welcome back, {currentUser.name.split(" ")[0]}! 👋</h1>
+        <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(" ")[0] || "Student"}! 👋</h1>
         <p className="text-muted-foreground">Here&apos;s what&apos;s happening with your learning journey</p>
       </div>
 

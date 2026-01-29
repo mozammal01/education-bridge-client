@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,41 +13,79 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CATEGORIES } from "@/lib/constants";
+import { categoriesService } from "@/services";
+import { toast } from "sonner";
 import type { Category } from "@/types";
 
 export function CategoriesManagement() {
-  const [categories, setCategories] = useState<Category[]>(CATEGORIES);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [search, setSearch] = useState("");
   const [isAdding, setIsAdding] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: "", description: "" });
+  const [newCat, setNewCat] = useState({ name: "", description: "" });
   const [saving, setSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const fetchCategories = async () => {
+    try {
+      const res = await categoriesService.getCategories();
+      const data = res.data;
+      if (data) {
+        setCategories(Array.isArray(data) ? data : data.categories || []);
+      } else {
+        setCategories(CATEGORIES);
+      }
+    } catch {
+      setCategories(CATEGORIES);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const filtered = categories.filter((c) =>
+    c.name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddCategory = () => {
-    if (!newCategory.name.trim()) return;
-    
+  const handleAdd = async () => {
+    if (!newCat.name.trim()) return;
+
     setSaving(true);
-    setTimeout(() => {
-      const newCat: Category = {
-        id: Date.now().toString(),
-        name: newCategory.name,
-        slug: newCategory.name.toLowerCase().replace(/\s+/g, "-"),
-        description: newCategory.description,
-        tutorCount: 0,
-      };
-      setCategories([...categories, newCat]);
-      setNewCategory({ name: "", description: "" });
+    try {
+      await categoriesService.createCategory({
+        name: newCat.name,
+        slug: newCat.name.toLowerCase().replace(/\s+/g, "-"),
+      });
+      toast.success("Category created");
+      setNewCat({ name: "", description: "" });
       setIsAdding(false);
+      fetchCategories();
+    } catch {
+      toast.error("Failed to create category");
+    } finally {
       setSaving(false);
-    }, 1000);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setCategories(categories.filter((c) => c.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await categoriesService.deleteCategory(id);
+      toast.success("Category deleted");
+      fetchCategories();
+    } catch {
+      toast.error("Failed to delete");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -62,7 +100,6 @@ export function CategoriesManagement() {
         </Button>
       </div>
 
-      {/* add form */}
       {isAdding && (
         <Card>
           <CardHeader>
@@ -74,21 +111,21 @@ export function CategoriesManagement() {
                 <label className="text-sm font-medium">Category Name</label>
                 <Input
                   placeholder="e.g., Data Science"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                  value={newCat.name}
+                  onChange={(e) => setNewCat({ ...newCat, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Description (optional)</label>
+                <label className="text-sm font-medium">Description</label>
                 <Input
                   placeholder="Brief description"
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                  value={newCat.description}
+                  onChange={(e) => setNewCat({ ...newCat, description: e.target.value })}
                 />
               </div>
             </div>
             <div className="flex gap-2 mt-4">
-              <Button onClick={handleAddCategory} disabled={saving || !newCategory.name.trim()}>
+              <Button onClick={handleAdd} disabled={saving || !newCat.name.trim()}>
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -106,20 +143,18 @@ export function CategoriesManagement() {
         </Card>
       )}
 
-      {/* search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search categories..."
           className="pl-10"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {/* categories grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredCategories.map((category) => (
+        {filtered.map((category) => (
           <Card key={category.id} className="group">
             <CardContent className="p-4">
               <div className="flex items-start justify-between">
@@ -130,17 +165,15 @@ export function CategoriesManagement() {
                       {category.description}
                     </p>
                   )}
-                  <Badge variant="secondary">
-                    {category.tutorCount} tutors
-                  </Badge>
+                  <Badge variant="secondary">{category.tutorCount || 0} tutors</Badge>
                 </div>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon-sm"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100"
                     >
                       <Pencil className="w-4 h-4" />
                     </Button>
@@ -150,7 +183,7 @@ export function CategoriesManagement() {
                       <Pencil className="w-4 h-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => handleDelete(category.id)}
                     >
@@ -165,7 +198,7 @@ export function CategoriesManagement() {
         ))}
       </div>
 
-      {filteredCategories.length === 0 && (
+      {filtered.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">No categories found</p>

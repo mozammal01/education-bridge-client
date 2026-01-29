@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, Video, MoreVertical, MessageSquare, XCircle } from "lucide-react";
+import { Calendar, Clock, Video, MoreVertical, MessageSquare, XCircle, Loader2, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,33 +14,75 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { MOCK_BOOKINGS, MOCK_USERS } from "@/lib/constants";
-import type { BookingStatus } from "@/types";
+import { bookingsService } from "@/services";
+import { toast } from "sonner";
+import { ReviewModal } from "@/components/reviews";
+import type { Booking, BookingStatus } from "@/types";
 
-const currentUser = MOCK_USERS[4];
-const userBookings = MOCK_BOOKINGS.filter((b) => b.studentId === currentUser.id);
-
-type TabType = "all" | "confirmed" | "completed" | "cancelled";
+type TabType = "all" | BookingStatus;
 
 const tabs: { label: string; value: TabType }[] = [
   { label: "All", value: "all" },
-  { label: "Upcoming", value: "confirmed" },
-  { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
+  { label: "Upcoming", value: "CONFIRMED" },
+  { label: "Completed", value: "COMPLETED" },
+  { label: "Cancelled", value: "CANCELLED" },
 ];
 
-const statusColors: Record<BookingStatus, string> = {
-  confirmed: "bg-primary/10 text-primary",
-  completed: "bg-emerald-100 text-emerald-700",
-  cancelled: "bg-red-100 text-red-700",
+const statusColors: Record<string, string> = {
+  CONFIRMED: "bg-primary/10 text-primary",
+  COMPLETED: "bg-emerald-100 text-emerald-700",
+  CANCELLED: "bg-red-100 text-red-700",
 };
 
 export function StudentBookings() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [reviewModal, setReviewModal] = useState({
+    isOpen: false,
+    tutorId: "",
+    tutorName: "",
+  });
 
-  const filteredBookings = activeTab === "all" 
-    ? userBookings 
-    : userBookings.filter((b) => b.status === activeTab);
+  const fetchBookings = async () => {
+    try {
+      const res = await bookingsService.getBookings();
+      const data = res.data;
+      if (data) {
+        setBookings(Array.isArray(data) ? data : data.bookings || []);
+      }
+    } catch {
+      toast.error("Failed to load bookings");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const handleCancel = async (id: string) => {
+    try {
+      await bookingsService.updateBookingStatus(id, "CANCELLED");
+      toast.success("Booking cancelled");
+      fetchBookings();
+    } catch {
+      toast.error("Failed to cancel");
+    }
+  };
+
+  const filtered = activeTab === "all"
+    ? bookings
+    : bookings.filter((b) => b.status === activeTab);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -49,7 +91,6 @@ export function StudentBookings() {
         <p className="text-muted-foreground">Manage your tutoring sessions</p>
       </div>
 
-      {/* tabs */}
       <div className="flex gap-2 border-b pb-2 overflow-x-auto">
         {tabs.map((tab) => (
           <button
@@ -59,7 +100,7 @@ export function StudentBookings() {
               "px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap",
               activeTab === tab.value
                 ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                : "text-muted-foreground hover:bg-muted"
             )}
           >
             {tab.label}
@@ -67,34 +108,36 @@ export function StudentBookings() {
         ))}
       </div>
 
-      {/* bookings list */}
-      {filteredBookings.length > 0 ? (
+      {filtered.length > 0 ? (
         <div className="space-y-4">
-          {filteredBookings.map((booking) => (
+          {filtered.map((booking) => (
             <Card key={booking.id}>
               <CardContent className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {/* tutor info */}
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0">
-                      {booking.tutor.user.avatar && (
+                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                      {booking.tutor?.user?.avatar ? (
                         <Image
                           src={booking.tutor.user.avatar}
-                          alt={booking.tutor.user.name}
+                          alt=""
                           width={56}
                           height={56}
                           className="object-cover"
                         />
+                      ) : (
+                        <span className="text-lg font-bold text-muted-foreground">
+                          {booking.tutor?.user?.name?.charAt(0) || "T"}
+                        </span>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <Link 
+                      <Link
                         href={`/tutors/${booking.tutorId}`}
-                        className="font-semibold hover:text-primary transition-colors"
+                        className="font-semibold hover:text-primary"
                       >
-                        {booking.tutor.user.name}
+                        {booking.tutor?.user?.name || "Tutor"}
                       </Link>
-                      <p className="text-muted-foreground">{booking.subject}</p>
+                      <p className="text-muted-foreground">{booking.subject || "Session"}</p>
                       <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5" />
@@ -112,17 +155,15 @@ export function StudentBookings() {
                     </div>
                   </div>
 
-                  {/* right side */}
                   <div className="flex items-center gap-3 sm:flex-col sm:items-end">
                     <Badge className={cn("font-normal", statusColors[booking.status])}>
                       {booking.status}
                     </Badge>
-                    <p className="font-semibold">${booking.totalPrice}</p>
+                    {booking.totalPrice && <p className="font-semibold">${booking.totalPrice}</p>}
                   </div>
 
-                  {/* actions */}
                   <div className="flex items-center gap-2">
-                    {booking.status === "confirmed" && (
+                    {booking.status === "CONFIRMED" && (
                       <>
                         <Button size="sm" className="gap-1.5">
                           <Video className="w-4 h-4" />
@@ -139,7 +180,10 @@ export function StudentBookings() {
                               <MessageSquare className="w-4 h-4 mr-2" />
                               Message Tutor
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleCancel(booking.id)}
+                            >
                               <XCircle className="w-4 h-4 mr-2" />
                               Cancel Booking
                             </DropdownMenuItem>
@@ -147,22 +191,22 @@ export function StudentBookings() {
                         </DropdownMenu>
                       </>
                     )}
-                    {booking.status === "completed" && (
-                      <Button variant="outline" size="sm">
+                    {booking.status === "COMPLETED" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setReviewModal({
+                          isOpen: true,
+                          tutorId: booking.tutor?.userId || booking.tutorId,
+                          tutorName: booking.tutor?.user?.name || "Tutor",
+                        })}
+                      >
+                        <Star className="w-4 h-4 mr-1" />
                         Leave Review
                       </Button>
                     )}
                   </div>
                 </div>
-
-                {booking.notes && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">Notes: </span>
-                      {booking.notes}
-                    </p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           ))}
@@ -177,6 +221,14 @@ export function StudentBookings() {
           </CardContent>
         </Card>
       )}
+
+      <ReviewModal
+        isOpen={reviewModal.isOpen}
+        onClose={() => setReviewModal({ isOpen: false, tutorId: "", tutorName: "" })}
+        tutorId={reviewModal.tutorId}
+        tutorName={reviewModal.tutorName}
+        onSuccess={fetchBookings}
+      />
     </div>
   );
 }

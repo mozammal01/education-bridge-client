@@ -1,63 +1,90 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Clock, DollarSign, Star, Users, ArrowRight, TrendingUp } from "lucide-react";
+import { Calendar, Clock, DollarSign, Star, Users, ArrowRight, TrendingUp, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { StarRating } from "@/components/shared";
-import { MOCK_BOOKINGS, MOCK_TUTORS } from "@/lib/constants";
-
-// demo - first tutor
-const currentTutor = MOCK_TUTORS[0];
-const tutorBookings = MOCK_BOOKINGS.filter((b) => b.tutorId === currentTutor.id);
-const upcomingSessions = tutorBookings.filter((b) => b.status === "confirmed");
-const completedSessions = tutorBookings.filter((b) => b.status === "completed");
-const totalEarnings = completedSessions.reduce((acc, b) => acc + b.totalPrice, 0);
-
-const stats = [
-  {
-    label: "Upcoming",
-    value: upcomingSessions.length,
-    icon: Calendar,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    label: "Total Students",
-    value: currentTutor.totalStudents,
-    icon: Users,
-    color: "text-emerald-600",
-    bg: "bg-emerald-100",
-  },
-  {
-    label: "Rating",
-    value: currentTutor.rating,
-    icon: Star,
-    color: "text-amber-600",
-    bg: "bg-amber-100",
-  },
-  {
-    label: "Earnings",
-    value: `$${totalEarnings}`,
-    icon: DollarSign,
-    color: "text-violet-600",
-    bg: "bg-violet-100",
-  },
-];
+import { useAuth } from "@/context/auth-context";
+import { bookingsService } from "@/services";
+import { Booking } from "@/types";
 
 export function TutorOverview() {
+  const { user } = useAuth();
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await bookingsService.getBookings();
+        if (response.data) {
+          const bookingData = Array.isArray(response.data) 
+            ? response.data 
+            : (response.data as { bookings?: Booking[] }).bookings || [];
+          setBookings(bookingData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch bookings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
+
+  const upcomingSessions = bookings.filter((b) => b.status === "CONFIRMED");
+  const completedSessions = bookings.filter((b) => b.status === "COMPLETED");
+  const totalEarnings = completedSessions.reduce((acc, b) => acc + (b.totalPrice || 0), 0);
+
+  const stats = [
+    {
+      label: "Upcoming",
+      value: upcomingSessions.length,
+      icon: Calendar,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      label: "Total Sessions",
+      value: bookings.length,
+      icon: Users,
+      color: "text-emerald-600",
+      bg: "bg-emerald-100",
+    },
+    {
+      label: "Completed",
+      value: completedSessions.length,
+      icon: Star,
+      color: "text-amber-600",
+      bg: "bg-amber-100",
+    },
+    {
+      label: "Earnings",
+      value: `$${totalEarnings}`,
+      icon: DollarSign,
+      color: "text-violet-600",
+      bg: "bg-violet-100",
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* greeting */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Welcome back, {currentTutor.user.name.split(" ")[0]}! 👋</h1>
+          <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(" ")[0] || "Tutor"}! 👋</h1>
           <p className="text-muted-foreground">Here&apos;s your teaching overview</p>
-        </div>
-        <div className="hidden sm:flex items-center gap-2">
-          <StarRating rating={currentTutor.rating} />
-          <span className="text-sm text-muted-foreground">({currentTutor.totalReviews} reviews)</span>
         </div>
       </div>
 

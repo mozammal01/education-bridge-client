@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search, MoreVertical, Shield, Ban, Mail, UserCheck, UserX } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, MoreVertical, Shield, Ban, Mail, UserCheck, UserX, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,33 +15,74 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { MOCK_USERS } from "@/lib/constants";
-import type { UserRole } from "@/types";
+import { adminService } from "@/services";
+import { toast } from "sonner";
+import type { User } from "@/types";
 
-type TabType = "all" | "student" | "tutor";
+type TabType = "all" | "STUDENT" | "TUTOR";
 
 const tabs: { label: string; value: TabType }[] = [
   { label: "All Users", value: "all" },
-  { label: "Students", value: "student" },
-  { label: "Tutors", value: "tutor" },
+  { label: "Students", value: "STUDENT" },
+  { label: "Tutors", value: "TUTOR" },
 ];
 
-const roleColors: Record<UserRole, string> = {
-  student: "bg-blue-100 text-blue-700",
-  tutor: "bg-emerald-100 text-emerald-700",
-  admin: "bg-violet-100 text-violet-700",
+const roleColors: Record<string, string> = {
+  STUDENT: "bg-blue-100 text-blue-700",
+  TUTOR: "bg-emerald-100 text-emerald-700",
+  ADMIN: "bg-violet-100 text-violet-700",
 };
 
 export function UsersManagement() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredUsers = MOCK_USERS.filter((user) => {
+  const fetchUsers = async () => {
+    try {
+      const res = await adminService.getUsers();
+      const data = res.data;
+      if (data) {
+        setUsers(Array.isArray(data) ? data : data.users || []);
+      }
+    } catch {
+      toast.error("Failed to load users");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleToggleBan = async (userId: string, isActive: boolean) => {
+    try {
+      const status = isActive ? "BANNED" : "ACTIVE";
+      await adminService.updateUser(userId, { status });
+      toast.success(`User ${isActive ? "banned" : "unbanned"}`);
+      fetchUsers();
+    } catch {
+      toast.error("Failed to update user");
+    }
+  };
+
+  const filtered = users.filter((user) => {
     const matchesTab = activeTab === "all" || user.role === activeTab;
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      user.name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.email?.toLowerCase().includes(search.toLowerCase());
     return matchesTab && matchesSearch;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -50,15 +91,14 @@ export function UsersManagement() {
         <p className="text-muted-foreground">View and manage all platform users</p>
       </div>
 
-      {/* search & tabs */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search users..."
             className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
@@ -76,7 +116,6 @@ export function UsersManagement() {
         </div>
       </div>
 
-      {/* users table */}
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -91,15 +130,13 @@ export function UsersManagement() {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((user) => (
+                {filtered.map((user) => (
                   <tr key={user.id} className="border-b last:border-0 hover:bg-muted/30">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={user.avatar} />
-                          <AvatarFallback>
-                            {user.name.split(" ").map((n) => n[0]).join("")}
-                          </AvatarFallback>
+                          <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{user.name}</p>
@@ -108,16 +145,12 @@ export function UsersManagement() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <Badge className={cn("font-normal capitalize", roleColors[user.role])}>
+                      <Badge className={cn("font-normal", roleColors[user.role])}>
                         {user.role}
                       </Badge>
                     </td>
                     <td className="p-4 hidden sm:table-cell text-muted-foreground">
-                      {new Date(user.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="p-4 hidden md:table-cell">
                       {user.isActive ? (
@@ -149,7 +182,10 @@ export function UsersManagement() {
                             View Details
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleToggleBan(user.id, user.isActive)}
+                          >
                             <Ban className="w-4 h-4 mr-2" />
                             {user.isActive ? "Ban User" : "Unban User"}
                           </DropdownMenuItem>
@@ -162,7 +198,7 @@ export function UsersManagement() {
             </table>
           </div>
 
-          {filteredUsers.length === 0 && (
+          {filtered.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No users found</p>
             </div>
