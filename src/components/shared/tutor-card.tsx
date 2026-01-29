@@ -1,10 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, Users, BadgeCheck } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Clock, Users, BadgeCheck, Star, Globe, BookOpen } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StarRating } from "./star-rating";
 import type { TutorProfile } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -15,85 +16,126 @@ interface TutorCardProps {
 
 export function TutorCard({ tutor, className }: TutorCardProps) {
   return (
-    <Card className={cn("group overflow-hidden hover:shadow-lg transition-all duration-300", className)}>
-      <CardContent className="p-0">
-        <div className="relative">
-          {/* tutor image */}
-          <div className="relative h-48 bg-muted">
-            {tutor?.user?.avatar ? (
-              <Image
-                src={tutor?.user?.avatar}
-                alt={tutor?.user?.name}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                unoptimized={true}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground">
-                {tutor?.user?.name?.split(" ").map(n => n[0]).join("")}
-              </div>
-            )}
-            
-            {/* verified badge */}
-            {tutor?.isVerified && (
-              <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                <BadgeCheck className="h-3 w-3" />
-                Verified
-              </div>
-            )}
+    <Card
+      className={cn(
+        "group overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 bg-white h-full flex flex-col",
+        className
+      )}
+    >
+      {/* Image Section - Fixed Height */}
+      <div className="relative">
+        <div className="relative h-48 bg-linear-to-b from-primary/10 to-primary/5 overflow-hidden">
+          {tutor?.user?.avatar ? (
+            <Image
+              src={tutor?.user?.avatar}
+              alt={tutor?.user?.name || "Tutor"}
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              width={100}
+              height={100}
+              unoptimized
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-5xl font-bold text-primary/40">
+              {tutor?.user?.name?.split(" ").map((n) => n[0]).join("")}
+            </div>
+          )}
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+
+          {/* Verified Badge */}
+          {tutor?.isVerified && (
+            <div className="absolute top-3 left-3 bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full flex items-center gap-1 font-medium shadow-lg">
+              <BadgeCheck className="h-3.5 w-3.5" />
+              Verified
+            </div>
+          )}
+
+          {/* Rating Badge */}
+          <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm text-amber-600 text-sm px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold shadow-lg">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            {tutor?.rating?.toFixed(1)}
           </div>
 
-          {/* price tag */}
-          <div className="absolute -bottom-3 left-4 bg-background shadow-md rounded-full px-3 py-1.5 border">
-            <span className="font-bold text-primary">${tutor?.hourlyRate}</span>
-            <span className="text-muted-foreground text-sm">/hr</span>
+          {/* Name & Price on Image */}
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <h3 className="font-bold text-lg text-white mb-1 line-clamp-1 drop-shadow-lg">
+              {tutor?.user?.name}
+            </h3>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-white/90 text-sm line-clamp-1 flex-1">
+                {tutor?.headline?.split("|")[0]?.trim()}
+              </p>
+              <div className="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg shrink-0">
+                ৳{tutor?.hourlyRate}/hr
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section - Flex grow to fill remaining space */}
+      <div className="p-4 flex flex-col">
+        {/* Subjects - Fixed Height */}
+        <div className="flex flex-wrap gap-1.5 h-[52px] overflow-hidden">
+          {tutor?.subjects?.slice(0, 3).map((subject) => (
+            <Badge
+              key={subject}
+              variant="secondary"
+              className="text-xs font-medium bg-primary/5 text-primary hover:bg-primary/10 border-0 h-fit"
+            >
+              {subject}
+            </Badge>
+          ))}
+          {tutor?.subjects && tutor.subjects.length > 3 && (
+            <Badge variant="outline" className="text-xs font-medium h-fit">
+              +{tutor.subjects.length - 3} more
+            </Badge>
+          )}
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-2 py-3 my-3 border-y border-gray-100">
+          <div className="text-center">
+            <div className="flex items-center justify-center text-primary mb-1">
+              <Clock className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-semibold">{tutor?.experience}+</p>
+            <p className="text-xs text-muted-foreground">Years</p>
+          </div>
+          <div className="text-center border-x border-gray-100">
+            <div className="flex items-center justify-center text-primary mb-1">
+              <Users className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-semibold">{tutor?.totalStudents}</p>
+            <p className="text-xs text-muted-foreground">Students</p>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center text-primary mb-1">
+              <BookOpen className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-semibold">{tutor?.totalSessions}</p>
+            <p className="text-xs text-muted-foreground">Sessions</p>
           </div>
         </div>
 
-        <div className="p-4 pt-6">
-          {/* name and rating */}
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className="font-semibold text-lg line-clamp-1">{tutor?.user?.name}</h3>
-            <StarRating rating={tutor?.rating} size="sm" />
-          </div>
-
-          {/* headline */}
-          <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
-            {tutor?.headline}
-          </p>
-
-          {/* subjects */}
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {tutor?.subjects?.slice(0, 3).map((subject) => (
-              <Badge key={subject} variant="secondary" className="text-xs font-normal">
-                {subject}
-              </Badge>
-            ))}
-            {tutor?.subjects?.length > 3 && (
-              <Badge variant="outline" className="text-xs font-normal">
-                +{tutor?.subjects?.length - 3}
-              </Badge>
-            )}
-          </div>
-
-          {/* stats */}
-          <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-            <div className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {tutor?.experience}+ yrs
-            </div>
-            <div className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" />
-              {tutor?.totalStudents} students
-            </div>
-          </div>
-
-          {/* action */}
-          <Button asChild className="w-full">
-            <Link href={`/tutors/${tutor?.id}`}>View Profile</Link>
-          </Button>
+        {/* Languages */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Globe className="h-4 w-4 text-primary shrink-0" />
+          <span className="line-clamp-1">{tutor?.languages?.join(", ")}</span>
         </div>
-      </CardContent>
+
+        {/* Spacer to push button to bottom */}
+        <div className="" />
+
+        {/* Action Button - Always at bottom */}
+        <Button asChild className="w-full group/btn">
+          <Link href={`/tutors/${tutor?.id}`}>
+            View Profile
+            <span className="ml-2 group-hover/btn:translate-x-1 transition-transform">→</span>
+          </Link>
+        </Button>
+      </div>
     </Card>
   );
 }

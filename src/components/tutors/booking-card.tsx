@@ -68,6 +68,7 @@ export function BookingCard({ tutor }: BookingCardProps) {
       router.push("/dashboard/bookings");
     } catch (error) {
       toast.error((error as Error).message || "Failed to book session");
+      console.log(error)
     } finally {
       setIsBooking(false);
     }

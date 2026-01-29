@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -9,61 +10,127 @@ import {
   TrendingUp,
   ArrowRight,
   Calendar,
-  UserPlus
+  UserPlus,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MOCK_USERS, MOCK_BOOKINGS, MOCK_TUTORS } from "@/lib/constants";
+import { adminService, bookingsService, tutorsService } from "@/services";
 
-const totalUsers = MOCK_USERS.length;
-const totalStudents = MOCK_USERS.filter((u) => u.role === "STUDENT").length;
-const totalTutors = MOCK_TUTORS.length;
-const totalBookings = MOCK_BOOKINGS.length;
-const totalRevenue = MOCK_BOOKINGS.filter((b) => b.status === "COMPLETED").reduce((acc, b) => acc + b.totalPrice, 0);
-
-const stats = [
-  {
-    label: "Total Users",
-    value: totalUsers,
-    change: "+12%",
-    icon: Users,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    label: "Students",
-    value: totalStudents,
-    change: "+8%",
-    icon: GraduationCap,
-    color: "text-emerald-600",
-    bg: "bg-emerald-100",
-  },
-  {
-    label: "Tutors",
-    value: totalTutors,
-    change: "+15%",
-    icon: BookOpen,
-    color: "text-amber-600",
-    bg: "bg-amber-100",
-  },
-  {
-    label: "Revenue",
-    value: `$${totalRevenue}`,
-    change: "+23%",
-    icon: DollarSign,
-    color: "text-violet-600",
-    bg: "bg-violet-100",
-  },
-];
-
-const recentActivity = [
-  { type: "user", message: "New student registered", time: "2 min ago", icon: UserPlus },
-  { type: "booking", message: "Session completed", time: "15 min ago", icon: Calendar },
-  { type: "user", message: "New tutor registered", time: "1 hour ago", icon: UserPlus },
-  { type: "booking", message: "Session booked", time: "2 hours ago", icon: Calendar },
-  { type: "user", message: "New student registered", time: "3 hours ago", icon: UserPlus },
-];
+interface Stats {
+  totalUsers: number;
+  totalStudents: number;
+  totalTutors: number;
+  totalBookings: number;
+  totalRevenue: number;
+}
 
 export function AdminOverview() {
+  const [stats, setStats] = useState<Stats>({
+    totalUsers: 0,
+    totalStudents: 0,
+    totalTutors: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch users
+        const usersRes = await adminService.getUsers();
+        const users = Array.isArray(usersRes.data)
+          ? usersRes.data
+          : (usersRes.data as { users?: unknown[] })?.users || [];
+
+        // Fetch tutors
+        const tutorsRes = await tutorsService.getTutors();
+        const tutors = Array.isArray(tutorsRes.data)
+          ? tutorsRes.data
+          : (tutorsRes.data as { tutors?: unknown[] })?.tutors || [];
+
+        // Fetch bookings
+        const bookingsRes = await bookingsService.getBookings();
+        const bookings = Array.isArray(bookingsRes.data)
+          ? bookingsRes.data
+          : (bookingsRes.data as { bookings?: { status: string; totalPrice: number }[] })?.bookings || [];
+
+        const completedBookings = bookings.filter(
+          (b: { status: string }) => b.status === "COMPLETED"
+        );
+        const revenue = completedBookings.reduce(
+          (acc: number, b: { totalPrice: number }) => acc + (b.totalPrice || 0),
+          0
+        );
+
+        const students = users.filter(
+          (u: { role: string }) => u.role === "STUDENT"
+        );
+
+        setStats({
+          totalUsers: users.length,
+          totalStudents: students.length,
+          totalTutors: tutors.length,
+          totalBookings: bookings.length,
+          totalRevenue: revenue,
+        });
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const statsConfig = [
+    {
+      label: "Total Users",
+      value: stats.totalUsers,
+      icon: Users,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      label: "Students",
+      value: stats.totalStudents,
+      icon: GraduationCap,
+      color: "text-emerald-600",
+      bg: "bg-emerald-100",
+    },
+    {
+      label: "Tutors",
+      value: stats.totalTutors,
+      icon: BookOpen,
+      color: "text-amber-600",
+      bg: "bg-amber-100",
+    },
+    {
+      label: "Revenue",
+      value: `৳${stats.totalRevenue.toLocaleString()}`,
+      icon: DollarSign,
+      color: "text-violet-600",
+      bg: "bg-violet-100",
+    },
+  ];
+
+  const recentActivity = [
+    { type: "user", message: "New student registered", time: "2 min ago", icon: UserPlus },
+    { type: "booking", message: "Session completed", time: "15 min ago", icon: Calendar },
+    { type: "user", message: "New tutor registered", time: "1 hour ago", icon: UserPlus },
+    { type: "booking", message: "Session booked", time: "2 hours ago", icon: Calendar },
+    { type: "user", message: "New student registered", time: "3 hours ago", icon: UserPlus },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -73,7 +140,7 @@ export function AdminOverview() {
 
       {/* stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
+        {statsConfig.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
@@ -82,7 +149,7 @@ export function AdminOverview() {
                 </div>
                 <span className="text-xs font-medium text-emerald-600 flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
-                  {stat.change}
+                  Live
                 </span>
               </div>
               <p className="text-2xl font-bold">{stat.value}</p>
@@ -126,21 +193,21 @@ export function AdminOverview() {
                 <p className="font-medium">Total Bookings</p>
                 <p className="text-sm text-muted-foreground">All time</p>
               </div>
-              <p className="text-2xl font-bold">{totalBookings}</p>
+              <p className="text-2xl font-bold">{stats.totalBookings}</p>
             </div>
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
               <div>
-                <p className="font-medium">Active Sessions</p>
-                <p className="text-sm text-muted-foreground">Currently running</p>
+                <p className="font-medium">Active Tutors</p>
+                <p className="text-sm text-muted-foreground">Currently available</p>
               </div>
-              <p className="text-2xl font-bold">3</p>
+              <p className="text-2xl font-bold">{stats.totalTutors}</p>
             </div>
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
               <div>
-                <p className="font-medium">Pending Reviews</p>
-                <p className="text-sm text-muted-foreground">Awaiting moderation</p>
+                <p className="font-medium">Total Students</p>
+                <p className="text-sm text-muted-foreground">Registered</p>
               </div>
-              <p className="text-2xl font-bold">7</p>
+              <p className="text-2xl font-bold">{stats.totalStudents}</p>
             </div>
           </CardContent>
         </Card>

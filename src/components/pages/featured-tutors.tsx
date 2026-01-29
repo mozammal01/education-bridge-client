@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TutorCard, SectionHeader, FadeIn, StaggerContainer, StaggerItem } from "@/components/shared";
-import { MOCK_TUTORS } from "@/lib/constants";
 import { tutorsService } from "@/services";
 import { TutorProfile } from "@/types";
 
 export function FeaturedTutors() {
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -21,14 +21,14 @@ export function FeaturedTutors() {
           const tutorData = Array.isArray(response.data)
             ? response.data
             : (response.data as { tutors?: TutorProfile[] }).tutors || [];
-          // Take first 4 tutors as featured
-          setTutors(tutorData.slice(0, 4));
+          setTutors(tutorData.slice(0, 8));
         } else {
-          setTutors(MOCK_TUTORS.slice(0, 4));
+          setTutors([]);
         }
-      } catch (error) {
-        console.error("Failed to fetch tutors:", error);
-        setTutors(MOCK_TUTORS.slice(0, 4));
+      } catch (err) {
+        console.error("Failed to fetch tutors:", err);
+        setError("Failed to load tutors");
+        setTutors([]);
       } finally {
         setIsLoading(false);
       }
@@ -51,8 +51,17 @@ export function FeaturedTutors() {
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">{error}</p>
+          </div>
+        ) : tutors.length === 0 ? (
+          <div className="text-center py-12">
+            <UserX className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No tutors available yet</p>
+          </div>
         ) : (
-          <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
             {tutors.map((tutor) => (
               <StaggerItem key={tutor.id}>
                 <TutorCard tutor={tutor} />

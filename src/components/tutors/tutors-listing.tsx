@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { TutorCard } from "@/components/shared";
 import { TutorsFilter, type FilterState } from "./tutors-filter";
-import { MOCK_TUTORS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, List, Loader2 } from "lucide-react";
+import { LayoutGrid, List, Loader2, UserX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tutorsService } from "@/services";
 import { TutorProfile } from "@/types";
@@ -37,20 +36,17 @@ export function TutorsListing() {
         });
 
         if (response.data) {
-          // Handle both array and object with tutors property
           const tutorData = Array.isArray(response.data)
             ? response.data
             : (response.data as { tutors?: TutorProfile[] }).tutors || [];
           setTutors(tutorData);
         } else {
-          // Fallback to mock data if API returns empty
-          setTutors(MOCK_TUTORS);
+          setTutors([]);
         }
       } catch (err) {
         console.error("Failed to fetch tutors:", err);
-        setError("Failed to load tutors");
-        // Fallback to mock data on error
-        setTutors(MOCK_TUTORS);
+        setError("Failed to load tutors. Please try again.");
+        setTutors([]);
       } finally {
         setIsLoading(false);
       }
@@ -91,7 +87,7 @@ export function TutorsListing() {
           </p>
 
           <div className="flex items-center gap-2">
-            {/* mobile filter - shows on mobile only via TutorsFilter */}
+            {/* mobile filter */}
             <div className="lg:hidden">
               <TutorsFilter onFilterChange={setFilters} />
             </div>
@@ -155,16 +151,29 @@ export function TutorsListing() {
         {/* empty state */}
         {!isLoading && !error && filteredTutors.length === 0 && (
           <div className="text-center py-16 bg-muted/30 rounded-xl">
-            <p className="text-muted-foreground mb-2">No tutors found matching your criteria</p>
-            <Button variant="link" onClick={() => setFilters({
-              search: "",
-              category: "",
-              priceRange: null,
-              minRating: null,
-              language: "",
-            })}>
-              Clear filters
-            </Button>
+            <UserX className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-lg font-medium mb-2">No tutors found</p>
+            <p className="text-muted-foreground mb-4">
+              {filters.search || filters.category || filters.language
+                ? "Try adjusting your filters"
+                : "No tutors have registered yet"}
+            </p>
+            {(filters.search || filters.category || filters.language) && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  setFilters({
+                    search: "",
+                    category: "",
+                    priceRange: null,
+                    minRating: null,
+                    language: "",
+                  })
+                }
+              >
+                Clear filters
+              </Button>
+            )}
           </div>
         )}
       </div>

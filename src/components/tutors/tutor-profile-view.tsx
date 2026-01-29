@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { 
-  BadgeCheck, 
-  Clock, 
-  Users, 
-  BookOpen, 
-  Globe, 
+import { useEffect, useState } from "react";
+import {
+  BadgeCheck,
+  Clock,
+  Users,
+  BookOpen,
+  Globe,
   GraduationCap,
   Share2,
   Heart
@@ -17,15 +17,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StarRating } from "@/components/shared";
 import { BookingCard } from "./booking-card";
 import { ReviewsList } from "./reviews-list";
-import type { TutorProfile } from "@/types";
-import { MOCK_REVIEWS } from "@/lib/constants";
+import type { TutorProfile, Review } from "@/types";
+import { reviewsService } from "@/services";
+import Image from "next/image";
 
 interface TutorProfileViewProps {
   tutor: TutorProfile;
 }
 
 export function TutorProfileView({ tutor }: TutorProfileViewProps) {
-  const tutorReviews = MOCK_REVIEWS.filter((r) => r.tutorId === tutor.id);
+  const [reviews, setReviews] = useState<Review[]>(tutor?.reviews || []);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (tutor?.reviews && tutor.reviews.length > 0) {
+        setReviews(tutor.reviews);
+        return;
+      }
+
+      setIsLoadingReviews(true);
+      try {
+        const response = await reviewsService.getReviewsByTutor(tutor.id);
+        if (response.data) {
+          const reviewData = Array.isArray(response.data)
+            ? response.data
+            : (response.data as { reviews?: Review[] }).reviews || [];
+          setReviews(reviewData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
+    fetchReviews();
+  }, [tutor]);
+
+  // Get avatar
+  const avatarUrl = tutor?.user?.avatar;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -39,13 +70,14 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                 {/* avatar */}
                 <div className="relative shrink-0">
                   <div className="w-32 h-32 rounded-2xl overflow-hidden bg-muted">
-                    {tutor?.user?.avatar ? (
+                    {avatarUrl ? (
                       <Image
-                        src={tutor?.user?.avatar}
-                        alt={tutor?.user?.name}
-                        width={128}
-                        height={128}
+                        src={avatarUrl}
+                        alt={tutor?.user?.name || "Tutor"}
                         className="object-cover w-full h-full"
+                        width={100}
+                        height={100}
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-muted-foreground">
@@ -67,9 +99,9 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                       <h1 className="text-2xl font-bold mb-1">{tutor?.user?.name}</h1>
                       <p className="text-muted-foreground mb-3">{tutor?.headline}</p>
                       <div className="flex items-center gap-4 flex-wrap">
-                        <StarRating rating={tutor?.rating} />
+                        <StarRating rating={tutor?.rating || 0} />
                         <span className="text-sm text-muted-foreground">
-                          ({tutor?.totalReviews} reviews)
+                          ({tutor?.totalReviews || 0} reviews)
                         </span>
                       </div>
                     </div>
@@ -88,19 +120,19 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                   <div className="flex flex-wrap gap-6 mt-4 text-sm">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span>{tutor?.experience}+ years exp</span>
+                      <span>{tutor?.experience || 0}+ years exp</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-muted-foreground" />
-                      <span>{tutor?.totalStudents} students</span>
+                      <span>{tutor?.totalStudents || 0} students</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="w-4 h-4 text-muted-foreground" />
-                      <span>{tutor?.totalSessions} sessions</span>
+                      <span>{tutor?.totalSessions || 0} sessions</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-muted-foreground" />
-                      <span>{tutor?.languages?.join(", ")}</span>
+                      <span>{tutor?.languages?.join(", ") || "English"}</span>
                     </div>
                   </div>
                 </div>
@@ -115,55 +147,61 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {tutor?.bio}
+                {tutor?.bio || "No bio available"}
               </p>
             </CardContent>
           </Card>
 
           {/* subjects & categories */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Subjects I Teach</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {tutor?.subjects?.map((subject) => (
-                  <Badge key={subject} variant="secondary" className="text-sm">
-                    {subject}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {tutor?.subjects && tutor.subjects.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Subjects I Teach</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {tutor.subjects.map((subject) => (
+                    <Badge key={subject} variant="secondary" className="text-sm">
+                      {subject}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* education */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Education</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <GraduationCap className="w-5 h-5 text-primary" />
+          {tutor?.education && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Education</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <GraduationCap className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{tutor.education}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{tutor?.education}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* reviews */}
           <Card>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle>Student Reviews</CardTitle>
               <span className="text-sm text-muted-foreground">
-                {tutorReviews?.length} reviews
+                {reviews.length} reviews
               </span>
             </CardHeader>
             <CardContent>
-              {tutorReviews?.length > 0 ? (
-                <ReviewsList reviews={tutorReviews} />
+              {isLoadingReviews ? (
+                <p className="text-muted-foreground text-center py-8">Loading reviews...</p>
+              ) : reviews.length > 0 ? (
+                <ReviewsList reviews={reviews} />
               ) : (
                 <p className="text-muted-foreground text-center py-8">
                   No reviews yet
@@ -175,7 +213,7 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
 
         {/* sidebar - booking card */}
         <div className="lg:sticky lg:top-24 h-fit">
-          <BookingCard tutor={tutor as TutorProfile} />
+          <BookingCard tutor={tutor} />
         </div>
       </div>
     </div>

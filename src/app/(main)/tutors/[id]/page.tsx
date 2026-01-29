@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { TutorProfileView } from "@/components/tutors/tutor-profile-view";
-import { MOCK_TUTORS } from "@/lib/constants";
 import { notFound } from "next/navigation";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -23,8 +22,7 @@ async function getTutor(id: string) {
     return data.data || data;
   } catch (error) {
     console.error("Failed to fetch tutor:", error);
-    // Fallback to mock data
-    return MOCK_TUTORS.find((t) => t.id === id) || null;
+    return null;
   }
 }
 
