@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/shared";
 import { DashboardNav } from "./nav";
 import { MOCK_USERS } from "@/lib/constants";
@@ -35,6 +35,7 @@ export function DashboardHeader() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
+            <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
             <div className="p-4 border-b">
               <Logo />
             </div>

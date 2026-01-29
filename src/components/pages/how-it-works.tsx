@@ -44,14 +44,14 @@ export function HowItWorks() {
             subtitle="Getting started is easy - just follow these simple steps"
           />
         </FadeIn>
-
+    
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((item, idx) => (
             <FadeIn key={item.step} delay={idx * 0.15} direction="up">
-              <div className="relative h-full">
+              <div className="relative h-full hover:shadow-lg transition-all duration-300">
                 {/* connector line */}
                 {idx < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-10 left-[60%] w-full h-0.5 bg-border" />
+                  <div className="hidden lg:block absolute top-1/2 left-[60%] w-full h-0.5 bg-border" />
                 )}
                 
                 <HoverScale scale={1.03}>

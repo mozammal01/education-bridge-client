@@ -6,18 +6,44 @@ import { Eye, EyeOff, Mail, Lock, User, Loader2, GraduationCap, BookOpen } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
-type Role = "student" | "tutor";
+import { UserRole, type RegisterForm } from "@/types";
+import { toast } from "sonner";
 
 export function RegisterForm() {
+  const [formData, setFormData] = useState<RegisterForm>({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: UserRole.STUDENT,
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role>("student");
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.STUDENT);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1500);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/sign-up/email", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to create account");
+      }
+      const data = await res.json();
+      console.log(data);
+      toast.success("Account created successfully");
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,52 +62,52 @@ export function RegisterForm() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setSelectedRole("student")}
+              onClick={() => setSelectedRole(UserRole.STUDENT)}
               className={cn(
                 "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
-                selectedRole === "student"
+                selectedRole === UserRole.STUDENT
                   ? "border-primary bg-primary/5"
                   : "border-muted hover:border-muted-foreground/30"
               )}
             >
               <div className={cn(
                 "p-2 rounded-lg",
-                selectedRole === "student" ? "bg-primary/10" : "bg-muted"
+                selectedRole === UserRole.STUDENT ? "bg-primary/10" : "bg-muted"
               )}>
                 <GraduationCap className={cn(
                   "h-5 w-5",
-                  selectedRole === "student" ? "text-primary" : "text-muted-foreground"
+                  selectedRole === UserRole.STUDENT ? "text-primary" : "text-muted-foreground"
                 )} />
               </div>
               <span className={cn(
                 "text-sm font-medium",
-                selectedRole === "student" ? "text-primary" : "text-muted-foreground"
+                selectedRole === UserRole.STUDENT ? "text-primary" : "text-muted-foreground"
               )}>
                 Learn
               </span>
             </button>
             <button
               type="button"
-              onClick={() => setSelectedRole("tutor")}
+              onClick={() => setSelectedRole(UserRole.TUTOR)}
               className={cn(
                 "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
-                selectedRole === "tutor"
+                selectedRole === UserRole.TUTOR
                   ? "border-primary bg-primary/5"
                   : "border-muted hover:border-muted-foreground/30"
               )}
             >
               <div className={cn(
                 "p-2 rounded-lg",
-                selectedRole === "tutor" ? "bg-primary/10" : "bg-muted"
+                selectedRole === UserRole.TUTOR ? "bg-primary/10" : "bg-muted"
               )}>
                 <BookOpen className={cn(
                   "h-5 w-5",
-                  selectedRole === "tutor" ? "text-primary" : "text-muted-foreground"
+                  selectedRole === UserRole.TUTOR ? "text-primary" : "text-muted-foreground"
                 )} />
               </div>
               <span className={cn(
                 "text-sm font-medium",
-                selectedRole === "tutor" ? "text-primary" : "text-muted-foreground"
+                selectedRole === UserRole.TUTOR ? "text-primary" : "text-muted-foreground"
               )}>
                 Teach
               </span>
@@ -101,6 +127,8 @@ export function RegisterForm() {
               placeholder="John Doe"
               className="pl-10"
               required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
         </div>
@@ -117,6 +145,8 @@ export function RegisterForm() {
               placeholder="you@example.com"
               className="pl-10"
               required
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
         </div>
@@ -134,6 +164,8 @@ export function RegisterForm() {
               className="pl-10 pr-10"
               required
               minLength={8}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
             <button
               type="button"
@@ -162,18 +194,20 @@ export function RegisterForm() {
               className="pl-10 pr-10"
               required
               minLength={8}
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             />
           </div>
         </div>
 
-        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+        <Button type="submit" className="w-full" size="lg" disabled={isLoading || formData.name === "" || formData.email === "" || formData.password === "" || formData.confirmPassword === ""}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Creating account...
             </>
           ) : (
-            `Create ${selectedRole === "student" ? "Student" : "Tutor"} Account`
+            `Create ${selectedRole === UserRole.STUDENT ? "Student" : selectedRole === UserRole.TUTOR ? "Tutor" : "Admin"} Account`
           )}
         </Button>
 

@@ -12,8 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "./logo";
+import { useAuth } from "@/context/auth-context";
+import { UserRole } from "@/types";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -22,22 +24,16 @@ const navLinks = [
   { label: "How It Works", href: "/#how-it-works" },
 ];
 
-// demo user - will be replaced with actual auth later
-const demoUser = null as {
-  name: string;
-  email: string;
-  avatar?: string;
-  role: "student" | "tutor" | "admin";
-} | null;
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const user = demoUser;
+
+  const { user} = useAuth();
 
   const getDashboardLink = () => {
     if (!user) return "/login";
-    if (user.role === "admin") return "/admin";
-    if (user.role === "tutor") return "/tutor/dashboard";
+    if (user.role === UserRole.ADMIN) return "/admin";
+    if (user.role === UserRole.TUTOR) return "/tutor/dashboard";
     return "/dashboard";
   };
 
@@ -117,6 +113,7 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-8">
                   <Logo />

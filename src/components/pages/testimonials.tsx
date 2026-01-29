@@ -20,9 +20,10 @@ export function Testimonials() {
           {TESTIMONIALS.map((testimonial, index) => (
             <BlurFade key={testimonial.id} delay={index * 0.15}>
               <HoverScale scale={1.02}>
-                <div className="bg-card border rounded-2xl p-6 relative h-full">
+                <div className="bg-card border rounded-2xl p-6 relative min-h-[250px] hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
                   {/* quote icon */}
-                  <div className="absolute -top-3 right-6 p-2 bg-primary rounded-lg">
+                  <div>
+                    <div className="absolute -top-3 right-6 p-2 bg-primary rounded-lg">
                     <Quote className="w-4 h-4 text-primary-foreground" />
                   </div>
 
@@ -33,6 +34,7 @@ export function Testimonials() {
                   <p className="text-muted-foreground mb-6 leading-relaxed">
                     &quot;{testimonial.content}&quot;
                   </p>
+                  </div>
 
                   <div className="flex items-center gap-3 pt-4 border-t">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden bg-muted">
@@ -48,6 +50,7 @@ export function Testimonials() {
                       <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                     </div>
                   </div>
+
                 </div>
               </HoverScale>
             </BlurFade>
