@@ -21,7 +21,7 @@ export function FeaturedTutors() {
           const tutorData = Array.isArray(response.data)
             ? response.data
             : (response.data as { tutors?: TutorProfile[] }).tutors || [];
-          setTutors(tutorData.slice(0, 8));
+          setTutors(tutorData.slice(0, 4));
         } else {
           setTutors([]);
         }

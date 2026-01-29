@@ -155,7 +155,7 @@ export function StudentBookings() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 sm:flex-col sm:items-end">
+                  <div className="flex justify-center items-center gap-3 sm:flex-col sm:items-end">
                     <Badge className={cn("font-normal", statusColors[booking.status])}>
                       {booking.status}
                     </Badge>

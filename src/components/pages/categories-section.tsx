@@ -36,6 +36,8 @@ export function CategoriesSection() {
     fetchCategories();
   }, []);
 
+  const filteredCategories = categories.slice(0, 8);
+
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
@@ -52,7 +54,7 @@ export function CategoriesSection() {
           </div>
         ) : (
           <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
-            {categories.map((category) => (
+            {filteredCategories.map((category) => (
               <StaggerItem key={category.id}>
                 <CategoryCard category={category} />
               </StaggerItem>
