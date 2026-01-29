@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Bell, Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,14 +16,31 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/shared";
-import { DashboardNav } from "./nav";
-import { MOCK_USERS } from "@/lib/constants";
-
-// demo - would come from auth context
-const currentUser = MOCK_USERS[4]; // Jessica (student)
+import { DashboardNav, tutorNav, adminNav } from "./nav";
+import { useAuth } from "@/context/auth-context";
+import { UserRole } from "@/types";
 
 export function DashboardHeader() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const getNavItems = () => {
+    if (user?.role === UserRole.ADMIN) return adminNav;
+    if (user?.role === UserRole.TUTOR) return tutorNav;
+    return undefined; // defaults to student nav
+  };
+
+  const getProfileLink = () => {
+    if (user?.role === UserRole.ADMIN) return "/admin";
+    if (user?.role === UserRole.TUTOR) return "/tutor/profile";
+    return "/dashboard/profile";
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
@@ -39,7 +57,7 @@ export function DashboardHeader() {
             <div className="p-4 border-b">
               <Logo />
             </div>
-            <DashboardNav onNavigate={() => setSidebarOpen(false)} />
+            <DashboardNav items={getNavItems()} onNavigate={() => setSidebarOpen(false)} />
           </SheetContent>
         </Sheet>
 
@@ -69,30 +87,30 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="gap-2 pl-2 pr-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={currentUser.avatar} />
+                  <AvatarImage src={user?.avatar || ""} />
                   <AvatarFallback>
-                    {currentUser.name.split(" ").map((n) => n[0]).join("")}
+                    {user?.name?.split(" ").map((n) => n[0]).join("") || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden sm:block text-sm font-medium">
-                  {currentUser.name.split(" ")[0]}
+                  {user?.name?.split(" ")[0] || "User"}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <div className="px-2 py-1.5">
-                <p className="text-sm font-medium">{currentUser.name}</p>
-                <p className="text-xs text-muted-foreground">{currentUser.email}</p>
+                <p className="text-sm font-medium">{user?.name}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/profile">Profile Settings</Link>
+                <Link href={getProfileLink()}>Profile Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/">Back to Home</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem className="text-destructive cursor-pointer" onClick={handleLogout}>
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>

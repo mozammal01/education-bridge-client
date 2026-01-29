@@ -2,6 +2,7 @@
 
 import { User } from "@/types";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { toast } from "sonner";
 
 
 type AuthContextType = {
@@ -42,11 +43,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (userData: User) => setUser(userData);
 
   const logout = async () => {
-    await fetch("http://localhost:5000/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    setUser(null);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/sign-out", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Failed to logout");
+      }
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Still clear user locally even if API fails
+      setUser(null);
+      toast.error("Logout failed, but session cleared locally");
+    }
   };
 
 

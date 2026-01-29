@@ -1,14 +1,15 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
 import { DashboardNav, tutorNav, adminNav } from "./nav";
+import { UserRole } from "@/types";
 
 export function DashboardSidebar() {
-  const pathname = usePathname();
-  
+  const { user } = useAuth();
+
   const getNavItems = () => {
-    if (pathname.startsWith("/admin")) return adminNav;
-    if (pathname.startsWith("/tutor")) return tutorNav;
+    if (user?.role === UserRole.ADMIN) return adminNav;
+    if (user?.role === UserRole.TUTOR) return tutorNav;
     return undefined; // defaults to student nav
   };
 

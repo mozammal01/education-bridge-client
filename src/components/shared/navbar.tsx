@@ -16,6 +16,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Logo } from "./logo";
 import { useAuth } from "@/context/auth-context";
 import { UserRole } from "@/types";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -27,14 +28,23 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
+  const { user, logout } = useAuth();
 
-  const { user} = useAuth();
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const isTutor = user?.role === UserRole.TUTOR;
+  const isStudent = user?.role === UserRole.STUDENT;
 
   const getDashboardLink = () => {
-    if (!user) return "/login";
-    if (user.role === UserRole.ADMIN) return "/admin";
-    if (user.role === UserRole.TUTOR) return "/tutor/dashboard";
-    return "/dashboard";
+    if (isAdmin) return "/admin";
+    if (isTutor) return "/tutor/dashboard";
+    if (isStudent) return "/dashboard";
+    return "/login";
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
   };
 
   return (
@@ -74,7 +84,7 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
-                    <Link href={getDashboardLink()} className="cursor-pointer">
+                    <Link href={getDashboardLink() || ""} className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       Dashboard
                     </Link>
@@ -86,7 +96,7 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive cursor-pointer">
+                  <DropdownMenuItem className="text-destructive cursor-pointer" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Log out
                   </DropdownMenuItem>
@@ -148,9 +158,9 @@ export function Navbar() {
                         </div>
                       </div>
                       <Button variant="outline" className="w-full" asChild>
-                        <Link href={getDashboardLink()}>Go to Dashboard</Link>
+                        <Link href={getDashboardLink() || ""}>Go to Dashboard</Link>
                       </Button>
-                      <Button variant="ghost" className="w-full text-destructive">
+                      <Button variant="ghost" className="w-full text-destructive" onClick={handleLogout}>
                         <LogOut className="mr-2 h-4 w-4" />
                         Log out
                       </Button>

@@ -8,22 +8,34 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { UserRole, type RegisterForm } from "@/types";
 import { toast } from "sonner";
+import { VerifyEmailModal } from "./verify-email-modal";
 
 export function RegisterForm() {
-  const [formData, setFormData] = useState<RegisterForm>({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    role: UserRole.STUDENT,
   });
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.STUDENT);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Prepare the data to send
+    const submitData = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role: selectedRole,
+    };
+
+    console.log("Sending registration data:", submitData);
+
     try {
       const res = await fetch("http://localhost:5000/api/auth/sign-up/email", {
         method: "POST",
@@ -31,14 +43,17 @@ export function RegisterForm() {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       });
-      if (!res.ok) {
-        throw new Error("Failed to create account");
-      }
+
       const data = await res.json();
-      console.log(data);
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to create account");
+      }
+
       toast.success("Account created successfully");
+      setShowVerifyModal(true);
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -194,13 +209,13 @@ export function RegisterForm() {
               className="pl-10 pr-10"
               required
               minLength={8}
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
         </div>
 
-        <Button type="submit" className="w-full" size="lg" disabled={isLoading || formData.name === "" || formData.email === "" || formData.password === "" || formData.confirmPassword === ""}>
+        <Button type="submit" className="w-full" size="lg" disabled={isLoading || formData.name === "" || formData.email === "" || formData.password === "" || confirmPassword === ""}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -229,6 +244,12 @@ export function RegisterForm() {
           Sign in
         </Link>
       </p>
+
+      <VerifyEmailModal
+        isOpen={showVerifyModal}
+        onClose={() => setShowVerifyModal(false)}
+        email={formData.email}
+      />
     </div>
   );
 }

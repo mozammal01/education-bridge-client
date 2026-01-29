@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { GoogleIcon, GitHubIcon } from "@/components/icons";
 import { type LoginForm } from "@/types";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
 
 export function LoginForm() {
   const [formData, setFormData] = useState<LoginForm>({
@@ -16,6 +18,8 @@ export function LoginForm() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,12 +33,17 @@ export function LoginForm() {
         credentials: 'include',
         body: JSON.stringify(formData),
       });
-      if (!res.ok) {
-        throw new Error("Failed to login");
-      }
+
       const data = await res.json();
-      console.log(data);
+
+      if (!res.ok) {
+        // Get error message from backend response
+        throw new Error(data.message || "Failed to login");
+      }
+
+      login(data.user);
       toast.success("Logged in successfully");
+      router.push("/");
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
