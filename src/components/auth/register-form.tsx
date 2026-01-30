@@ -8,7 +8,10 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { UserRole } from "@/types";
 import { toast } from "sonner";
-import { VerifyEmailModal } from "./verify-email-modal";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -20,10 +23,17 @@ export function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
     setIsLoading(true);
 
     const submitData = {
@@ -34,7 +44,7 @@ export function RegisterForm() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/sign-up/email", {
+      const res = await fetch(`${API_URL}/auth/sign-up/email`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -45,8 +55,13 @@ export function RegisterForm() {
 
       if (!res.ok) throw new Error(data.message || "Failed to create account");
 
-      toast.success("Account created successfully");
-      setShowVerifyModal(true);
+      const userData = data.user || data.data;
+      if (userData) {
+        login(userData);
+      }
+
+      toast.success("Account created successfully!");
+      router.push("/");
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -58,9 +73,7 @@ export function RegisterForm() {
     <div className="w-full max-w-md">
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-2">Create your account</h1>
-        <p className="text-muted-foreground">
-          Join EduBridge and start your learning journey
-        </p>
+        <p className="text-muted-foreground">Join SkillBridge and start your learning journey</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -218,12 +231,6 @@ export function RegisterForm() {
         Already have an account?{" "}
         <Link href="/login" className="text-primary font-medium hover:underline">Sign in</Link>
       </p>
-
-      <VerifyEmailModal
-        isOpen={showVerifyModal}
-        onClose={() => setShowVerifyModal(false)}
-        email={formData.email}
-      />
     </div>
   );
 }

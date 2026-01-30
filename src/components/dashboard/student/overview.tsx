@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, Clock, BookOpen, TrendingUp, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, BookOpen, TrendingUp, ArrowRight, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,8 +27,8 @@ export function StudentOverview() {
             : (response.data as { bookings?: Booking[] }).bookings || [];
           setBookings(bookingData);
         }
-      } catch (error) {
-        console.error("Failed to fetch bookings:", error);
+      } catch {
+        // Failed to load
       } finally {
         setIsLoading(false);
       }
@@ -56,9 +56,9 @@ export function StudentOverview() {
       bg: "bg-emerald-100",
     },
     {
-      label: "Hours Learned",
-      value: completedBookings.length,
-      icon: Clock,
+      label: "Total Bookings",
+      value: bookings.length,
+      icon: Calendar,
       color: "text-amber-600",
       bg: "bg-amber-100",
     },
@@ -81,13 +81,11 @@ export function StudentOverview() {
 
   return (
     <div className="space-y-8">
-      {/* greeting */}
       <div>
-        <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(" ")[0] || "Student"}! 👋</h1>
+        <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(" ")[0] || "Student"}!</h1>
         <p className="text-muted-foreground">Here&apos;s what&apos;s happening with your learning journey</p>
       </div>
 
-      {/* stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <Card key={stat.label}>
@@ -106,7 +104,6 @@ export function StudentOverview() {
         ))}
       </div>
 
-      {/* upcoming sessions */}
       <Card>
         <CardHeader className="flex-row items-center justify-between pb-4">
           <CardTitle className="text-lg">Upcoming Sessions</CardTitle>
@@ -124,21 +121,25 @@ export function StudentOverview() {
                   key={booking.id}
                   className="flex items-center gap-4 p-4 rounded-xl border bg-muted/30"
                 >
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0">
-                    {booking.tutor.user.image && (
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                    {booking.tutor?.user?.image ? (
                       <Image
                         src={getImageUrl(booking.tutor.user.image)}
-                        alt={booking.tutor.user.name}
+                        alt={booking.tutor?.user?.name || "Tutor"}
                         width={48}
                         height={48}
                         className="object-cover w-full h-full"
                         unoptimized
                       />
+                    ) : (
+                      <span className="text-lg font-bold text-muted-foreground">
+                        {booking.tutor?.user?.name?.charAt(0) || "T"}
+                      </span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{booking.tutor.user.name}</p>
-                    <p className="text-sm text-muted-foreground">{booking.subject}</p>
+                    <p className="font-medium truncate">{booking.tutor?.user?.name || "Tutor"}</p>
+                    <p className="text-sm text-muted-foreground">{booking.subject || "Session"}</p>
                   </div>
                   <div className="text-right hidden sm:block">
                     <p className="text-sm font-medium">
@@ -166,7 +167,6 @@ export function StudentOverview() {
         </CardContent>
       </Card>
 
-      {/* quick actions */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="hover:shadow-md transition-shadow cursor-pointer">
           <CardContent className="p-6">

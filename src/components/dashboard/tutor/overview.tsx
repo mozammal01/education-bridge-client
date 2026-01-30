@@ -7,34 +7,54 @@ import { Calendar, Clock, DollarSign, Star, Users, ArrowRight, TrendingUp, Loade
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
-import { bookingsService } from "@/services";
+import { bookingsService, tutorsService } from "@/services";
 import { Booking } from "@/types";
 import { getImageUrl } from "@/lib/utils";
+import { CompleteProfile } from "./complete-profile";
+import { TutorProfileData } from "@/services/tutors.service";
 
 export function TutorOverview() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [tutorProfile, setTutorProfile] = useState<TutorProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileComplete, setProfileComplete] = useState(true);
 
   useEffect(() => {
-    const fetchBookings = async () => {
+    const fetchData = async () => {
       try {
-        const response = await bookingsService.getBookings();
-        if (response.data) {
-          const bookingData = Array.isArray(response.data)
-            ? response.data
-            : (response.data as { bookings?: Booking[] }).bookings || [];
+        const [bookingsRes, profileRes] = await Promise.all([
+          bookingsService.getBookings(),
+          tutorsService.getMyProfile()
+        ]);
+
+        if (bookingsRes.data) {
+          const bookingData = Array.isArray(bookingsRes.data)
+            ? bookingsRes.data
+            : (bookingsRes.data as { bookings?: Booking[] }).bookings || [];
           setBookings(bookingData);
         }
-      } catch (error) {
-        console.error("Failed to fetch bookings:", error);
+
+        if (profileRes.data) {
+          setTutorProfile(profileRes.data);
+          const isComplete = profileRes.data.hourlyRate > 0 && profileRes.data.bio && profileRes.data.bio.length > 0;
+          setProfileComplete(!!isComplete);
+        } else {
+          setProfileComplete(false);
+        }
+      } catch {
+        setProfileComplete(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchBookings();
+    fetchData();
   }, []);
+
+  const handleProfileComplete = () => {
+    setProfileComplete(true);
+  };
 
   const upcomingSessions = bookings.filter((b) => b.status === "CONFIRMED");
   const completedSessions = bookings.filter((b) => b.status === "COMPLETED");
@@ -79,17 +99,19 @@ export function TutorOverview() {
     );
   }
 
+  if (!profileComplete) {
+    return <CompleteProfile profile={tutorProfile} onComplete={handleProfileComplete} />;
+  }
+
   return (
     <div className="space-y-8">
-      {/* greeting */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(" ")[0] || "Tutor"}! 👋</h1>
+          <h1 className="text-2xl font-bold">Welcome back, {user?.name?.split(" ")[0] || "Tutor"}!</h1>
           <p className="text-muted-foreground">Here&apos;s your teaching overview</p>
         </div>
       </div>
 
-      {/* stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <Card key={stat.label}>
@@ -109,7 +131,6 @@ export function TutorOverview() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* upcoming sessions */}
         <Card>
           <CardHeader className="flex-row items-center justify-between pb-4">
             <CardTitle className="text-lg">Upcoming Sessions</CardTitle>
@@ -127,21 +148,25 @@ export function TutorOverview() {
                     key={session.id}
                     className="flex items-center gap-4 p-3 rounded-xl border bg-muted/30"
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-muted shrink-0">
-                      {session.student.image && (
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                      {session.student?.image ? (
                         <Image
                           src={getImageUrl(session.student.image)}
-                          alt={session.student.name}
+                          alt={session.student?.name || "Student"}
                           width={40}
                           height={40}
                           className="object-cover w-full h-full"
                           unoptimized
                         />
+                      ) : (
+                        <span className="text-sm font-bold text-muted-foreground">
+                          {session.student?.name?.charAt(0) || "S"}
+                        </span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{session.student.name}</p>
-                      <p className="text-xs text-muted-foreground">{session.subject}</p>
+                      <p className="font-medium text-sm truncate">{session.student?.name || "Student"}</p>
+                      <p className="text-xs text-muted-foreground">{session.subject || "Session"}</p>
                     </div>
                     <div className="text-right text-xs">
                       <p className="font-medium">
@@ -161,7 +186,6 @@ export function TutorOverview() {
           </CardContent>
         </Card>
 
-        {/* quick stats / earnings chart placeholder */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">This Month</CardTitle>
@@ -200,18 +224,17 @@ export function TutorOverview() {
                     <Clock className="w-5 h-5 text-amber-600" />
                   </div>
                   <div>
-                    <p className="font-medium">Hours Taught</p>
+                    <p className="font-medium">Total Bookings</p>
                     <p className="text-sm text-muted-foreground">This month</p>
                   </div>
                 </div>
-                <p className="text-2xl font-bold">{completedSessions.length}</p>
+                <p className="text-2xl font-bold">{bookings.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* quick actions */}
       <div className="grid sm:grid-cols-3 gap-4">
         <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-5">

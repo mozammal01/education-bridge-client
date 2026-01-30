@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Clock, Plus, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DAYS_OF_WEEK, TIME_SLOTS } from "@/lib/constants";
+import { toast } from "sonner";
 
 interface TimeSlot {
   id: string;
@@ -22,18 +23,57 @@ interface DayAvailability {
 type WeeklyAvailability = Record<number, DayAvailability>;
 
 const defaultAvailability: WeeklyAvailability = {
-  0: { enabled: false, slots: [] }, // Sunday
-  1: { enabled: true, slots: [{ id: "1", start: "09:00", end: "17:00" }] },
-  2: { enabled: true, slots: [{ id: "2", start: "09:00", end: "17:00" }] },
-  3: { enabled: true, slots: [{ id: "3", start: "09:00", end: "17:00" }] },
-  4: { enabled: true, slots: [{ id: "4", start: "09:00", end: "17:00" }] },
-  5: { enabled: true, slots: [{ id: "5", start: "09:00", end: "17:00" }] },
-  6: { enabled: false, slots: [] }, // Saturday
+  0: { enabled: false, slots: [] },
+  1: { enabled: false, slots: [] },
+  2: { enabled: false, slots: [] },
+  3: { enabled: false, slots: [] },
+  4: { enabled: false, slots: [] },
+  5: { enabled: false, slots: [] },
+  6: { enabled: false, slots: [] },
 };
 
 export function TutorAvailability() {
   const [availability, setAvailability] = useState<WeeklyAvailability>(defaultAvailability);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/tutor/availability`,
+          { credentials: "include" }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data && Array.isArray(data.data)) {
+            const newAvailability: WeeklyAvailability = { ...defaultAvailability };
+
+            data.data.forEach((slot: { dayOfWeek: number; startTime: string; endTime: string }) => {
+              const dayIndex = slot.dayOfWeek;
+              if (!newAvailability[dayIndex].enabled) {
+                newAvailability[dayIndex] = { enabled: true, slots: [] };
+              }
+              newAvailability[dayIndex].slots.push({
+                id: Date.now().toString() + Math.random(),
+                start: slot.startTime,
+                end: slot.endTime,
+              });
+            });
+
+            setAvailability(newAvailability);
+          }
+        }
+      } catch {
+        // Use default if fetch fails
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, []);
 
   const toggleDay = (dayIndex: number) => {
     setAvailability((prev) => ({
@@ -81,9 +121,8 @@ export function TutorAvailability() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Convert availability to API format
       const availabilityData = Object.entries(availability)
-        .filter(([_, day]) => day.enabled && day.slots.length > 0)
+        .filter(([, day]) => day.enabled && day.slots.length > 0)
         .flatMap(([dayIndex, day]) =>
           day.slots.map((slot) => ({
             dayOfWeek: parseInt(dayIndex),
@@ -103,19 +142,23 @@ export function TutorAvailability() {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to save availability");
-      }
+      if (!response.ok) throw new Error("Failed to save");
 
-      // Show success message (you could add toast here)
-      alert("Availability saved successfully!");
-    } catch (error) {
-      console.error("Failed to save availability:", error);
-      alert("Failed to save availability. Please try again.");
+      toast.success("Availability saved successfully!");
+    } catch {
+      toast.error("Failed to save availability");
     } finally {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -144,41 +187,41 @@ export function TutorAvailability() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {DAYS_OF_WEEK.map((day, index) => (
+          {DAYS_OF_WEEK.map((day) => (
             <div
-              key={day}
+              key={day.value}
               className={cn(
                 "p-4 rounded-xl border transition-colors",
-                availability[index].enabled ? "bg-muted/30" : "bg-muted/10 opacity-60"
+                availability[day.value].enabled ? "bg-muted/30" : "bg-muted/10 opacity-60"
               )}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() => toggleDay(index)}
+                    onClick={() => toggleDay(day.value)}
                     className={cn(
                       "w-12 h-6 rounded-full transition-colors relative",
-                      availability[index].enabled ? "bg-primary" : "bg-muted-foreground/30"
+                      availability[day.value].enabled ? "bg-primary" : "bg-muted-foreground/30"
                     )}
                   >
                     <span
                       className={cn(
                         "absolute top-1 w-4 h-4 rounded-full bg-white transition-transform",
-                        availability[index].enabled ? "left-7" : "left-1"
+                        availability[day.value].enabled ? "left-7" : "left-1"
                       )}
                     />
                   </button>
-                  <span className="font-medium">{day}</span>
-                  {!availability[index].enabled && (
+                  <span className="font-medium">{day.label}</span>
+                  {!availability[day.value].enabled && (
                     <Badge variant="secondary">Unavailable</Badge>
                   )}
                 </div>
 
-                {availability[index].enabled && (
+                {availability[day.value].enabled && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => addSlot(index)}
+                    onClick={() => addSlot(day.value)}
                     className="gap-1"
                   >
                     <Plus className="w-4 h-4" />
@@ -187,38 +230,34 @@ export function TutorAvailability() {
                 )}
               </div>
 
-              {availability[index].enabled && availability[index].slots.length > 0 && (
+              {availability[day.value].enabled && availability[day.value].slots.length > 0 && (
                 <div className="space-y-2 ml-15">
-                  {availability[index].slots.map((slot) => (
+                  {availability[day.value].slots.map((slot) => (
                     <div key={slot.id} className="flex items-center gap-3">
                       <select
                         value={slot.start}
-                        onChange={(e) => updateSlot(index, slot.id, "start", e.target.value)}
+                        onChange={(e) => updateSlot(day.value, slot.id, "start", e.target.value)}
                         className="px-3 py-2 rounded-lg border bg-background text-sm"
                       >
                         {TIME_SLOTS.map((time) => (
-                          <option key={time} value={time}>
-                            {time}
-                          </option>
+                          <option key={time} value={time}>{time}</option>
                         ))}
                       </select>
                       <span className="text-muted-foreground">to</span>
                       <select
                         value={slot.end}
-                        onChange={(e) => updateSlot(index, slot.id, "end", e.target.value)}
+                        onChange={(e) => updateSlot(day.value, slot.id, "end", e.target.value)}
                         className="px-3 py-2 rounded-lg border bg-background text-sm"
                       >
                         {TIME_SLOTS.map((time) => (
-                          <option key={time} value={time}>
-                            {time}
-                          </option>
+                          <option key={time} value={time}>{time}</option>
                         ))}
                       </select>
-                      {availability[index].slots.length > 1 && (
+                      {availability[day.value].slots.length > 1 && (
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={() => removeSlot(index, slot.id)}
+                          onClick={() => removeSlot(day.value, slot.id)}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="w-4 h-4" />

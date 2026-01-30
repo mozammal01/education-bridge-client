@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 interface TutorsFilterProps {
   onFilterChange: (filters: FilterState) => void;
+  initialCategory?: string;
 }
 
 export interface FilterState {
@@ -27,14 +28,14 @@ export interface FilterState {
   language: string;
 }
 
-export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
-  const [filters, setFilters] = useState<FilterState>({
+export function TutorsFilter({ onFilterChange, initialCategory = "" }: TutorsFilterProps) {
+  const [filters, setFilters] = useState<FilterState>(() => ({
     search: "",
-    category: "",
+    category: initialCategory,
     priceRange: null,
     minRating: null,
     language: "",
-  });
+  }));
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
@@ -64,11 +65,10 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
 
   const filterContent = (
     <div className="space-y-6">
-      {/* Categories */}
       <div>
         <h4 className="font-medium mb-3">Category</h4>
         <div className="flex flex-wrap gap-2">
-          {CATEGORIES.slice(0, 6).map((cat) => (
+          {CATEGORIES.map((cat) => (
             <Badge
               key={cat.id}
               variant={filters.category === cat.slug ? "default" : "outline"}
@@ -81,7 +81,6 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
         </div>
       </div>
 
-      {/* Price Range */}
       <div>
         <h4 className="font-medium mb-3">Price Range</h4>
         <div className="space-y-2">
@@ -107,7 +106,6 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
         </div>
       </div>
 
-      {/* Rating */}
       <div>
         <h4 className="font-medium mb-3">Minimum Rating</h4>
         <div className="space-y-2">
@@ -130,11 +128,10 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
         </div>
       </div>
 
-      {/* Language */}
       <div>
         <h4 className="font-medium mb-3">Language</h4>
         <div className="flex flex-wrap gap-2">
-          {LANGUAGES.slice(0, 6).map((lang) => (
+          {LANGUAGES.map((lang) => (
             <Badge
               key={lang}
               variant={filters.language === lang ? "default" : "outline"}
@@ -158,7 +155,6 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
 
   return (
     <div className="space-y-4">
-      {/* search + mobile filter */}
       <div className="flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -170,7 +166,6 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
           />
         </div>
 
-        {/* mobile filter btn */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" className="lg:hidden relative">
@@ -194,7 +189,6 @@ export function TutorsFilter({ onFilterChange }: TutorsFilterProps) {
         </Sheet>
       </div>
 
-      {/* desktop sidebar filter */}
       <div className="hidden lg:block">
         {filterContent}
       </div>

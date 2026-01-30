@@ -9,7 +9,8 @@ import {
   Globe,
   GraduationCap,
   Share2,
-  Heart
+  Heart,
+  Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +18,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StarRating } from "@/components/shared";
 import { BookingCard } from "./booking-card";
 import { ReviewsList } from "./reviews-list";
+import { ReviewModal } from "@/components/reviews/review-modal";
 import type { TutorProfile, Review } from "@/types";
 import { reviewsService } from "@/services";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
+import { UserRole } from "@/types";
 
 interface TutorProfileViewProps {
   tutor: TutorProfile;
 }
 
 export function TutorProfileView({ tutor }: TutorProfileViewProps) {
+  const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>(tutor?.reviews || []);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+
+  const isStudent = user?.role === UserRole.STUDENT || user?.role === "STUDENT";
+  const isOwnProfile = user?.id === tutor?.userId || user?.id === tutor?.user?.id;
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -46,8 +55,8 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
             : (response.data as { reviews?: Review[] }).reviews || [];
           setReviews(reviewData);
         }
-      } catch (error) {
-        console.error("Failed to fetch reviews:", error);
+      } catch {
+        // Failed to fetch reviews
       } finally {
         setIsLoadingReviews(false);
       }
@@ -56,19 +65,29 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
     fetchReviews();
   }, [tutor]);
 
-  // Get image URL
+  const refreshReviews = async () => {
+    try {
+      const response = await reviewsService.getReviewsByTutor(tutor.id);
+      if (response.data) {
+        const reviewData = Array.isArray(response.data)
+          ? response.data
+          : (response.data as { reviews?: Review[] }).reviews || [];
+        setReviews(reviewData);
+      }
+    } catch {
+      // Failed to refresh
+    }
+  };
+
   const imageUrl = getImageUrl(tutor?.user?.image);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid lg:grid-cols-[1fr_380px] gap-8">
-        {/* main content */}
         <div className="space-y-8">
-          {/* header card */}
           <Card>
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row gap-6">
-                {/* avatar */}
                 <div className="relative shrink-0">
                   <div className="w-32 h-32 rounded-2xl overflow-hidden bg-muted">
                     {imageUrl ? (
@@ -93,7 +112,6 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                   )}
                 </div>
 
-                {/* info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -102,7 +120,7 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                       <div className="flex items-center gap-4 flex-wrap">
                         <StarRating rating={tutor?.rating || 0} />
                         <span className="text-sm text-muted-foreground">
-                          ({tutor?.totalReviews || 0} reviews)
+                          ({tutor?.totalReviews || reviews.length || 0} reviews)
                         </span>
                       </div>
                     </div>
@@ -117,7 +135,6 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                     </div>
                   </div>
 
-                  {/* quick stats */}
                   <div className="flex flex-wrap gap-6 mt-4 text-sm">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-muted-foreground" />
@@ -141,7 +158,6 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
             </CardContent>
           </Card>
 
-          {/* about */}
           <Card>
             <CardHeader>
               <CardTitle>About</CardTitle>
@@ -153,7 +169,6 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
             </CardContent>
           </Card>
 
-          {/* subjects & categories */}
           {tutor?.subjects && tutor.subjects.length > 0 && (
             <Card>
               <CardHeader>
@@ -171,7 +186,6 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
             </Card>
           )}
 
-          {/* education */}
           {tutor?.education && (
             <Card>
               <CardHeader>
@@ -190,13 +204,20 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
             </Card>
           )}
 
-          {/* reviews */}
           <Card>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle>Student Reviews</CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {reviews.length} reviews
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">
+                  {reviews.length} reviews
+                </span>
+                {isStudent && !isOwnProfile && (
+                  <Button size="sm" onClick={() => setShowReviewModal(true)}>
+                    <Star className="w-4 h-4 mr-2" />
+                    Leave a Review
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {isLoadingReviews ? (
@@ -204,19 +225,31 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
               ) : reviews.length > 0 ? (
                 <ReviewsList reviews={reviews} />
               ) : (
-                <p className="text-muted-foreground text-center py-8">
-                  No reviews yet
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground mb-4">No reviews yet</p>
+                  {isStudent && !isOwnProfile && (
+                    <Button variant="outline" onClick={() => setShowReviewModal(true)}>
+                      Be the first to review
+                    </Button>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* sidebar - booking card */}
         <div className="lg:sticky lg:top-24 h-fit">
           <BookingCard tutor={tutor} />
         </div>
       </div>
+
+      <ReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        tutorId={tutor.id}
+        tutorName={tutor?.user?.name || "Tutor"}
+        onSuccess={refreshReviews}
+      />
     </div>
   );
 }

@@ -11,10 +11,13 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export function LoginForm() {
   const [formData, setFormData] = useState<LoginForm>({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -22,7 +25,7 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth/sign-in/email", {
+      const res = await fetch(`${API_URL}/auth/sign-in/email`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -44,6 +47,12 @@ export function LoginForm() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSocialLogin = (provider: "google" | "github") => {
+    setSocialLoading(provider);
+    const baseUrl = API_URL.replace("/api", "");
+    window.location.href = `${baseUrl}/api/auth/sign-in/social?provider=${provider}`;
   };
 
   return (
@@ -117,12 +126,32 @@ export function LoginForm() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" type="button" className="w-full">
-            <GoogleIcon className="mr-2" />
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            disabled={!!socialLoading}
+            onClick={() => handleSocialLogin("google")}
+          >
+            {socialLoading === "google" ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <GoogleIcon className="mr-2" />
+            )}
             Google
           </Button>
-          <Button variant="outline" type="button" className="w-full">
-            <GitHubIcon className="mr-2" />
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            disabled={!!socialLoading}
+            onClick={() => handleSocialLogin("github")}
+          >
+            {socialLoading === "github" ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <GitHubIcon className="mr-2" />
+            )}
             GitHub
           </Button>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Camera, Mail, Phone, User, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,8 +12,10 @@ import { toast } from "sonner";
 import { getImageUrl } from "@/lib/utils";
 
 export function StudentProfile() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,15 +32,49 @@ export function StudentProfile() {
     }
   }, [user]);
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append("image", file);
+
+      await api.upload("/user/image", uploadData);
+
+      toast.success("Photo uploaded successfully");
+      refreshUser();
+    } catch {
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await api.put("/student/profile", {
+      await api.patch("/user/profile", {
         name: formData.name,
         phone: formData.phone,
       });
       toast.success("Profile updated successfully");
+      refreshUser();
     } catch {
       toast.error("Failed to update profile");
     } finally {
@@ -53,7 +89,6 @@ export function StudentProfile() {
         <p className="text-muted-foreground">Manage your account information</p>
       </div>
 
-      {/* avatar section */}
       <Card>
         <CardHeader>
           <CardTitle>Profile Picture</CardTitle>
@@ -77,21 +112,34 @@ export function StudentProfile() {
                   </div>
                 )}
               </div>
-              <button className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors">
-                <Camera className="w-4 h-4" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {uploadingPhoto ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4" />
+                )}
               </button>
             </div>
             <div>
               <p className="font-medium mb-1">Upload a new photo</p>
-              <p className="text-sm text-muted-foreground">
-                JPG, PNG or GIF. Max size 2MB.
-              </p>
+              <p className="text-sm text-muted-foreground">JPG, PNG or GIF. Max size 5MB.</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* personal info */}
       <Card>
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
@@ -99,9 +147,7 @@ export function StudentProfile() {
         <CardContent>
           <form onSubmit={handleSave} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Full Name
-              </label>
+              <label htmlFor="name" className="text-sm font-medium">Full Name</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -114,25 +160,22 @@ export function StudentProfile() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
+              <label htmlFor="email" className="text-sm font-medium">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="pl-10"
+                  disabled
+                  className="pl-10 bg-muted"
                 />
               </div>
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-medium">
-                Phone Number
-              </label>
+              <label htmlFor="phone" className="text-sm font-medium">Phone Number</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -141,7 +184,7 @@ export function StudentProfile() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="pl-10"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+880 1XXX XXXXXX"
                 />
               </div>
             </div>
@@ -159,56 +202,6 @@ export function StudentProfile() {
               </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
-
-      {/* password section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Change Password</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="current-password" className="text-sm font-medium">
-                Current Password
-              </label>
-              <Input id="current-password" type="password" />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="new-password" className="text-sm font-medium">
-                New Password
-              </label>
-              <Input id="new-password" type="password" />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="confirm-password" className="text-sm font-medium">
-                Confirm New Password
-              </label>
-              <Input id="confirm-password" type="password" />
-            </div>
-            <div className="flex justify-end pt-4">
-              <Button variant="outline">Update Password</Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* danger zone */}
-      <Card className="border-destructive/50">
-        <CardHeader>
-          <CardTitle className="text-destructive">Danger Zone</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Delete Account</p>
-              <p className="text-sm text-muted-foreground">
-                Permanently delete your account and all data
-              </p>
-            </div>
-            <Button variant="destructive">Delete Account</Button>
-          </div>
         </CardContent>
       </Card>
     </div>

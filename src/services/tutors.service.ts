@@ -9,6 +9,22 @@ interface Filters {
   search?: string;
 }
 
+export interface TutorProfileData {
+  id: string;
+  userId: string;
+  bio: string;
+  headline?: string;
+  hourlyRate: number;
+  experience: number;
+  education?: string;
+  subjects?: string[];
+  languages?: string[];
+  categoryId?: string;
+  category?: { id: string; name: string; slug: string };
+  user?: { id: string; name: string; email: string; image?: string };
+  availability?: { dayOfWeek: number; startTime: string; endTime: string }[];
+}
+
 export const tutorsService = {
   getTutors: (filters?: Filters) => {
     const params = new URLSearchParams();
@@ -23,4 +39,8 @@ export const tutorsService = {
   },
 
   getTutorById: (id: string) => api.get<TutorProfile>(`/tutors/${id}`),
+
+  getMyProfile: () => api.get<TutorProfileData>("/tutor/profile"),
+
+  updateProfile: (data: Partial<TutorProfileData>) => api.put<TutorProfileData>("/tutor/profile", data),
 };

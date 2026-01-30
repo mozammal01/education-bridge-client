@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { TutorCard } from "@/components/shared";
 import { TutorsFilter, type FilterState } from "./tutors-filter";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,12 @@ import { tutorsService } from "@/services";
 import { TutorProfile } from "@/types";
 
 export function TutorsListing() {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("category") || "";
+
   const [filters, setFilters] = useState<FilterState>({
     search: "",
-    category: "",
+    category: initialCategory,
     priceRange: null,
     minRating: null,
     language: "",
@@ -21,6 +25,13 @@ export function TutorsListing() {
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const category = searchParams.get("category");
+    if (category && category !== filters.category) {
+      setFilters(prev => ({ ...prev, category }));
+    }
+  }, [searchParams, filters.category]);
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -43,8 +54,7 @@ export function TutorsListing() {
         } else {
           setTutors([]);
         }
-      } catch (err) {
-        console.error("Failed to fetch tutors:", err);
+      } catch {
         setError("Failed to load tutors. Please try again.");
         setTutors([]);
       } finally {
@@ -55,7 +65,6 @@ export function TutorsListing() {
     fetchTutors();
   }, [filters]);
 
-  // Client-side filtering for language (if API doesn't support it)
   const filteredTutors = tutors.filter((tutor) => {
     if (filters.language && tutor.languages && !tutor.languages.includes(filters.language)) {
       return false;
@@ -63,18 +72,19 @@ export function TutorsListing() {
     return true;
   });
 
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
+
   return (
     <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-      {/* sidebar */}
       <aside className="hidden lg:block">
         <div className="sticky top-24 bg-card border rounded-xl p-5">
-          <TutorsFilter onFilterChange={setFilters} />
+          <TutorsFilter onFilterChange={handleFilterChange} initialCategory={filters.category} />
         </div>
       </aside>
 
-      {/* main content */}
       <div>
-        {/* top bar */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-muted-foreground">
             {isLoading ? (
@@ -87,12 +97,10 @@ export function TutorsListing() {
           </p>
 
           <div className="flex items-center gap-2">
-            {/* mobile filter */}
             <div className="lg:hidden">
-              <TutorsFilter onFilterChange={setFilters} />
+              <TutorsFilter onFilterChange={handleFilterChange} initialCategory={filters.category} />
             </div>
 
-            {/* view toggle */}
             <div className="hidden sm:flex border rounded-lg p-1">
               <Button
                 variant={viewMode === "grid" ? "secondary" : "ghost"}
@@ -112,14 +120,12 @@ export function TutorsListing() {
           </div>
         </div>
 
-        {/* loading state */}
         {isLoading && (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         )}
 
-        {/* error state */}
         {error && !isLoading && (
           <div className="text-center py-16 bg-red-50 rounded-xl">
             <p className="text-red-600 mb-2">{error}</p>
@@ -129,7 +135,6 @@ export function TutorsListing() {
           </div>
         )}
 
-        {/* tutors grid/list */}
         {!isLoading && !error && filteredTutors.length > 0 && (
           <div
             className={cn(
@@ -148,7 +153,6 @@ export function TutorsListing() {
           </div>
         )}
 
-        {/* empty state */}
         {!isLoading && !error && filteredTutors.length === 0 && (
           <div className="text-center py-16 bg-muted/30 rounded-xl">
             <UserX className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

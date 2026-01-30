@@ -1,21 +1,23 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Camera, DollarSign, Loader2, Plus, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { LANGUAGES } from "@/lib/constants";
+import { LANGUAGES, CATEGORIES } from "@/lib/constants";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, cn } from "@/lib/utils";
+import { tutorsService } from "@/services";
 
 export function TutorProfileSettings() {
   const { user, refreshUser } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
@@ -24,19 +26,52 @@ export function TutorProfileSettings() {
     hourlyRate: 50,
     experience: 1,
     education: "",
+    categoryId: "",
     subjects: [] as string[],
     languages: [] as string[],
   });
   const [newSubject, setNewSubject] = useState("");
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await tutorsService.getMyProfile();
+        if (response.data) {
+          const profile = response.data;
+          setFormData({
+            headline: profile.headline || "",
+            bio: profile.bio || "",
+            hourlyRate: profile.hourlyRate || 50,
+            experience: profile.experience || 1,
+            education: profile.education || "",
+            categoryId: profile.categoryId || "",
+            subjects: profile.subjects || [],
+            languages: profile.languages || [],
+          });
+        }
+      } catch {
+        // Failed to load profile
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await api.put("/tutor/profile", {
+      await tutorsService.updateProfile({
         bio: formData.bio,
+        headline: formData.headline,
         hourlyRate: formData.hourlyRate,
         experience: formData.experience,
+        education: formData.education,
+        categoryId: formData.categoryId || undefined,
+        subjects: formData.subjects,
+        languages: formData.languages,
       });
       toast.success("Profile updated successfully");
     } catch {
@@ -97,6 +132,14 @@ export function TutorProfileSettings() {
       }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -232,6 +275,31 @@ export function TutorProfileSettings() {
               </Button>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Category</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setFormData({ ...formData, categoryId: cat.id })}
+                className={cn(
+                  "p-3 rounded-lg border text-center text-sm transition-colors",
+                  formData.categoryId === cat.id
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "hover:border-muted-foreground/30"
+                )}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

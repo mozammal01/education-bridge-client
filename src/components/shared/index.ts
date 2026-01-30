@@ -5,6 +5,7 @@ export { StarRating } from "./star-rating";
 export { TutorCard } from "./tutor-card";
 export { CategoryCard } from "./category-card";
 export { SectionHeader } from "./section-header";
+export { UnderConstruction } from "./under-construction";
 
 // Animations
 export {

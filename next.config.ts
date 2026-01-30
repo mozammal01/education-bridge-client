@@ -19,14 +19,21 @@ const nextConfig: NextConfig = {
         port: "5000",
         pathname: "/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "**",
+        pathname: "/uploads/**",
+      },
     ],
   },
-  // Skip image optimization for localhost in development to avoid private IP issues
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const baseUrl = apiUrl.replace(/\/api$/, "");
+
     return [
       {
         source: "/api/uploads/:path*",
-        destination: "http://localhost:5000/uploads/:path*",
+        destination: `${baseUrl}/uploads/:path*`,
       },
     ];
   },
