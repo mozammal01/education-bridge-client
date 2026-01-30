@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Quote } from "lucide-react";
 import { SectionHeader, StarRating, FadeIn, BlurFade, HoverScale } from "@/components/shared";
 import { TESTIMONIALS } from "@/lib/constants";
+import { getImageUrl } from "@/lib/utils";
 
 export function Testimonials() {
   return (
@@ -24,25 +25,26 @@ export function Testimonials() {
                   {/* quote icon */}
                   <div>
                     <div className="absolute -top-3 right-6 p-2 bg-primary rounded-lg">
-                    <Quote className="w-4 h-4 text-primary-foreground" />
-                  </div>
+                      <Quote className="w-4 h-4 text-primary-foreground" />
+                    </div>
 
-                  <div className="mb-4">
-                    <StarRating rating={testimonial.rating} size="sm" showValue={false} />
-                  </div>
+                    <div className="mb-4">
+                      <StarRating rating={testimonial.rating} size="sm" showValue={false} />
+                    </div>
 
-                  <p className="text-muted-foreground mb-6 leading-relaxed">
-                    &quot;{testimonial.content}&quot;
-                  </p>
+                    <p className="text-muted-foreground mb-6 leading-relaxed">
+                      &quot;{testimonial.content}&quot;
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-3 pt-4 border-t">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden bg-muted">
                       <Image
-                        src={testimonial.avatar}
+                        src={getImageUrl(testimonial.image)}
                         alt={testimonial.name}
                         fill
                         className="object-cover"
+                          unoptimized
                       />
                     </div>
                     <div>

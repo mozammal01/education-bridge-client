@@ -19,6 +19,7 @@ import { Logo } from "@/components/shared";
 import { DashboardNav, tutorNav, adminNav } from "./nav";
 import { useAuth } from "@/context/auth-context";
 import { UserRole } from "@/types";
+import { getImageUrl } from "@/lib/utils";
 
 export function DashboardHeader() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -87,7 +88,7 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="gap-2 pl-2 pr-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatar || ""} />
+                  <AvatarImage src={getImageUrl(user?.image)} />
                   <AvatarFallback>
                     {user?.name?.split(" ").map((n) => n[0]).join("") || "U"}
                   </AvatarFallback>

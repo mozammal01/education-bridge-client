@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { bookingsService } from "@/services";
 import { toast } from "sonner";
 import { ReviewModal } from "@/components/reviews";
@@ -116,13 +116,14 @@ export function StudentBookings() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex items-center gap-4 flex-1">
                     <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0 flex items-center justify-center">
-                      {booking.tutor?.user?.avatar ? (
+                      {booking.tutor?.user?.image ? (
                         <Image
-                          src={booking.tutor.user.avatar}
+                          src={getImageUrl(booking.tutor.user.image)}
                           alt=""
                           width={56}
                           height={56}
-                          className="object-cover"
+                          className="object-cover w-full h-full"
+                          unoptimized
                         />
                       ) : (
                         <span className="text-lg font-bold text-muted-foreground">

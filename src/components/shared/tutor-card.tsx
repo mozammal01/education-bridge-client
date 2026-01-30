@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { TutorProfile } from "@/types";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 interface TutorCardProps {
@@ -32,9 +32,9 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
         {/* Image Section - Fixed Height */}
         <div className="relative">
           <div className="relative h-48 bg-linear-to-b from-primary/10 to-primary/5 overflow-hidden">
-            {tutor?.user?.avatar ? (
+            {tutor?.user?.image ? (
               <Image
-                src={tutor?.user?.avatar}
+                src={getImageUrl(tutor?.user?.image)}
                 alt={tutor?.user?.name || "Tutor"}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 width={100}

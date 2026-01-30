@@ -1,22 +1,22 @@
-// User Types
 export enum UserRole {
   STUDENT = "STUDENT",
   TUTOR = "TUTOR",
   ADMIN = "ADMIN",
 }
 
+export type UserStatus = "ACTIVE" | "BANNED";
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole | string;
-  avatar?: string;
+  image?: string;
   phone?: string;
   createdAt: string;
-  isActive: boolean;
+  status?: UserStatus;
 }
 
-// Tutor Types
 export interface TutorProfile {
   id: string;
   userId: string;
@@ -24,7 +24,7 @@ export interface TutorProfile {
   bio: string;
   headline: string;
   hourlyRate: number;
-  experience: number; // years
+  experience: number;
   education: string;
   subjects: string[];
   categories: Category[];
@@ -39,7 +39,6 @@ export interface TutorProfile {
   createdAt: string;
 }
 
-// Category Types
 export interface Category {
   id: string;
   name: string;
@@ -49,13 +48,12 @@ export interface Category {
   tutorCount: number;
 }
 
-// Availability Types
 export interface Availability {
   id: string;
   tutorId: string;
-  dayOfWeek: number; // 0-6 (Sunday-Saturday)
-  startTime: string; // HH:mm format
-  endTime: string; // HH:mm format
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
   isAvailable: boolean;
 }
 
@@ -67,7 +65,6 @@ export interface TimeSlot {
   isBooked: boolean;
 }
 
-// Booking Types
 export type BookingStatus = "CONFIRMED" | "COMPLETED" | "CANCELLED";
 
 export interface Booking {
@@ -80,7 +77,7 @@ export interface Booking {
   date: string;
   startTime: string;
   endTime: string;
-  duration: number; // minutes
+  duration: number;
   totalPrice: number;
   status: BookingStatus;
   notes?: string;
@@ -88,7 +85,6 @@ export interface Booking {
   createdAt: string;
 }
 
-// Review Types
 export interface Review {
   id: string;
   bookingId: string;
@@ -100,14 +96,13 @@ export interface Review {
   createdAt: string;
 }
 
-// Stats Types
 export interface DashboardStats {
   totalBookings: number;
   upcomingBookings: number;
   completedBookings: number;
-  totalSpent?: number; // for students
-  totalEarned?: number; // for tutors
-  averageRating?: number; // for tutors
+  totalSpent?: number;
+  totalEarned?: number;
+  averageRating?: number;
 }
 
 export interface AdminStats {
@@ -120,7 +115,6 @@ export interface AdminStats {
   bookingsThisMonth: number;
 }
 
-// Filter Types
 export interface TutorFilters {
   search?: string;
   category?: string;
@@ -132,7 +126,6 @@ export interface TutorFilters {
   sortOrder?: "asc" | "desc";
 }
 
-// Pagination Types
 export interface PaginationParams {
   page: number;
   limit: number;
@@ -146,7 +139,6 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
-// Form Types
 export interface LoginForm {
   email: string;
   password: string;
@@ -184,7 +176,6 @@ export interface ReviewForm {
   comment: string;
 }
 
-// Navigation Types
 export interface NavItem {
   label: string;
   href: string;
@@ -192,7 +183,6 @@ export interface NavItem {
   children?: NavItem[];
 }
 
-// Notification Types
 export interface Notification {
   id: string;
   userId: string;

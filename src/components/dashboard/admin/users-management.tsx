@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { adminService } from "@/services";
 import { toast } from "sonner";
 import type { User } from "@/types";
@@ -57,11 +57,11 @@ export function UsersManagement() {
     fetchUsers();
   }, []);
 
-  const handleToggleBan = async (userId: string, isActive: boolean) => {
+  const handleToggleBan = async (userId: string, currentStatus: string) => {
     try {
-      const status = isActive ? "BANNED" : "ACTIVE";
-      await adminService.updateUser(userId, { status });
-      toast.success(`User ${isActive ? "banned" : "unbanned"}`);
+      const newStatus = currentStatus === "ACTIVE" ? "BANNED" : "ACTIVE";
+      await adminService.updateUser(userId, { status: newStatus });
+      toast.success(`User ${newStatus === "BANNED" ? "banned" : "unbanned"}`);
       fetchUsers();
     } catch {
       toast.error("Failed to update user");
@@ -135,7 +135,7 @@ export function UsersManagement() {
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.avatar} />
+                          <AvatarImage src={getImageUrl(user.image)} />
                           <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -153,7 +153,7 @@ export function UsersManagement() {
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="p-4 hidden md:table-cell">
-                      {user.isActive ? (
+                      {user.status === "ACTIVE" ? (
                         <Badge variant="outline" className="text-emerald-600 border-emerald-200">
                           <UserCheck className="w-3 h-3 mr-1" />
                           Active
@@ -184,10 +184,10 @@ export function UsersManagement() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
-                            onClick={() => handleToggleBan(user.id, user.isActive)}
+                            onClick={() => handleToggleBan(user.id, user.status || "ACTIVE")}
                           >
                             <Ban className="w-4 h-4 mr-2" />
-                            {user.isActive ? "Ban User" : "Unban User"}
+                            {user.status === "ACTIVE" ? "Ban User" : "Unban User"}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

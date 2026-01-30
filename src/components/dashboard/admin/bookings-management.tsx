@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { bookingsService } from "@/services";
 import { toast } from "sonner";
 import type { Booking, BookingStatus } from "@/types";
@@ -67,11 +67,19 @@ export function BookingsManagement() {
     }
   };
 
+  const getTutorName = (booking: Booking) => {
+    return booking.tutor?.user?.name || (booking.tutor as unknown as { name?: string })?.name || "Tutor";
+  };
+
+  const getTutorImage = (booking: Booking) => {
+    return booking.tutor?.user?.image || (booking.tutor as unknown as { image?: string })?.image;
+  };
+
   const filtered = bookings.filter((b) => {
     const matchesTab = activeTab === "all" || b.status === activeTab;
     const matchesSearch =
       b.student?.name?.toLowerCase().includes(search.toLowerCase()) ||
-      b.tutor?.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      getTutorName(b).toLowerCase().includes(search.toLowerCase()) ||
       b.subject?.toLowerCase().includes(search.toLowerCase());
     return matchesTab && matchesSearch;
   });
@@ -125,7 +133,7 @@ export function BookingsManagement() {
                   <div className="flex items-center gap-6 flex-1">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={booking.student?.avatar} />
+                        <AvatarImage src={getImageUrl(booking.student?.image)} />
                         <AvatarFallback>
                           {booking.student?.name?.charAt(0) || "S"}
                         </AvatarFallback>
@@ -140,14 +148,14 @@ export function BookingsManagement() {
 
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={booking.tutor?.user?.avatar} />
+                        <AvatarImage src={getImageUrl(getTutorImage(booking))} />
                         <AvatarFallback>
-                          {booking.tutor?.user?.name?.charAt(0) || "T"}
+                          {getTutorName(booking).charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="text-xs text-muted-foreground">Tutor</p>
-                        <p className="font-medium text-sm">{booking.tutor?.user?.name || "Tutor"}</p>
+                        <p className="font-medium text-sm">{getTutorName(booking)}</p>
                       </div>
                     </div>
                   </div>

@@ -20,6 +20,7 @@ import { ReviewsList } from "./reviews-list";
 import type { TutorProfile, Review } from "@/types";
 import { reviewsService } from "@/services";
 import Image from "next/image";
+import { getImageUrl } from "@/lib/utils";
 
 interface TutorProfileViewProps {
   tutor: TutorProfile;
@@ -55,8 +56,8 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
     fetchReviews();
   }, [tutor]);
 
-  // Get avatar
-  const avatarUrl = tutor?.user?.avatar;
+  // Get image URL
+  const imageUrl = getImageUrl(tutor?.user?.image);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -70,9 +71,9 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                 {/* avatar */}
                 <div className="relative shrink-0">
                   <div className="w-32 h-32 rounded-2xl overflow-hidden bg-muted">
-                    {avatarUrl ? (
+                    {imageUrl ? (
                       <Image
-                        src={avatarUrl}
+                        src={imageUrl}
                         alt={tutor?.user?.name || "Tutor"}
                         className="object-cover w-full h-full"
                         width={100}

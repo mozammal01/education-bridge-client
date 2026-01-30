@@ -13,7 +13,22 @@ const nextConfig: NextConfig = {
         hostname: "randomuser.me",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5000",
+        pathname: "/uploads/**",
+      },
     ],
+  },
+  // Skip image optimization for localhost in development to avoid private IP issues
+  async rewrites() {
+    return [
+      {
+        source: "/api/uploads/:path*",
+        destination: "http://localhost:5000/uploads/:path*",
+      },
+    ];
   },
 };
 

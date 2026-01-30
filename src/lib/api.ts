@@ -42,4 +42,20 @@ export const api = {
 
   delete: <T>(endpoint: string) =>
     request<T>(endpoint, { method: "DELETE" }),
+
+  upload: async <T>(endpoint: string, formData: FormData): Promise<{ data?: T; message?: string }> => {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Something went wrong");
+    }
+
+    return data;
+  },
 };

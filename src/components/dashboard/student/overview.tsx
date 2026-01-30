@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
 import { bookingsService } from "@/services";
 import { Booking } from "@/types";
+import { getImageUrl } from "@/lib/utils";
 
 export function StudentOverview() {
   const { user } = useAuth();
@@ -124,13 +125,14 @@ export function StudentOverview() {
                   className="flex items-center gap-4 p-4 rounded-xl border bg-muted/30"
                 >
                   <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0">
-                    {booking.tutor.user.avatar && (
+                    {booking.tutor.user.image && (
                       <Image
-                        src={booking.tutor.user.avatar}
+                        src={getImageUrl(booking.tutor.user.image)}
                         alt={booking.tutor.user.name}
                         width={48}
                         height={48}
-                        className="object-cover"
+                        className="object-cover w-full h-full"
+                        unoptimized
                       />
                     )}
                   </div>

@@ -17,6 +17,7 @@ import { Logo } from "./logo";
 import { useAuth } from "@/context/auth-context";
 import { UserRole } from "@/types";
 import { useRouter } from "next/navigation";
+import { getImageUrl } from "@/lib/utils";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -73,7 +74,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="gap-2 pl-2 pr-3">
                     <Avatar className="h-7 w-7">
-                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarImage src={getImageUrl(user.image)} alt={user.name} />
                       <AvatarFallback className="text-xs">
                         {user.name.split(" ").map((n) => n[0]).join("")}
                       </AvatarFallback>
@@ -147,7 +148,7 @@ export function Navbar() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 px-4 py-2">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.avatar} />
+                          <AvatarImage src={getImageUrl(user.image)} />
                           <AvatarFallback>
                             {user.name.split(" ").map((n) => n[0]).join("")}
                           </AvatarFallback>

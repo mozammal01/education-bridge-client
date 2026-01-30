@@ -12,10 +12,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 
 export function LoginForm() {
-  const [formData, setFormData] = useState<LoginForm>({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState<LoginForm>({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -27,28 +24,17 @@ export function LoginForm() {
     try {
       const res = await fetch("http://localhost:5000/api/auth/sign-in/email", {
         method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
-      console.log("Login response:", data);
 
-      if (!res.ok) {
-        // Get error message from backend response
-        throw new Error(data.message || "Failed to login");
-      }
+      if (!res.ok) throw new Error(data.message || "Failed to login");
 
-      // Check if user data exists
       const userData = data.user || data.data;
-      console.log("User data:", userData);
-
-      if (!userData) {
-        throw new Error("No user data received from server");
-      }
+      if (!userData) throw new Error("No user data received from server");
 
       login(userData);
       toast.success("Logged in successfully");
@@ -64,16 +50,12 @@ export function LoginForm() {
     <div className="w-full max-w-md">
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
-        <p className="text-muted-foreground">
-          Enter your credentials to access your account
-        </p>
+        <p className="text-muted-foreground">Enter your credentials to access your account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
+          <label htmlFor="email" className="text-sm font-medium">Email</label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -90,15 +72,8 @@ export function LoginForm() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <Link
-              href="/forgot-password"
-              className="text-sm text-primary hover:underline"
-            >
-              Forgot password?
-            </Link>
+            <label htmlFor="password" className="text-sm font-medium">Password</label>
+            <Link href="/forgot-password" className="text-sm text-primary hover:underline">Forgot password?</Link>
           </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -116,11 +91,7 @@ export function LoginForm() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
@@ -141,9 +112,7 @@ export function LoginForm() {
             <div className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-background px-4 text-muted-foreground">
-              Or continue with
-            </span>
+            <span className="bg-background px-4 text-muted-foreground">Or continue with</span>
           </div>
         </div>
 
@@ -161,9 +130,7 @@ export function LoginForm() {
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-primary font-medium hover:underline">
-          Sign up
-        </Link>
+        <Link href="/register" className="text-primary font-medium hover:underline">Sign up</Link>
       </p>
     </div>
   );

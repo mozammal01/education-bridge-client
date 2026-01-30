@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { getImageUrl } from "@/lib/utils";
 
 export function StudentProfile() {
   const { user } = useAuth();
@@ -61,13 +62,14 @@ export function StudentProfile() {
           <div className="flex items-center gap-6">
             <div className="relative">
               <div className="w-24 h-24 rounded-full overflow-hidden bg-muted">
-                {user?.avatar ? (
+                {user?.image ? (
                   <Image
-                    src={user.avatar}
+                    src={getImageUrl(user.image)}
                     alt={user.name || "User"}
                     width={96}
                     height={96}
-                    className="object-cover"
+                    className="object-cover w-full h-full"
+                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">

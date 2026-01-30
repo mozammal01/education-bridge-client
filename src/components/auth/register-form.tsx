@@ -6,7 +6,7 @@ import { Eye, EyeOff, Mail, Lock, User, Loader2, GraduationCap, BookOpen } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { UserRole, type RegisterForm } from "@/types";
+import { UserRole } from "@/types";
 import { toast } from "sonner";
 import { VerifyEmailModal } from "./verify-email-modal";
 
@@ -26,7 +26,6 @@ export function RegisterForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Prepare the data to send
     const submitData = {
       name: formData.name,
       email: formData.email,
@@ -34,23 +33,17 @@ export function RegisterForm() {
       role: formData.role,
     };
 
-    console.log("Sending registration data:", submitData);
-
     try {
       const res = await fetch("http://localhost:5000/api/auth/sign-up/email", {
         method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(submitData),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to create account");
-      }
+      if (!res.ok) throw new Error(data.message || "Failed to create account");
 
       toast.success("Account created successfully");
       setShowVerifyModal(true);
@@ -71,7 +64,6 @@ export function RegisterForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* role selection */}
         <div className="space-y-2">
           <label className="text-sm font-medium">I want to</label>
           <div className="grid grid-cols-2 gap-3">
@@ -131,9 +123,7 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium">
-            Full Name
-          </label>
+          <label htmlFor="name" className="text-sm font-medium">Full Name</label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -149,9 +139,7 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
+          <label htmlFor="email" className="text-sm font-medium">Email</label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -167,9 +155,7 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            Password
-          </label>
+          <label htmlFor="password" className="text-sm font-medium">Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -187,19 +173,13 @@ export function RegisterForm() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="confirmPassword" className="text-sm font-medium">
-            Confirm Password
-          </label>
+          <label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -228,21 +208,15 @@ export function RegisterForm() {
 
         <p className="text-xs text-muted-foreground text-center">
           By signing up, you agree to our{" "}
-          <Link href="/terms" className="text-primary hover:underline">
-            Terms of Service
-          </Link>{" "}
+          <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-primary hover:underline">
-            Privacy Policy
-          </Link>
+          <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
         </p>
       </form>
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary font-medium hover:underline">
-          Sign in
-        </Link>
+        <Link href="/login" className="text-primary font-medium hover:underline">Sign in</Link>
       </p>
 
       <VerifyEmailModal

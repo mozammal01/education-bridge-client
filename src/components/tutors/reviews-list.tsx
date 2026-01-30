@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { StarRating } from "@/components/shared";
 import type { Review } from "@/types";
+import { getImageUrl } from "@/lib/utils";
 
 interface ReviewsListProps {
   reviews: Review[];
@@ -13,13 +14,14 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
         <div key={review.id} className="flex gap-4">
           <div className="shrink-0">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
-              {review.student.avatar ? (
+              {review.student.image ? (
                 <Image
-                  src={review.student.avatar}
+                  src={getImageUrl(review.student.image)}
                   alt={review.student.name}
                   width={40}
                   height={40}
-                  className="object-cover"
+                  className="object-cover w-full h-full"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-sm font-medium">

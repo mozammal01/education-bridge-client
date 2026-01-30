@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { Camera, DollarSign, Loader2, Plus, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +11,13 @@ import { LANGUAGES } from "@/lib/constants";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { getImageUrl } from "@/lib/utils";
 
 export function TutorProfileSettings() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     headline: "",
     bio: "",
@@ -36,7 +39,7 @@ export function TutorProfileSettings() {
         experience: formData.experience,
       });
       toast.success("Profile updated successfully");
-    } catch{
+    } catch {
       toast.error("Failed to update profile");
     } finally {
       setSaving(false);
@@ -62,6 +65,39 @@ export function TutorProfileSettings() {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append("image", file);
+
+      await api.upload("/user/image", uploadData);
+
+      toast.success("Photo uploaded successfully");
+      refreshUser();
+    } catch {
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   return (
     <div className="max-w-3xl space-y-6">
       <div>
@@ -69,7 +105,6 @@ export function TutorProfileSettings() {
         <p className="text-muted-foreground">Update your public tutor profile</p>
       </div>
 
-      {/* photo */}
       <Card>
         <CardHeader>
           <CardTitle>Profile Photo</CardTitle>
@@ -78,13 +113,14 @@ export function TutorProfileSettings() {
           <div className="flex items-center gap-6">
             <div className="relative">
               <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted">
-                {user?.avatar ? (
+                {user?.image ? (
                   <Image
-                    src={user.avatar}
+                    src={getImageUrl(user.image)}
                     alt={user.name || "Tutor"}
                     width={96}
                     height={96}
-                    className="object-cover"
+                    className="object-cover w-full h-full"
+                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
@@ -92,21 +128,35 @@ export function TutorProfileSettings() {
                   </div>
                 )}
               </div>
-              <button className="absolute -bottom-2 -right-2 p-2 bg-primary text-primary-foreground rounded-full shadow-lg">
-                <Camera className="w-4 h-4" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="absolute -bottom-2 -right-2 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {uploadingPhoto ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4" />
+                )}
               </button>
             </div>
             <div>
               <p className="font-medium mb-1">Upload a professional photo</p>
-              <p className="text-sm text-muted-foreground">
-                A clear headshot helps students connect with you
-              </p>
+              <p className="text-sm text-muted-foreground">A clear headshot helps students connect with you</p>
+              <p className="text-xs text-muted-foreground mt-1">Supported formats: JPG, PNG, GIF (max 5MB)</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* basic info */}
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
@@ -120,9 +170,7 @@ export function TutorProfileSettings() {
                 onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
                 placeholder="e.g., Expert Math Tutor | 10+ Years Experience"
               />
-              <p className="text-xs text-muted-foreground">
-                A catchy headline that appears on your profile card
-              </p>
+              <p className="text-xs text-muted-foreground">A catchy headline that appears on your profile card</p>
             </div>
 
             <div className="space-y-2">
@@ -187,7 +235,6 @@ export function TutorProfileSettings() {
         </CardContent>
       </Card>
 
-      {/* subjects */}
       <Card>
         <CardHeader>
           <CardTitle>Subjects I Teach</CardTitle>
@@ -221,7 +268,6 @@ export function TutorProfileSettings() {
         </CardContent>
       </Card>
 
-      {/* languages */}
       <Card>
         <CardHeader>
           <CardTitle>Languages I Speak</CardTitle>

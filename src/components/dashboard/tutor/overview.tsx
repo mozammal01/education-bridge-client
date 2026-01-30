@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { bookingsService } from "@/services";
 import { Booking } from "@/types";
+import { getImageUrl } from "@/lib/utils";
 
 export function TutorOverview() {
   const { user } = useAuth();
@@ -20,8 +21,8 @@ export function TutorOverview() {
       try {
         const response = await bookingsService.getBookings();
         if (response.data) {
-          const bookingData = Array.isArray(response.data) 
-            ? response.data 
+          const bookingData = Array.isArray(response.data)
+            ? response.data
             : (response.data as { bookings?: Booking[] }).bookings || [];
           setBookings(bookingData);
         }
@@ -127,13 +128,14 @@ export function TutorOverview() {
                     className="flex items-center gap-4 p-3 rounded-xl border bg-muted/30"
                   >
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-muted shrink-0">
-                      {session.student.avatar && (
+                      {session.student.image && (
                         <Image
-                          src={session.student.avatar}
+                          src={getImageUrl(session.student.image)}
                           alt={session.student.name}
                           width={40}
                           height={40}
-                          className="object-cover"
+                          className="object-cover w-full h-full"
+                          unoptimized
                         />
                       )}
                     </div>

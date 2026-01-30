@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { bookingsService } from "@/services";
 import { toast } from "sonner";
 import type { Booking, BookingStatus } from "@/types";
@@ -109,13 +109,14 @@ export function TutorSessions() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex items-center gap-4 flex-1">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center">
-                      {session.student?.avatar ? (
+                      {session.student?.image ? (
                         <Image
-                          src={session.student.avatar}
+                          src={getImageUrl(session.student.image)}
                           alt=""
                           width={48}
                           height={48}
-                          className="object-cover"
+                          className="object-cover w-full h-full"
+                          unoptimized
                         />
                       ) : (
                         <span className="text-lg font-bold text-muted-foreground">
