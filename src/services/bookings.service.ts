@@ -9,12 +9,12 @@ interface CreateBooking {
 }
 
 export const bookingsService = {
-  getBookings: () => api.get<{ bookings: Booking[] }>("/bookings"),
+  getBookings: () => api.get<{ bookings: Booking[] }>("/api/bookings"),
 
-  getBookingById: (id: string) => api.get<Booking>(`/bookings/${id}`),
+  getBookingById: (id: string) => api.get<Booking>(`/api/bookings/${id}`),
 
-  createBooking: (data: CreateBooking) => api.post<Booking>("/bookings", data),
+  createBooking: (data: CreateBooking) => api.post<Booking>("/api/bookings", data),
 
   updateBookingStatus: (id: string, status: BookingStatus) =>
-    api.patch<Booking>(`/bookings/${id}/status`, { status }),
+    api.patch<Booking>(`/api/bookings/${id}/status`, { status }),
 };

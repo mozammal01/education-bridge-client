@@ -35,12 +35,12 @@ export const tutorsService = {
     if (filters?.search) params.append("search", filters.search);
 
     const query = params.toString();
-    return api.get<{ tutors: TutorProfile[] }>(`/tutors${query ? `?${query}` : ""}`);
+    return api.get<{ tutors: TutorProfile[] }>(`/api/tutors${query ? `?${query}` : ""}`);
   },
 
-  getTutorById: (id: string) => api.get<TutorProfile>(`/tutors/${id}`),
+  getTutorById: (id: string) => api.get<TutorProfile>(`/api/tutors/${id}`),
 
-  getMyProfile: () => api.get<TutorProfileData>("/tutor/profile"),
+  getMyProfile: () => api.get<TutorProfileData>("/api/tutor/profile"),
 
-  updateProfile: (data: Partial<TutorProfileData>) => api.put<TutorProfileData>("/tutor/profile", data),
+  updateProfile: (data: Partial<TutorProfileData>) => api.put<TutorProfileData>("/api/tutor/profile", data),
 };

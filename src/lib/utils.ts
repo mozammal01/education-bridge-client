@@ -10,14 +10,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 export function getImageUrl(path: string | undefined | null): string {
   if (!path) return "";
 
+  // If it's already a full URL, return as-is
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
 
+  // For uploads, always use the backend server URL
   if (path.startsWith("/uploads")) {
-    if (typeof window !== "undefined" && window.location.hostname === "localhost") {
-      return `/api${path}`;
-    }
     const baseUrl = API_BASE_URL.replace(/\/api$/, "");
     return `${baseUrl}${path}`;
   }

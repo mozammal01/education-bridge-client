@@ -9,7 +9,7 @@ interface CreateReview {
 
 export const reviewsService = {
   getReviewsByTutor: (tutorId: string) =>
-    api.get<{ reviews: Review[] }>(`/reviews/${tutorId}`),
+    api.get<{ reviews: Review[] }>(`/api/reviews/${tutorId}`),
 
-  createReview: (data: CreateReview) => api.post<Review>("/reviews", data),
+  createReview: (data: CreateReview) => api.post<Review>("/api/reviews", data),
 };

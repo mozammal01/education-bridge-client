@@ -7,8 +7,8 @@ interface UpdateUser {
 }
 
 export const adminService = {
-  getUsers: () => api.get<{ users: User[] }>("/admin/users"),
+  getUsers: () => api.get<{ users: User[] }>("/api/admin/users"),
 
   updateUser: (id: string, data: UpdateUser) =>
-    api.patch<User>(`/admin/users/${id}`, data),
+    api.patch<User>(`/api/admin/users/${id}`, data),
 };

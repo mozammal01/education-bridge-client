@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -44,7 +44,7 @@ export function RegisterForm() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/auth/sign-up/email`, {
+      const res = await fetch(`${API_URL}/api/auth/sign-up/email`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

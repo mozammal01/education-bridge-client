@@ -4,7 +4,7 @@ import { User } from "@/types";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 type AuthContextType = {
   user: User | null;
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${API_URL}/auth/me`, {
+        const res = await fetch(`${API_URL}/api/auth/me`, {
           credentials: "include",
         });
         if (res.ok) {
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const res = await fetch(`${API_URL}/auth/me`, {
+      const res = await fetch(`${API_URL}/api/auth/me`, {
         credentials: "include",
       });
       if (res.ok) {
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const res = await fetch(`${API_URL}/auth/signout`, {
+      const res = await fetch(`${API_URL}/api/auth/signout`, {
         method: "POST",
         credentials: "include",
       });

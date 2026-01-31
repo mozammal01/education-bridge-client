@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export function LoginForm() {
   const [formData, setFormData] = useState<LoginForm>({ email: "", password: "" });
@@ -25,7 +25,7 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch(`${API_URL}/auth/sign-in/email`, {
+      const res = await fetch(`${API_URL}/api/auth/sign-in/email`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -51,8 +51,7 @@ export function LoginForm() {
 
   const handleSocialLogin = (provider: "google" | "github") => {
     setSocialLoading(provider);
-    const baseUrl = API_URL.replace("/api", "");
-    window.location.href = `${baseUrl}/api/auth/sign-in/social?provider=${provider}`;
+    window.location.href = `${API_URL}/api/auth/sign-in/social?provider=${provider}`;
   };
 
   return (
