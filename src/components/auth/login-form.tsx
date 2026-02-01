@@ -49,9 +49,32 @@ export function LoginForm() {
     }
   };
 
-  const handleSocialLogin = (provider: "google" | "github") => {
+  const handleSocialLogin = async (provider: "google" | "github") => {
     setSocialLoading(provider);
-    window.location.href = `${API_URL}/api/auth/sign-in/social?provider=${provider}`;
+    try {
+      // Use POST request to get the OAuth redirect URL from better-auth
+      const res = await fetch(`${API_URL}/api/auth/sign-in/social`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          provider,
+          callbackURL: window.location.origin,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        // Redirect to OAuth provider
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.message || "Failed to initiate social login");
+      }
+    } catch (error) {
+      toast.error((error as Error).message || "Social login failed");
+      setSocialLoading(null);
+    }
   };
 
   return (

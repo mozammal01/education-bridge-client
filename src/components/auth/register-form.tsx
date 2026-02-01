@@ -10,6 +10,8 @@ import { UserRole } from "@/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { GoogleIcon, GitHubIcon } from "@/components/icons";
+import { RoleSelectionModal } from "./role-selection-modal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -23,6 +25,9 @@ export function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<"google" | "github">("google");
   const router = useRouter();
   const { login } = useAuth();
 
@@ -66,6 +71,44 @@ export function RegisterForm() {
       toast.error((error as Error).message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSocialClick = (provider: "google" | "github") => {
+    setSelectedProvider(provider);
+    setShowRoleModal(true);
+  };
+
+  const handleSocialSignup = async (role: UserRole) => {
+    setSocialLoading(selectedProvider);
+    // Store selected role in localStorage for post-OAuth handling
+    localStorage.setItem("pendingRole", role);
+
+    try {
+      // Use POST request to get the OAuth redirect URL from better-auth
+      const res = await fetch(`${API_URL}/api/auth/sign-in/social`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          provider: selectedProvider,
+          callbackURL: window.location.origin,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        // Redirect to OAuth provider
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.message || "Failed to initiate social signup");
+      }
+    } catch (error) {
+      toast.error((error as Error).message || "Social signup failed");
+      setSocialLoading(null);
+      setShowRoleModal(false);
+      localStorage.removeItem("pendingRole");
     }
   };
 
@@ -219,13 +262,61 @@ export function RegisterForm() {
           )}
         </Button>
 
-        <p className="text-xs text-muted-foreground text-center">
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-background px-4 text-muted-foreground">Or sign up with</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            disabled={!!socialLoading}
+            onClick={() => handleSocialClick("google")}
+          >
+            {socialLoading === "google" ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <GoogleIcon className="mr-2" />
+            )}
+            Google
+          </Button>
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full"
+            disabled={!!socialLoading}
+            onClick={() => handleSocialClick("github")}
+          >
+            {socialLoading === "github" ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <GitHubIcon className="mr-2" />
+            )}
+            GitHub
+          </Button>
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center mt-4">
           By signing up, you agree to our{" "}
           <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>{" "}
           and{" "}
           <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
         </p>
       </form>
+
+      <RoleSelectionModal
+        isOpen={showRoleModal}
+        onClose={() => setShowRoleModal(false)}
+        onConfirm={handleSocialSignup}
+        provider={selectedProvider}
+        isLoading={!!socialLoading}
+      />
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
