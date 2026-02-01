@@ -51,7 +51,7 @@ export function StudentProfile() {
       const uploadData = new FormData();
       uploadData.append("image", file);
 
-      await api.upload("/user/image", uploadData);
+      await api.upload("/api/user/image", uploadData);
 
       toast.success("Photo uploaded successfully");
       refreshUser();
@@ -69,7 +69,7 @@ export function StudentProfile() {
     e.preventDefault();
     setSaving(true);
     try {
-      await api.patch("/user/profile", {
+      await api.patch("/api/user/profile", {
         name: formData.name,
         phone: formData.phone,
       });

@@ -34,19 +34,21 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
         )}
       >
         <div className="relative">
-          <div className="relative h-48 bg-linear-to-b from-primary/10 to-primary/5 overflow-hidden">
+          <div className="relative h-48 bg-linear-to-br from-primary/20 via-primary/10 to-primary/5 overflow-hidden">
             {tutor?.user?.image ? (
               <Image
                 src={getImageUrl(tutor?.user?.image)}
                 alt={tutor?.user?.name || "Tutor"}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                width={100}
-                height={100}
+                width={400}
+                height={400}
                 unoptimized
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl font-bold text-primary/40">
-                {tutor?.user?.name?.split(" ").map((n) => n[0]).join("")}
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center text-3xl font-bold text-primary">
+                  {tutor?.user?.name?.split(" ").map((n) => n[0]).join("").substring(0, 2)}
+                </div>
               </div>
             )}
 
@@ -68,7 +70,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
 
             <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm text-amber-600 text-sm px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold shadow-lg">
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              {tutor?.rating?.toFixed(1) || "0.0"}
+              {(tutor?.averageRating || tutor?.rating || 0).toFixed(1)}
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 p-4">

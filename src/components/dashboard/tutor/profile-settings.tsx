@@ -119,7 +119,7 @@ export function TutorProfileSettings() {
       const uploadData = new FormData();
       uploadData.append("image", file);
 
-      await api.upload("/user/image", uploadData);
+      await api.upload("/api/user/image", uploadData);
 
       toast.success("Photo uploaded successfully");
       refreshUser();

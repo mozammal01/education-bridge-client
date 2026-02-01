@@ -1,18 +1,20 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Camera, DollarSign, Loader2, Plus, X, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { LANGUAGES, CATEGORIES } from "@/lib/constants";
+import { LANGUAGES } from "@/lib/constants";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { getImageUrl, cn } from "@/lib/utils";
 import { tutorsService, TutorProfileData } from "@/services/tutors.service";
+import { categoriesService } from "@/services/categories.service";
+import { Category } from "@/types";
 
 interface CompleteProfileProps {
   profile: TutorProfileData | null;
@@ -25,6 +27,22 @@ export function CompleteProfile({ profile, onComplete }: CompleteProfileProps) {
   const [saving, setSaving] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await categoriesService.getCategories();
+        // Backend returns { success, message, data: [categories array] }
+        if (res.data && Array.isArray(res.data)) {
+          setCategories(res.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const [formData, setFormData] = useState({
     bio: profile?.bio || "",
@@ -75,7 +93,7 @@ export function CompleteProfile({ profile, onComplete }: CompleteProfileProps) {
     try {
       const uploadData = new FormData();
       uploadData.append("image", file);
-      await api.upload("/user/image", uploadData);
+      await api.upload("/api/user/image", uploadData);
       toast.success("Photo uploaded successfully");
       refreshUser();
     } catch {
@@ -245,7 +263,7 @@ export function CompleteProfile({ profile, onComplete }: CompleteProfileProps) {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Primary Category</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <button
                       key={cat.id}
                       type="button"

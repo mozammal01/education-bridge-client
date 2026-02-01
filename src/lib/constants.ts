@@ -35,7 +35,7 @@ export const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
 });
 
 export const PRICE_RANGES = [
-  { label: "Under $25", min: 0, max: 25 },
+  { label: "Under $25", min: 0, max: 24 },
   { label: "$25 - $50", min: 25, max: 50 },
   { label: "$50 - $75", min: 50, max: 75 },
   { label: "$75 - $100", min: 75, max: 100 },

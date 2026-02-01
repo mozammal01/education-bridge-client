@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 import { Category } from "@/types";
 
 export const categoriesService = {
-  getCategories: () => api.get<{ categories: Category[] }>("/api/categories"),
+  getCategories: () => api.get<Category[]>("/api/categories"),
 
   getCategoryById: (id: string) => api.get<Category>(`/api/categories/${id}`),
 

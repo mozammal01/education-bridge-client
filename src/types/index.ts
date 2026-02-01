@@ -30,6 +30,7 @@ export interface TutorProfile {
   categories: Category[];
   languages: string[];
   rating: number;
+  averageRating?: number;
   totalReviews: number;
   totalStudents: number;
   totalSessions: number;

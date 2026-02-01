@@ -17,22 +17,21 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
-        pathname: "/uploads/**",
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "**",
-        pathname: "/uploads/**",
+        pathname: "/**",
       },
     ],
   },
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-    const baseUrl = apiUrl.replace(/\/api$/, "");
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
     return [
       {
-        source: "/api/uploads/:path*",
+        source: "/uploads/:path*",
         destination: `${baseUrl}/uploads/:path*`,
       },
     ];

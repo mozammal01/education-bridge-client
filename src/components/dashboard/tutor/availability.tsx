@@ -41,7 +41,7 @@ export function TutorAvailability() {
     const fetchAvailability = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/tutor/availability`,
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/tutor/availability`,
           { credentials: "include" }
         );
 
@@ -133,7 +133,7 @@ export function TutorAvailability() {
         );
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/tutor/availability`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/tutor/availability`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

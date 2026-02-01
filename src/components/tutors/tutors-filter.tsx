@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { CATEGORIES, LANGUAGES, PRICE_RANGES, RATING_OPTIONS } from "@/lib/constants";
+import { LANGUAGES, PRICE_RANGES, RATING_OPTIONS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { categoriesService } from "@/services/categories.service";
+import { Category } from "@/types";
 
 interface TutorsFilterProps {
   onFilterChange: (filters: FilterState) => void;
@@ -37,6 +39,21 @@ export function TutorsFilter({ onFilterChange, initialCategory = "" }: TutorsFil
     language: "",
   }));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await categoriesService.getCategories();
+        if (res.data && Array.isArray(res.data)) {
+          setCategories(res.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     const newFilters = { ...filters, [key]: value };
@@ -68,16 +85,20 @@ export function TutorsFilter({ onFilterChange, initialCategory = "" }: TutorsFil
       <div>
         <h4 className="font-medium mb-3">Category</h4>
         <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => (
-            <Badge
-              key={cat.id}
-              variant={filters.category === cat.slug ? "default" : "outline"}
-              className="cursor-pointer"
-              onClick={() => updateFilter("category", filters.category === cat.slug ? "" : cat.slug)}
-            >
-              {cat.name}
-            </Badge>
-          ))}
+          {categories.length > 0 ? (
+            categories.map((cat) => (
+              <Badge
+                key={cat.id}
+                variant={filters.category === cat.slug ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => updateFilter("category", filters.category === cat.slug ? "" : cat.slug)}
+              >
+                {cat.name}
+              </Badge>
+            ))
+          ) : (
+            <span className="text-sm text-muted-foreground">Loading categories...</span>
+          )}
         </div>
       </div>
 

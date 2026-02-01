@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { TutorProfileView } from "@/components/tutors/tutor-profile-view";
 import { notFound } from "next/navigation";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -10,7 +10,7 @@ interface PageProps {
 
 async function getTutor(id: string) {
   try {
-    const res = await fetch(`${API_BASE_URL}/tutors/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/tutors/${id}`, {
       cache: "no-store",
     });
 

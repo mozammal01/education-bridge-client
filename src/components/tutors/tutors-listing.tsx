@@ -5,8 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { TutorCard } from "@/components/shared";
 import { TutorsFilter, type FilterState } from "./tutors-filter";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, List, Loader2, UserX } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2, UserX } from "lucide-react";
 import { tutorsService } from "@/services";
 import { TutorProfile } from "@/types";
 
@@ -21,7 +20,6 @@ export function TutorsListing() {
     minRating: null,
     language: "",
   });
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,8 +64,12 @@ export function TutorsListing() {
   }, [filters]);
 
   const filteredTutors = tutors.filter((tutor) => {
-    if (filters.language && tutor.languages && !tutor.languages.includes(filters.language)) {
-      return false;
+    // Language filter (client-side)
+    if (filters.language) {
+      const tutorLanguages = tutor.languages || [];
+      if (!tutorLanguages.includes(filters.language)) {
+        return false;
+      }
     }
     return true;
   });
@@ -96,27 +98,8 @@ export function TutorsListing() {
             )}
           </p>
 
-          <div className="flex items-center gap-2">
-            <div className="lg:hidden">
-              <TutorsFilter onFilterChange={handleFilterChange} initialCategory={filters.category} />
-            </div>
-
-            <div className="hidden sm:flex border rounded-lg p-1">
-              <Button
-                variant={viewMode === "grid" ? "secondary" : "ghost"}
-                size="icon-sm"
-                onClick={() => setViewMode("grid")}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "secondary" : "ghost"}
-                size="icon-sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="lg:hidden">
+            <TutorsFilter onFilterChange={handleFilterChange} initialCategory={filters.category} />
           </div>
         </div>
 
@@ -136,19 +119,9 @@ export function TutorsListing() {
         )}
 
         {!isLoading && !error && filteredTutors.length > 0 && (
-          <div
-            className={cn(
-              viewMode === "grid"
-                ? "grid sm:grid-cols-2 xl:grid-cols-3 gap-6"
-                : "space-y-4"
-            )}
-          >
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredTutors.map((tutor) => (
-              <TutorCard
-                key={tutor.id}
-                tutor={tutor}
-                className={viewMode === "list" ? "sm:flex-row" : ""}
-              />
+              <TutorCard key={tutor.id} tutor={tutor} />
             ))}
           </div>
         )}
