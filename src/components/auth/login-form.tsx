@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
 
 export function LoginForm() {
   const [formData, setFormData] = useState<LoginForm>({ email: "", password: "" });

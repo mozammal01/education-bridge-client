@@ -21,13 +21,18 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "education-bridge-server.vercel.app",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "**",
         pathname: "/**",
       },
     ],
   },
   async rewrites() {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
 
     return [
       {
