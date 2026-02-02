@@ -30,7 +30,11 @@ export function CategoriesManagement() {
       const res = await categoriesService.getCategories();
       const data = res.data;
       if (data) {
-        setCategories(Array.isArray(data) ? data : data.categories || []);
+        // Handle both array response and object with categories property
+        const categoryList = Array.isArray(data)
+          ? data
+          : (data as unknown as { categories?: Category[] }).categories || [];
+        setCategories(categoryList.length > 0 ? categoryList : CATEGORIES);
       } else {
         setCategories(CATEGORIES);
       }

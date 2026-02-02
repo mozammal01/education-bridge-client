@@ -1,14 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Play, Users, Star, BookOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, Play, Users, Star, BookOpen, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FadeIn, SlideIn, ScaleIn } from "@/components/shared";
+import { categoriesService } from "@/services";
+import { Category } from "@/types";
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await categoriesService.getCategories();
+        if (res.data && Array.isArray(res.data)) {
+          setCategories(res.data.slice(0, 6)); // Show first 6 categories
+        }
+      } catch {
+        // Failed to load categories
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const url = searchQuery.trim()
+      ? `/tutors?search=${encodeURIComponent(searchQuery.trim())}`
+      : "/tutors";
+    router.push(url);
+  };
 
   return (
     <section className="relative overflow-hidden bg-linear-to-b from-secondary/40 via-background to-background">
@@ -43,44 +73,63 @@ export function HeroSection() {
 
             <FadeIn delay={0.2}>
               <p className="text-lg text-muted-foreground max-w-lg">
-                Connect with expert tutors in any subject. Book personalized 
+                Connect with expert tutors in any subject. Book personalized
                 sessions, learn at your own pace, and achieve your goals faster.
               </p>
             </FadeIn>
 
             {/* search bar */}
             <FadeIn delay={0.3}>
-              <div className="flex gap-2 max-w-md">
+              <form onSubmit={handleSearch} className="flex gap-2 max-w-md">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
-                    placeholder="What do you want to learn?"
+                    placeholder="Search by tutor name..."
                     className="pl-10 h-12 bg-background"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button size="lg" className="h-12 px-6" asChild>
-                  <Link href={`/tutors${searchQuery ? `?q=${searchQuery}` : ""}`}>
-                    Search
-                  </Link>
+                <Button type="submit" size="lg" className="h-12 px-6">
+                  Search
                 </Button>
-              </div>
+              </form>
             </FadeIn>
 
-            {/* quick links */}
+            {/* category quick links */}
             <FadeIn delay={0.4}>
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="text-muted-foreground">Popular:</span>
-                {["Mathematics", "Programming", "English", "Physics"].map((subject) => (
-                  <Link
-                    key={subject}
-                    href={`/tutors?q=${subject}`}
-                    className="px-3 py-1 bg-muted hover:bg-muted/80 rounded-full transition-colors"
-                  >
-                    {subject}
-                  </Link>
-                ))}
+                <span className="text-muted-foreground">Browse by category:</span>
+                {loadingCategories ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                ) : categories.length > 0 ? (
+                  categories.map((category) => {
+                    // Shorten long category names
+                    const displayName = category.name === "Information and Communication Technology"
+                      ? "ICT"
+                      : category.name;
+                    return (
+                      <Link
+                        key={category.id}
+                        href={`/tutors?category=${category.slug}`}
+                        className="px-3 py-1 bg-muted hover:bg-primary hover:text-primary-foreground rounded-full transition-colors"
+                      >
+                        {displayName}
+                      </Link>
+                    );
+                  })
+                ) : (
+                  // Fallback if no categories from backend
+                  ["Mathematics", "Programming", "Languages", "Science"].map((cat) => (
+                    <Link
+                      key={cat}
+                      href={`/tutors?category=${cat.toLowerCase()}`}
+                      className="px-3 py-1 bg-muted hover:bg-primary hover:text-primary-foreground rounded-full transition-colors"
+                    >
+                      {cat}
+                    </Link>
+                  ))
+                )}
               </div>
             </FadeIn>
           </div>
@@ -100,7 +149,7 @@ export function HeroSection() {
                       <p className="text-sm text-muted-foreground">1-on-1 video tutoring</p>
                     </div>
                   </div>
-                  
+
                   {/* fake session preview */}
                   <div className="aspect-video bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-accent/20" />

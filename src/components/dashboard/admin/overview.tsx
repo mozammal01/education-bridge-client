@@ -108,19 +108,19 @@ export function AdminOverview() {
     },
     {
       label: "Revenue",
-      value: `৳${stats.totalRevenue.toLocaleString()}`,
+      value: `$${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       color: "text-violet-600",
       bg: "bg-violet-100",
     },
   ];
 
+  // Note: Replace with real activity data from backend when available
   const recentActivity = [
-    { type: "user", message: "New student registered", time: "2 min ago", icon: UserPlus },
-    { type: "booking", message: "Session completed", time: "15 min ago", icon: Calendar },
-    { type: "user", message: "New tutor registered", time: "1 hour ago", icon: UserPlus },
-    { type: "booking", message: "Session booked", time: "2 hours ago", icon: Calendar },
-    { type: "user", message: "New student registered", time: "3 hours ago", icon: UserPlus },
+    { type: "info", message: "Platform is running smoothly", time: "Live", icon: TrendingUp },
+    { type: "stats", message: `${stats.totalUsers} total users registered`, time: "All time", icon: Users },
+    { type: "stats", message: `${stats.totalBookings} bookings processed`, time: "All time", icon: Calendar },
+    { type: "stats", message: `${stats.totalTutors} active tutors`, time: "Current", icon: UserPlus },
   ];
 
   if (isLoading) {

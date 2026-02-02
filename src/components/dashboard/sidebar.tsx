@@ -8,8 +8,9 @@ export function DashboardSidebar() {
   const { user } = useAuth();
 
   const getNavItems = () => {
-    if (user?.role === UserRole.ADMIN) return adminNav;
-    if (user?.role === UserRole.TUTOR) return tutorNav;
+    const role = user?.role;
+    if (role === UserRole.ADMIN || role === "ADMIN") return adminNav;
+    if (role === UserRole.TUTOR || role === "TUTOR") return tutorNav;
     return undefined; // defaults to student nav
   };
 

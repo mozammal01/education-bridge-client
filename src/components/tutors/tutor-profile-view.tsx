@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   Clock,
@@ -20,7 +21,7 @@ import { BookingCard } from "./booking-card";
 import { ReviewsList } from "./reviews-list";
 import { ReviewModal } from "@/components/reviews/review-modal";
 import type { TutorProfile, Review } from "@/types";
-import { reviewsService } from "@/services";
+import { reviewsService, tutorsService } from "@/services";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -30,25 +31,33 @@ interface TutorProfileViewProps {
   tutor: TutorProfile;
 }
 
-export function TutorProfileView({ tutor }: TutorProfileViewProps) {
+export function TutorProfileView({ tutor: initialTutor }: TutorProfileViewProps) {
   const { user } = useAuth();
-  const [reviews, setReviews] = useState<Review[]>(tutor?.reviews || []);
+  const router = useRouter();
+  const [tutor, setTutor] = useState<TutorProfile>(initialTutor);
+  const [reviews, setReviews] = useState<Review[]>(initialTutor?.reviews || []);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
 
   const isStudent = user?.role === UserRole.STUDENT || user?.role === "STUDENT";
   const isOwnProfile = user?.id === tutor?.userId || user?.id === tutor?.user?.id;
 
+  // Calculate average rating from reviews
+  const calculatedRating = reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : tutor?.rating || tutor?.averageRating || 0;
+
+  // Fetch reviews on mount
   useEffect(() => {
     const fetchReviews = async () => {
-      if (tutor?.reviews && tutor.reviews.length > 0) {
-        setReviews(tutor.reviews);
+      if (initialTutor?.reviews && initialTutor.reviews.length > 0) {
+        setReviews(initialTutor.reviews);
         return;
       }
 
       setIsLoadingReviews(true);
       try {
-        const response = await reviewsService.getReviewsByTutor(tutor.id);
+        const response = await reviewsService.getReviewsByTutor(initialTutor.id);
         if (response.data) {
           const reviewData = Array.isArray(response.data)
             ? response.data
@@ -63,21 +72,32 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
     };
 
     fetchReviews();
-  }, [tutor]);
+  }, [initialTutor]);
 
-  const refreshReviews = async () => {
+  // Refresh both reviews and tutor data after a new review
+  const refreshData = useCallback(async () => {
     try {
-      const response = await reviewsService.getReviewsByTutor(tutor.id);
-      if (response.data) {
-        const reviewData = Array.isArray(response.data)
-          ? response.data
-          : (response.data as { reviews?: Review[] }).reviews || [];
+      // Fetch updated reviews
+      const reviewsResponse = await reviewsService.getReviewsByTutor(tutor.id);
+      if (reviewsResponse.data) {
+        const reviewData = Array.isArray(reviewsResponse.data)
+          ? reviewsResponse.data
+          : (reviewsResponse.data as { reviews?: Review[] }).reviews || [];
         setReviews(reviewData);
       }
+
+      // Fetch updated tutor data to get new rating
+      const tutorResponse = await tutorsService.getTutorById(tutor.id);
+      if (tutorResponse.data) {
+        setTutor(tutorResponse.data);
+      }
+
+      // Also refresh the page to update server-side data
+      router.refresh();
     } catch {
-      // Failed to refresh
+      // Failed to refresh, but reviews might have updated
     }
-  };
+  }, [tutor.id, router]);
 
   const imageUrl = getImageUrl(tutor?.user?.image);
 
@@ -118,9 +138,9 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
                       <h1 className="text-2xl font-bold mb-1">{tutor?.user?.name}</h1>
                       <p className="text-muted-foreground mb-3">{tutor?.headline}</p>
                       <div className="flex items-center gap-4 flex-wrap">
-                        <StarRating rating={tutor?.rating || 0} />
+                        <StarRating rating={calculatedRating} />
                         <span className="text-sm text-muted-foreground">
-                          ({tutor?.totalReviews || reviews.length || 0} reviews)
+                          ({reviews.length || tutor?.totalReviews || 0} reviews)
                         </span>
                       </div>
                     </div>
@@ -248,7 +268,7 @@ export function TutorProfileView({ tutor }: TutorProfileViewProps) {
         onClose={() => setShowReviewModal(false)}
         tutorId={tutor.id}
         tutorName={tutor?.user?.name || "Tutor"}
-        onSuccess={refreshReviews}
+        onSuccess={refreshData}
       />
     </div>
   );

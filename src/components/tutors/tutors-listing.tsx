@@ -12,9 +12,10 @@ import { TutorProfile } from "@/types";
 export function TutorsListing() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "";
+  const initialSearch = searchParams.get("search") || "";
 
   const [filters, setFilters] = useState<FilterState>({
-    search: "",
+    search: initialSearch,
     category: initialCategory,
     priceRange: null,
     minRating: null,
@@ -26,10 +27,14 @@ export function TutorsListing() {
 
   useEffect(() => {
     const category = searchParams.get("category");
-    if (category && category !== filters.category) {
-      setFilters(prev => ({ ...prev, category }));
-    }
-  }, [searchParams, filters.category]);
+    const search = searchParams.get("search");
+
+    setFilters(prev => ({
+      ...prev,
+      ...(category !== null && category !== prev.category ? { category } : {}),
+      ...(search !== null && search !== prev.search ? { search } : {}),
+    }));
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -82,7 +87,10 @@ export function TutorsListing() {
     <div className="grid lg:grid-cols-[280px_1fr] gap-8">
       <aside className="hidden lg:block">
         <div className="sticky top-24 bg-card border rounded-xl p-5">
-          <TutorsFilter onFilterChange={handleFilterChange} initialCategory={filters.category} />
+          <TutorsFilter
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
         </div>
       </aside>
 
@@ -99,7 +107,10 @@ export function TutorsListing() {
           </p>
 
           <div className="lg:hidden">
-            <TutorsFilter onFilterChange={handleFilterChange} initialCategory={filters.category} />
+            <TutorsFilter
+              filters={filters}
+              onFilterChange={handleFilterChange}
+            />
           </div>
         </div>
 

@@ -88,6 +88,14 @@ export function BookingCard({ tutor }: BookingCardProps) {
       return;
     }
 
+    // Validate that the booking is not in the past
+    const bookingDateTime = new Date(`${selectedDate}T${selectedTime}`);
+    const now = new Date();
+    if (bookingDateTime <= now) {
+      toast.error("Cannot book a session in the past");
+      return;
+    }
+
     setIsBooking(true);
     try {
       const [hours, minutes] = selectedTime.split(":");

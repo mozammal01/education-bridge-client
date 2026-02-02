@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Calendar, 
+import {
+  LayoutDashboard,
+  Calendar,
   User,
   BookOpen,
   Clock,
   Users,
   FolderOpen,
-  type LucideIcon 
+  type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +41,7 @@ export const adminNav: NavItem[] = [
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Bookings", href: "/admin/bookings", icon: Calendar },
   { label: "Categories", href: "/admin/categories", icon: FolderOpen },
+  { label: "Profile", href: "/admin/profile", icon: User },
 ];
 
 interface DashboardNavProps {
@@ -54,7 +55,7 @@ export function DashboardNav({ items = studentNav, onNavigate }: DashboardNavPro
   return (
     <nav className="p-4 space-y-1">
       {items.map((item) => {
-        const isActive = pathname === item.href || 
+        const isActive = pathname === item.href ||
           (item.href !== "/dashboard" && item.href !== "/tutor/dashboard" && item.href !== "/admin" && pathname.startsWith(item.href));
 
         return (

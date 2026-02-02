@@ -17,7 +17,8 @@ export function getImageUrl(path: string | undefined | null): string {
 
   // For uploads, always use the backend server URL
   if (path.startsWith("/uploads")) {
-    const baseUrl = API_BASE_URL.replace(/\/api$/, "");
+    // Remove trailing /api if present, or any trailing slash
+    const baseUrl = API_BASE_URL.replace(/\/api\/?$/, "").replace(/\/$/, "");
     return `${baseUrl}${path}`;
   }
 

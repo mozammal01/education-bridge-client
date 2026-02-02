@@ -231,7 +231,7 @@ export function TutorAvailability() {
               </div>
 
               {availability[day.value].enabled && availability[day.value].slots.length > 0 && (
-                <div className="space-y-2 ml-15">
+                <div className="space-y-2 ml-[60px]">
                   {availability[day.value].slots.map((slot) => (
                     <div key={slot.id} className="flex items-center gap-3">
                       <select

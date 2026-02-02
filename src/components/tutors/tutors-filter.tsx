@@ -18,8 +18,8 @@ import { categoriesService } from "@/services/categories.service";
 import { Category } from "@/types";
 
 interface TutorsFilterProps {
+  filters: FilterState;
   onFilterChange: (filters: FilterState) => void;
-  initialCategory?: string;
 }
 
 export interface FilterState {
@@ -30,14 +30,7 @@ export interface FilterState {
   language: string;
 }
 
-export function TutorsFilter({ onFilterChange, initialCategory = "" }: TutorsFilterProps) {
-  const [filters, setFilters] = useState<FilterState>(() => ({
-    search: "",
-    category: initialCategory,
-    priceRange: null,
-    minRating: null,
-    language: "",
-  }));
+export function TutorsFilter({ filters, onFilterChange }: TutorsFilterProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -56,21 +49,17 @@ export function TutorsFilter({ onFilterChange, initialCategory = "" }: TutorsFil
   }, []);
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+    onFilterChange({ ...filters, [key]: value });
   };
 
   const clearFilters = () => {
-    const cleared: FilterState = {
+    onFilterChange({
       search: "",
       category: "",
       priceRange: null,
       minRating: null,
       language: "",
-    };
-    setFilters(cleared);
-    onFilterChange(cleared);
+    });
   };
 
   const activeFilterCount = [
@@ -86,16 +75,19 @@ export function TutorsFilter({ onFilterChange, initialCategory = "" }: TutorsFil
         <h4 className="font-medium mb-3">Category</h4>
         <div className="flex flex-wrap gap-2">
           {categories.length > 0 ? (
-            categories.map((cat) => (
-              <Badge
-                key={cat.id}
-                variant={filters.category === cat.slug ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => updateFilter("category", filters.category === cat.slug ? "" : cat.slug)}
-              >
-                {cat.name}
-              </Badge>
-            ))
+            categories.map((cat) => {
+              const displayName = cat.name === "Information and Communication Technology" ? "ICT" : cat.name;
+              return (
+                <Badge
+                  key={cat.id}
+                  variant={filters.category === cat.slug ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => updateFilter("category", filters.category === cat.slug ? "" : cat.slug)}
+                >
+                  {displayName}
+                </Badge>
+              );
+            })
           ) : (
             <span className="text-sm text-muted-foreground">Loading categories...</span>
           )}

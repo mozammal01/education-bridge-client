@@ -1,16 +1,30 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<{ data?: T; message?: string }> {
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
+  let res: Response;
 
-  const data = await res.json();
+  try {
+    res = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+      },
+    });
+  } catch {
+    throw new Error("Network error. Please check your connection.");
+  }
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    if (!res.ok) {
+      throw new Error(`Server error: ${res.status} ${res.statusText}`);
+    }
+    return { data: undefined, message: "Success" };
+  }
 
   if (!res.ok) {
     throw new Error(data.message || "Something went wrong");
@@ -44,13 +58,27 @@ export const api = {
     request<T>(endpoint, { method: "DELETE" }),
 
   upload: async <T>(endpoint: string, formData: FormData): Promise<{ data?: T; message?: string }> => {
-    const res = await fetch(`${BASE_URL}${endpoint}`, {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
+    let res: Response;
 
-    const data = await res.json();
+    try {
+      res = await fetch(`${BASE_URL}${endpoint}`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+    } catch {
+      throw new Error("Network error. Please check your connection.");
+    }
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+      return { data: undefined, message: "Upload successful" };
+    }
 
     if (!res.ok) {
       throw new Error(data.message || "Something went wrong");

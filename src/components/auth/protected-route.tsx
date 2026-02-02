@@ -11,6 +11,21 @@ interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
 }
 
+// Helper function to check if user role matches allowed roles
+function isRoleAllowed(userRole: string | UserRole | undefined, allowedRoles: UserRole[]): boolean {
+  if (!userRole || allowedRoles.length === 0) return true;
+
+  // Check both enum value and string value
+  return allowedRoles.some(role =>
+    userRole === role || userRole === role.toString()
+  );
+}
+
+// Helper to check specific role
+function hasRole(userRole: string | UserRole | undefined, role: UserRole): boolean {
+  return userRole === role || userRole === role.toString();
+}
+
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
@@ -25,11 +40,11 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
       // Check role if allowedRoles is specified
       if (allowedRoles && allowedRoles.length > 0) {
-        if (!allowedRoles.includes(user.role as UserRole)) {
+        if (!isRoleAllowed(user.role, allowedRoles)) {
           // Redirect to appropriate dashboard based on role
-          if (user.role === UserRole.ADMIN) {
+          if (hasRole(user.role, UserRole.ADMIN)) {
             router.push("/admin");
-          } else if (user.role === UserRole.TUTOR) {
+          } else if (hasRole(user.role, UserRole.TUTOR)) {
             router.push("/tutor/dashboard");
           } else {
             router.push("/dashboard");
@@ -64,7 +79,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   // Check role access
-  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role as UserRole)) {
+  if (allowedRoles && allowedRoles.length > 0 && !isRoleAllowed(user.role, allowedRoles)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

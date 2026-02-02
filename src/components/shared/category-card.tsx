@@ -35,6 +35,11 @@ interface CategoryCardProps {
 export function CategoryCard({ category, className }: CategoryCardProps) {
   const Icon = iconMap[category.icon || "GraduationCap"] || GraduationCap;
 
+  // Shorten long category names
+  const displayName = category.name === "Information and Communication Technology"
+    ? "ICT"
+    : category.name;
+
   return (
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
@@ -52,7 +57,7 @@ export function CategoryCard({ category, className }: CategoryCardProps) {
         <div className="p-3 bg-primary/10 rounded-xl mb-4 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-200">
           <Icon className="h-6 w-6 text-primary" />
         </div>
-        <h3 className="font-medium text-center mb-1 line-clamp-1">{category.name}</h3>
+        <h3 className="font-medium text-center mb-1 line-clamp-1">{displayName}</h3>
         <p className="text-sm text-muted-foreground">{category.tutorCount} tutors</p>
       </Link>
     </motion.div>
