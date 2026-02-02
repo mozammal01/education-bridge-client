@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EduBridge
 
-## Getting Started
+A platform where students can find tutors and book sessions.
 
-First, run the development server:
+## What it does
+
+- Students can browse tutors, filter by subject/price/rating, and book sessions
+- Tutors can create profiles, set their availability, and manage bookings
+- Admins can manage users, categories, and view all bookings
+
+## Tech used
+
+**Frontend:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
+
+**Backend:** Express.js, Prisma, PostgreSQL, better-auth
+
+## Running locally
+
+### Frontend
 
 ```bash
+cd education-bridge-client
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local`:
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cd education-bridge-server
+npm install
+npm run dev
+```
 
-## Learn More
+Create `.env`:
+```
+DATABASE_URL=your_postgres_url
+BETTER_AUTH_SECRET=your_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Live demo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Frontend: https://education-bridge-client.vercel.app
+- Backend: https://education-bridge-server.vercel.app
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Features
 
-## Deploy on Vercel
+- Email/password login
+- Google/GitHub login
+- Tutor search with filters
+- Booking system
+- Review system
+- Admin dashboard
+- Responsive design
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
