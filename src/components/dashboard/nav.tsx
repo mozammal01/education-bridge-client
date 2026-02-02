@@ -20,14 +20,12 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-// student nav items
 const studentNav: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "My Bookings", href: "/dashboard/bookings", icon: Calendar },
   { label: "Profile", href: "/dashboard/profile", icon: User },
 ];
 
-// tutor nav items
 export const tutorNav: NavItem[] = [
   { label: "Overview", href: "/tutor/dashboard", icon: LayoutDashboard },
   { label: "Sessions", href: "/tutor/sessions", icon: BookOpen },
@@ -35,7 +33,6 @@ export const tutorNav: NavItem[] = [
   { label: "Profile", href: "/tutor/profile", icon: User },
 ];
 
-// admin nav items
 export const adminNav: NavItem[] = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard },
   { label: "Users", href: "/admin/users", icon: Users },

@@ -10,8 +10,7 @@ import { type LoginForm } from "@/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
+import { BASE_URL } from "@/lib/api";
 
 export function LoginForm() {
   const [formData, setFormData] = useState<LoginForm>({ email: "", password: "" });
@@ -25,7 +24,7 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/auth/sign-in/email`, {
+      const res = await fetch(`${BASE_URL}/api/auth/sign-in/email`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -52,8 +51,7 @@ export function LoginForm() {
   const handleSocialLogin = async (provider: "google" | "github") => {
     setSocialLoading(provider);
     try {
-      // Use POST request to get the OAuth redirect URL from better-auth
-      const res = await fetch(`${API_URL}/api/auth/sign-in/social`, {
+      const res = await fetch(`${BASE_URL}/api/auth/sign-in/social`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -66,7 +64,6 @@ export function LoginForm() {
       const data = await res.json();
 
       if (data.url) {
-        // Redirect to OAuth provider
         window.location.href = data.url;
       } else {
         throw new Error(data.message || "Failed to initiate social login");

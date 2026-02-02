@@ -32,8 +32,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
-
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
     return [
       {
         source: "/uploads/:path*",

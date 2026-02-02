@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { TutorProfileView } from "@/components/tutors/tutor-profile-view";
 import { notFound } from "next/navigation";
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
 
 interface PageProps {
   params: Promise<{ id: string }>;

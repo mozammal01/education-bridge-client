@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DAYS_OF_WEEK, TIME_SLOTS } from "@/lib/constants";
 import { toast } from "sonner";
+import { BASE_URL } from "@/lib/api";
 
 interface TimeSlot {
   id: string;
@@ -41,7 +42,7 @@ export function TutorAvailability() {
     const fetchAvailability = async () => {
       try {
         const response = await fetch(
-          `${(process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "")}/api/tutor/availability`,
+          `${BASE_URL}/api/tutor/availability`,
           { credentials: "include" }
         );
 
@@ -66,7 +67,6 @@ export function TutorAvailability() {
           }
         }
       } catch {
-        // Use default if fetch fails
       } finally {
         setLoading(false);
       }
@@ -133,7 +133,7 @@ export function TutorAvailability() {
         );
 
       const response = await fetch(
-        `${(process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "")}/api/tutor/availability`,
+        `${BASE_URL}/api/tutor/availability`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

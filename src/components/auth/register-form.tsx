@@ -12,8 +12,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { GoogleIcon, GitHubIcon } from "@/components/icons";
 import { RoleSelectionModal } from "./role-selection-modal";
-
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
+import { BASE_URL } from "@/lib/api";
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -49,7 +48,7 @@ export function RegisterForm() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/sign-up/email`, {
+      const res = await fetch(`${BASE_URL}/api/auth/sign-up/email`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -81,12 +80,10 @@ export function RegisterForm() {
 
   const handleSocialSignup = async (role: UserRole) => {
     setSocialLoading(selectedProvider);
-    // Store selected role in localStorage for post-OAuth handling
     localStorage.setItem("pendingRole", role);
 
     try {
-      // Use POST request to get the OAuth redirect URL from better-auth
-      const res = await fetch(`${API_URL}/api/auth/sign-in/social`, {
+      const res = await fetch(`${BASE_URL}/api/auth/sign-in/social`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -99,7 +96,6 @@ export function RegisterForm() {
       const data = await res.json();
 
       if (data.url) {
-        // Redirect to OAuth provider
         window.location.href = data.url;
       } else {
         throw new Error(data.message || "Failed to initiate social signup");

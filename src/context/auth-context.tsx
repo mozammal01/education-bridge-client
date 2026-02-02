@@ -3,10 +3,7 @@
 import { User, UserRole } from "@/types";
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
-
-// Remove trailing slash from URL to prevent double slashes
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
+import { api, BASE_URL } from "@/lib/api";
 
 type AuthContextType = {
   user: User | null;
@@ -22,7 +19,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Handle pending role update from social signup
   const handlePendingRoleUpdate = useCallback(async (currentUser: User) => {
     const pendingRole = localStorage.getItem("pendingRole");
 
@@ -30,8 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         await api.patch("/api/user/role", { role: UserRole.TUTOR });
         localStorage.removeItem("pendingRole");
-        // Refresh user data to get updated role
-        const res = await fetch(`${API_URL}/api/auth/me`, {
+        const res = await fetch(`${BASE_URL}/api/auth/me`, {
           credentials: "include",
         });
         if (res.ok) {
@@ -44,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.error("Failed to set up tutor account. You can update your role later.");
       }
     } else {
-      // Clear pending role if it doesn't apply
       localStorage.removeItem("pendingRole");
     }
   }, []);
@@ -52,17 +46,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/auth/me`, {
+        const res = await fetch(`${BASE_URL}/api/auth/me`, {
           credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();
           setUser(data.data);
-          // Check for pending role update after social login
           await handlePendingRoleUpdate(data.data);
         }
       } catch {
-        // not logged in
       } finally {
         setIsLoading(false);
       }
@@ -74,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/me`, {
+      const res = await fetch(`${BASE_URL}/api/auth/me`, {
         credentials: "include",
       });
       if (res.ok) {
@@ -82,13 +74,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.data);
       }
     } catch {
-      // failed to refresh
     }
   };
 
   const logout = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/signout`, {
+      const res = await fetch(`${BASE_URL}/api/auth/signout`, {
         method: "POST",
         credentials: "include",
       });
