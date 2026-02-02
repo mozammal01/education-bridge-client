@@ -1,4 +1,5 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
+// Remove trailing slash from URL to prevent double slashes
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<{ data?: T; message?: string }> {
   let res: Response;

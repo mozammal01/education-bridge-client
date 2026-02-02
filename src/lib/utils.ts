@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
+// Remove trailing slash from URL to prevent double slashes
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
 
 export function getImageUrl(path: string | undefined | null): string {
   if (!path) return "";

@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
+    const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
 
     return [
       {

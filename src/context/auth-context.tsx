@@ -5,7 +5,8 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
+// Remove trailing slash from URL to prevent double slashes
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
 
 type AuthContextType = {
   user: User | null;

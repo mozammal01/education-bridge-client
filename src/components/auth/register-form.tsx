@@ -13,7 +13,7 @@ import { useAuth } from "@/context/auth-context";
 import { GoogleIcon, GitHubIcon } from "@/components/icons";
 import { RoleSelectionModal } from "./role-selection-modal";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
