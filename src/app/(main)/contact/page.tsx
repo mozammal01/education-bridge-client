@@ -118,7 +118,7 @@ export default function ContactPage() {
 
           {/* Contact Form */}
           <div ref={formRef}>
-            <Card className="contact-form border-none shadow-2xl p-8 lg:p-12 bg-white/80 backdrop-blur-xl rounded-[2rem]">
+            <Card className="contact-form border-none shadow-2xl p-8 lg:p-12 bg-white/80 dark:bg-card/50 backdrop-blur-xl rounded-[2rem]">
               <div className="mb-8">
                 <h2 className="text-3xl font-black mb-2">Send a Message</h2>
                 <p className="text-muted-foreground font-medium">We'll get back to you sooner than you think.</p>

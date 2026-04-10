@@ -55,16 +55,16 @@ export default function AboutPage() {
   }, []);
 
   const stats = [
-    { label: "Active Learners", value: "50k+", icon: Users, color: "text-blue-500", bg: "bg-blue-50" },
-    { label: "Expert Tutors", value: "10k+", icon: GraduationCap, color: "text-emerald-500", bg: "bg-emerald-50" },
-    { label: "Countries", value: "120+", icon: Globe, color: "text-amber-500", bg: "bg-amber-50" },
-    { label: "Success Rate", value: "98%", icon: Award, color: "text-rose-500", bg: "bg-rose-50" },
+    { label: "Active Learners", value: "50k+", icon: Users, color: "text-blue-500 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30" },
+    { label: "Expert Tutors", value: "10k+", icon: GraduationCap, color: "text-emerald-500 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+    { label: "Countries", value: "120+", icon: Globe, color: "text-amber-500 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30" },
+    { label: "Success Rate", value: "98%", icon: Award, color: "text-rose-500 dark:text-rose-400", bg: "bg-rose-50 dark:bg-rose-950/30" },
   ];
 
   return (
     <div ref={containerRef} className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative py-24 bg-linear-to-b from-primary/5 to-background overflow-hidden">
+      <section className="relative py-20 lg:py-24 bg-linear-to-b from-primary/5 to-background overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(circle_at_center,var(--color-primary-10),transparent_70%)] opacity-50" />
         <div className="container mx-auto px-4 relative z-10 animate-banner">
           <div className="max-w-3xl">
@@ -72,10 +72,10 @@ export default function AboutPage() {
               <Sparkles className="w-3 h-3" />
               Our Mission
             </div>
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-8">
               Revolutionizing <span className="text-primary italic">Education</span> for Everyone
             </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed mb-10">
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-10">
               We believe quality education is a human right. EduBridge connects 
               the world's most passionate educators with eager learners, breaking 
               down geographical and economic barriers.
@@ -85,17 +85,17 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-background stats-container">
+      <section className="py-16 md:py-20 bg-background stats-container">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {stats.map((stat, idx) => (
-              <Card key={idx} className="stats-card border-none shadow-lg shadow-black/5 hover:shadow-xl transition-shadow">
-                <CardContent className="p-8 text-center">
-                  <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
-                    <stat.icon className="w-7 h-7" />
+              <Card key={idx} className="stats-card border-none shadow-lg shadow-black/5 dark:shadow-white/5 hover:shadow-xl transition-shadow bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-6 md:p-8 text-center">
+                  <div className={`w-12 h-12 md:w-14 md:h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                    <stat.icon className="w-6 h-6 md:w-7 md:h-7" />
                   </div>
-                  <h3 className="text-3xl font-black mb-1">{stat.value}</h3>
-                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+                  <h3 className="text-2xl md:text-3xl font-black mb-1">{stat.value}</h3>
+                  <p className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-widest">{stat.label}</p>
                 </CardContent>
               </Card>
             ))}
@@ -161,19 +161,19 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-background">
+      <section className="py-20 lg:py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="bg-primary rounded-[3rem] p-12 lg:p-24 text-center relative overflow-hidden">
+          <div className="bg-primary rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 lg:p-24 text-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_-20%,rgba(255,255,255,0.2),transparent_70%)]" />
             <div className="relative z-10 max-w-2xl mx-auto">
-              <h2 className="text-4xl lg:text-5xl font-black text-primary-foreground mb-8">
+              <h2 className="text-3xl lg:text-5xl font-black text-primary-foreground mb-8 leading-tight">
                 Ready to Join the Future of Learning?
               </h2>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary" className="px-10 rounded-full font-bold shadow-xl">
+                <Button size="lg" variant="secondary" className="px-10 h-14 md:h-16 rounded-full font-bold shadow-xl">
                   Start Learning Now
                 </Button>
-                <Button size="lg" variant="outline" className="px-10 rounded-full font-bold border-white text-white hover:bg-white/10">
+                <Button size="lg" variant="outline" className="px-10 h-14 md:h-16 rounded-full font-bold border-white text-white hover:bg-white/10">
                   Become a Tutor
                 </Button>
               </div>
@@ -184,4 +184,3 @@ export default function AboutPage() {
     </div>
   );
 }
-

@@ -28,7 +28,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
     >
       <Card
         className={cn(
-          "group overflow-hidden border-0 bg-white h-full flex flex-col",
+          "group overflow-hidden border-0 bg-card h-full flex flex-col shadow-sm hover:shadow-xl transition-all duration-300",
           isOwnProfile && "ring-2 ring-primary",
           className
         )}
@@ -68,7 +68,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
               </div>
             )}
 
-            <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm text-amber-600 text-sm px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold shadow-lg">
+            <div className="absolute top-3 right-3 bg-background/95 backdrop-blur-sm text-amber-600 dark:text-amber-400 text-sm px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold shadow-lg">
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               {(tutor?.averageRating || tutor?.rating || 0).toFixed(1)}
             </div>
@@ -112,7 +112,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-2 py-3 my-3 border-y border-gray-100">
+          <div className="grid grid-cols-3 gap-2 py-3 my-3 border-y">
             <div className="text-center">
               <div className="flex items-center justify-center text-primary mb-1">
                 <Clock className="h-4 w-4" />
@@ -120,7 +120,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
               <p className="text-sm font-semibold">{tutor?.experience || 0}+</p>
               <p className="text-xs text-muted-foreground">Years</p>
             </div>
-            <div className="text-center border-x border-gray-100">
+            <div className="text-center border-x">
               <div className="flex items-center justify-center text-primary mb-1">
                 <Users className="h-4 w-4" />
               </div>

@@ -149,7 +149,7 @@ export function TutorsListing() {
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-10 gap-2 px-4 shadow-sm border-gray-200">
+                <Button variant="outline" size="sm" className="h-10 gap-2 px-4 shadow-sm border-border">
                   <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Sort by: {
                     sortBy === "newest" ? "Newest" : 
@@ -182,7 +182,7 @@ export function TutorsListing() {
             ))}
           </div>
         ) : error ? (
-          <div className="text-center py-16 bg-red-50/50 rounded-2xl border border-red-100">
+          <div className="text-center py-16 bg-destructive/5 rounded-2xl border border-destructive/20">
             <p className="text-red-600 mb-4 font-medium">{error}</p>
             <Button variant="outline" onClick={() => window.location.reload()}>
               Try again

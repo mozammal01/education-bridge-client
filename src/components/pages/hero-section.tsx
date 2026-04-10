@@ -145,7 +145,7 @@ export function HeroSection() {
                       <Link
                         key={category.id}
                         href={`/tutors?category=${category.slug}`}
-                        className="px-3 py-1 bg-white/50 border hover:bg-primary hover:text-primary-foreground hover:border-primary rounded-full transition-all"
+                        className="px-3 py-1 bg-card/50 backdrop-blur-sm border hover:bg-primary hover:text-primary-foreground hover:border-primary rounded-full transition-all"
                       >
                         {displayName}
                       </Link>
@@ -156,7 +156,7 @@ export function HeroSection() {
                     <Link
                       key={cat}
                       href={`/tutors?category=${cat.toLowerCase()}`}
-                      className="px-3 py-1 bg-white/50 border hover:bg-primary hover:text-primary-foreground hover:border-primary rounded-full transition-all"
+                      className="px-3 py-1 bg-card/50 backdrop-blur-sm border hover:bg-primary hover:text-primary-foreground hover:border-primary rounded-full transition-all"
                     >
                       {cat}
                     </Link>

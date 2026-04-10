@@ -62,7 +62,7 @@ export function LatestBlogsSection() {
                 <div className="aspect-16/10 relative overflow-hidden bg-muted">
                   <div className="absolute inset-0 bg-primary/10 group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute top-4 left-4 z-10">
-                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-primary text-xs font-bold rounded-full shadow-sm">
+                    <span className="px-3 py-1 bg-background/90 backdrop-blur-sm text-primary text-xs font-bold rounded-full shadow-sm">
                       {blog.category}
                     </span>
                   </div>
