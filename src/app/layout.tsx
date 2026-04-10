@@ -53,6 +53,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -63,12 +65,19 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${dmSans.variable} font-sans antialiased`}
       >
-        <AuthProvider>
-          <SmoothScroll>
-            {children}
-            <Toaster position="top-right" richColors />
-          </SmoothScroll>
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <SmoothScroll>
+              {children}
+              <Toaster position="top-right" richColors />
+            </SmoothScroll>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

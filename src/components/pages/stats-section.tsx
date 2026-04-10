@@ -40,7 +40,10 @@ const stats = [
 
 export function StatsSection() {
   return (
-    <section className="py-12 border-y bg-muted/30">
+    <section className="py-24 border-y bg-muted/20 relative overflow-hidden">
+      {/* Subtle decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary/20 to-transparent" />
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (

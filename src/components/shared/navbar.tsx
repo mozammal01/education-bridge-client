@@ -18,6 +18,8 @@ import { useAuth } from "@/context/auth-context";
 import { UserRole } from "@/types";
 import { useRouter } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
+import { ModeToggle } from "@/components/mode-toggle";
+import { motion } from "framer-motion";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -144,13 +146,16 @@ export function Navbar() {
 
           {/* auth section */}
           <div className="hidden md:flex items-center gap-3">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <ModeToggle />
+            </motion.div>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="gap-2 pl-2 pr-3">
-                    <Avatar className="h-7 w-7">
+                  <Button variant="ghost" className="gap-2 pl-2 pr-3 hover:bg-primary/5 transition-colors">
+                    <Avatar className="h-7 w-7 border border-primary/20">
                       <AvatarImage src={getImageUrl(user.image)} alt={user.name} />
-                      <AvatarFallback className="text-xs">
+                      <AvatarFallback className="text-xs bg-primary/10">
                         {user.name.split(" ").map((n) => n[0]).join("")}
                       </AvatarFallback>
                     </Avatar>
@@ -158,35 +163,43 @@ export function Navbar() {
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52 p-1 rounded-xl shadow-2xl border-primary/10">
                   <DropdownMenuItem asChild>
-                    <Link href={getDashboardLink() || ""} className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" />
-                      Dashboard
+                    <Link href={getDashboardLink() || ""} className="cursor-pointer gap-2 py-2.5 px-3 rounded-lg">
+                      <User className="h-4 w-4 text-primary" />
+                      <div className="flex flex-col">
+                        <span className="font-medium text-sm">Dashboard</span>
+                        <span className="text-[10px] text-muted-foreground">Manage your sessions</span>
+                      </div>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href={isAdmin ? "/admin/profile" : isTutor ? "/tutor/profile" : "/dashboard/profile"} className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Profile
+                    <Link href={isAdmin ? "/admin/profile" : isTutor ? "/tutor/profile" : "/dashboard/profile"} className="cursor-pointer gap-2 py-2.5 px-3 rounded-lg">
+                      <Settings className="h-4 w-4 text-primary" />
+                      <div className="flex flex-col">
+                        <span className="font-medium text-sm">Profile Settings</span>
+                        <span className="text-[10px] text-muted-foreground">Update your information</span>
+                      </div>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive cursor-pointer" onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log out
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem className="text-destructive cursor-pointer gap-2 py-2.5 px-3 rounded-lg hover:bg-destructive/5" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4" />
+                    <span className="font-medium text-sm">Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <>
-                <Button variant="ghost" asChild>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" asChild className="hover:text-primary transition-colors">
                   <Link href="/login">Log in</Link>
                 </Button>
-                <Button asChild>
-                  <Link href="/register">Sign up</Link>
-                </Button>
-              </>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                  <Button asChild className="shadow-lg shadow-primary/20 rounded-full px-6">
+                    <Link href="/register">Sign up</Link>
+                  </Button>
+                </motion.div>
+              </div>
             )}
           </div>
 
@@ -203,6 +216,7 @@ export function Navbar() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-8">
                   <Logo />
+                  <ModeToggle />
                 </div>
 
                 <nav className="flex flex-col gap-1 overflow-y-auto pr-2">

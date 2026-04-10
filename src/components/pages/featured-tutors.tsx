@@ -54,13 +54,21 @@ export function FeaturedTutors() {
             ))}
           </div>
         ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">{error}</p>
+          <div className="text-center py-20 bg-destructive/5 rounded-3xl border border-dashed border-destructive/20 max-w-2xl mx-auto shadow-inner">
+            <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <UserX className="h-8 w-8 text-destructive" />
+            </div>
+            <h4 className="text-xl font-bold mb-2">Service unavailable</h4>
+            <p className="text-muted-foreground mb-6">We&apos;re currently unable to fetch our top tutors. Please check back in a few moments.</p>
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
           </div>
         ) : tutors.length === 0 ? (
-          <div className="text-center py-12">
-            <UserX className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No tutors available yet</p>
+          <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed max-w-2xl mx-auto">
+            <UserX className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <h4 className="text-xl font-bold mb-2">Looking for tutors?</h4>
+            <p className="text-muted-foreground">It seems there are no featured tutors at the moment. Explore our full catalog to find your match.</p>
           </div>
         ) : (
           <StaggerContainer className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">

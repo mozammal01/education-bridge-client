@@ -75,12 +75,13 @@ export function HeroSection() {
   };
 
   return (
-    <section ref={heroRef} className="relative min-h-[70vh] flex items-center overflow-hidden bg-linear-to-b from-secondary/40 via-background to-background">
+    <section ref={heroRef} className="relative min-h-[85vh] flex items-center overflow-hidden bg-linear-to-b from-primary/5 via-background to-background">
       {/* background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[10%] right-[-5%] w-[40%] h-[40%] bg-accent/20 rounded-full blur-[120px]" />
+        <div className="absolute top-[20%] right-[15%] w-[20%] h-[20%] bg-emerald-500/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[20%] left-[15%] w-[20%] h-[20%] bg-violet-500/10 rounded-full blur-[100px]" />
       </div>
 
       <div className="container mx-auto px-4 py-12 lg:py-20 relative">
@@ -124,9 +125,11 @@ export function HeroSection() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button type="submit" size="lg" className="h-12 px-6 shadow-lg shadow-primary/20">
-                  Search
-                </Button>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button type="submit" size="lg" className="h-12 px-6 shadow-xl shadow-primary/20 rounded-full">
+                    Search
+                  </Button>
+                </motion.div>
               </form>
             </FadeIn>
 

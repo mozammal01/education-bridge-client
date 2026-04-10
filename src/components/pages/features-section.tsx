@@ -76,8 +76,12 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section ref={sectionRef} className="py-20 bg-background">
-      <div className="container mx-auto px-4">
+    <section ref={sectionRef} className="py-24 bg-background relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-1/4 -right-20 w-80 h-80 bg-primary/5 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-accent/5 rounded-full blur-[100px]" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         <FadeIn>
           <SectionHeader
             title="Why Choose EduBridge?"
@@ -88,11 +92,11 @@ export function FeaturesSection() {
         <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
           {features.map((feature, index) => (
             <StaggerItem key={index}>
-              <div className="group feature-card p-8 rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className={`w-14 h-14 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              <div className="group feature-card p-8 rounded-2xl border bg-card hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(255,255,255,0.05)] hover:-translate-y-2 transition-all duration-500 cursor-default h-full">
+                <div className={`w-14 h-14 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 dark:bg-muted`}>
                   <feature.icon className="w-7 h-7" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>

@@ -1,19 +1,19 @@
 "use client";
 
-import { FadeIn } from "@/components/shared";
+import { FadeIn, SectionHeader } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Bell } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function NewsletterSection() {
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-24 relative overflow-hidden bg-background">
       {/* Background Decor */}
-      <div className="absolute inset-0 bg-primary/5 -z-10" />
-      <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50" />
-      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-accent/10 rounded-full blur-3xl opacity-50" />
-
-      <div className="container mx-auto px-4">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-primary/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-primary/5 to-transparent pointer-events-none" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto bg-card border rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 text-primary/10 opacity-20">
             <Bell className="w-32 h-32 rotate-12" />
@@ -50,10 +50,12 @@ export function NewsletterSection() {
                       @
                     </div>
                   </div>
-                  <Button size="lg" className="w-full h-14 rounded-xl shadow-lg shadow-primary/20 group">
-                    Subscribe Now
-                    <Send className="ml-2 w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button size="lg" className="w-full h-14 rounded-xl shadow-lg shadow-primary/20 group">
+                      Subscribe Now
+                      <Send className="ml-2 w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </Button>
+                  </motion.div>
                   <p className="text-xs text-center text-muted-foreground">
                     By subscribing, you agree to our Privacy Policy. No spam, ever.
                   </p>
