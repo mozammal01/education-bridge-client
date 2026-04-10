@@ -34,7 +34,17 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<{ da
 }
 
 export const api = {
-  get: <T>(endpoint: string) => request<T>(endpoint),
+  get: <T>(endpoint: string, options?: { params?: any }) => {
+    let url = endpoint;
+    if (options?.params) {
+      const query = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined) query.append(key, String(value));
+      });
+      url += `?${query.toString()}`;
+    }
+    return request<T>(url);
+  },
 
   post: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, {
