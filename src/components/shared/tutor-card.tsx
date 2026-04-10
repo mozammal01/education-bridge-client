@@ -90,7 +90,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
         </div>
 
         <div className="p-4 flex flex-col flex-1">
-          <div className="flex flex-wrap gap-1.5 min-h-[52px]">
+          <div className="flex flex-wrap gap-1.5 h-[52px] overflow-hidden">
             {tutor?.subjects?.slice(0, 3).map((subject) => (
               <Badge
                 key={subject}
@@ -112,7 +112,7 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-2 py-3 my-3 border-y">
+          <div className="grid grid-cols-3 gap-2 py-3 my-3 border-y h-[76px]">
             <div className="text-center">
               <div className="flex items-center justify-center text-primary mb-1">
                 <Clock className="h-4 w-4" />
@@ -136,9 +136,9 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground h-10 overflow-hidden mb-4">
             <Globe className="h-4 w-4 text-primary shrink-0" />
-            <span className="line-clamp-1">{tutor?.languages?.join(", ") || "English"}</span>
+            <span className="line-clamp-2">{tutor?.languages?.join(", ") || "English"}</span>
           </div>
 
           <div className="mt-auto" />

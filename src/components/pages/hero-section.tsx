@@ -75,7 +75,7 @@ export function HeroSection() {
   };
 
   return (
-    <section ref={heroRef} className="relative min-h-[85vh] flex items-center overflow-hidden bg-linear-to-b from-primary/5 via-background to-background">
+    <section ref={heroRef} className="relative min-h-[70vh] flex items-center overflow-hidden bg-linear-to-b from-primary/5 via-background to-background">
       {/* background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
