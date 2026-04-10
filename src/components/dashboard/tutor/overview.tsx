@@ -131,7 +131,7 @@ export function TutorOverview() {
         ))}
       </div>
 
-      <DashboardCharts />
+      <DashboardCharts bookings={bookings} isLoading={isLoading} />
 
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminService, bookingsService, tutorsService } from "@/services";
+import { Booking } from "@/types";
 import { DashboardCharts } from "../overview-charts";
 
 interface Stats {
@@ -33,6 +34,7 @@ export function AdminOverview() {
     totalBookings: 0,
     totalRevenue: 0,
   });
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -52,27 +54,29 @@ export function AdminOverview() {
 
         // Fetch bookings
         const bookingsRes = await bookingsService.getBookings();
-        const bookings = Array.isArray(bookingsRes.data)
+        const fetchedBookings = Array.isArray(bookingsRes.data)
           ? bookingsRes.data
-          : (bookingsRes.data as { bookings?: { status: string; totalPrice: number }[] })?.bookings || [];
+          : (bookingsRes.data as { bookings?: Booking[] })?.bookings || [];
+        
+        setBookings(fetchedBookings);
 
-        const completedBookings = bookings.filter(
-          (b: { status: string }) => b.status === "COMPLETED"
+        const completedBookings = fetchedBookings.filter(
+          (b) => b.status === "COMPLETED"
         );
         const revenue = completedBookings.reduce(
-          (acc: number, b: { totalPrice: number }) => acc + (b.totalPrice || 0),
+          (acc, b) => acc + (b.totalPrice || 0),
           0
         );
 
         const students = users.filter(
-          (u: { role: string }) => u.role === "STUDENT"
+          (u: any) => u.role === "STUDENT"
         );
 
         setStats({
           totalUsers: users.length,
           totalStudents: students.length,
           totalTutors: tutors.length,
-          totalBookings: bookings.length,
+          totalBookings: fetchedBookings.length,
           totalRevenue: revenue,
         });
       } catch (error) {
@@ -160,7 +164,7 @@ export function AdminOverview() {
         ))}
       </div>
 
-      <DashboardCharts />
+      <DashboardCharts bookings={bookings} isLoading={isLoading} />
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* recent activity */}

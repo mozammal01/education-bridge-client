@@ -105,7 +105,7 @@ export function StudentOverview() {
         ))}
       </div>
 
-      <DashboardCharts />
+      <DashboardCharts bookings={bookings} isLoading={isLoading} />
 
       <Card>
         <CardHeader className="flex-row items-center justify-between pb-4">

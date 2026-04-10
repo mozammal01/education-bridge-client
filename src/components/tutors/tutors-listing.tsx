@@ -81,7 +81,7 @@ export function TutorsListing() {
 
   // Client-side filtering & sorting
   const processedTutors = useMemo(() => {
-    let result = tutors.filter((tutor) => {
+    const result = tutors.filter((tutor) => {
       if (filters.language) {
         const tutorLanguages = tutor.languages || [];
         if (!tutorLanguages.includes(filters.language)) {
@@ -124,7 +124,7 @@ export function TutorsListing() {
           
           <div className="bg-primary/5 rounded-xl p-5 border border-primary/10">
             <h4 className="font-bold text-sm mb-2">Need Help?</h4>
-            <p className="text-xs text-muted-foreground mb-4">Can't find the perfect tutor? Our support team can help you find a match.</p>
+            <p className="text-xs text-muted-foreground mb-4">Can&apos;t find the perfect tutor? Our support team can help you find a match.</p>
             <Button size="sm" variant="outline" className="w-full text-xs" asChild>
               <Link href="/contact">Contact Support</Link>
             </Button>
@@ -214,7 +214,7 @@ export function TutorsListing() {
             <UserX className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
             <p className="text-xl font-bold mb-2">No tutors found</p>
             <p className="text-muted-foreground max-w-sm mx-auto mb-8">
-              We couldn't find any tutors matching your current filters. Try broadening your search.
+              We couldn&apos;t find any tutors matching your current filters. Try broadening your search.
             </p>
             {(filters.search || filters.category || filters.language) && (
               <Button
