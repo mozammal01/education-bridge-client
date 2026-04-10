@@ -1,7 +1,35 @@
+"use client";
+
+import { useLayoutEffect, useRef } from "react";
 import { FadeIn, SectionHeader, StaggerContainer, StaggerItem } from "@/components/shared";
 import { BookOpen, Users, Clock, ShieldCheck, Globe, Zap } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function FeaturesSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".feature-card", {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+        },
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power2.out"
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
   const features = [
     {
       title: "Verified Tutors",
@@ -48,7 +76,7 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section className="py-20 bg-background">
+    <section ref={sectionRef} className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <FadeIn>
           <SectionHeader
@@ -60,7 +88,7 @@ export function FeaturesSection() {
         <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
           {features.map((feature, index) => (
             <StaggerItem key={index}>
-              <div className="group p-8 rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="group feature-card p-8 rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className={`w-14 h-14 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                   <feature.icon className="w-7 h-7" />
                 </div>

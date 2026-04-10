@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminService, bookingsService, tutorsService } from "@/services";
+import { DashboardCharts } from "../overview-charts";
 
 interface Stats {
   totalUsers: number;
@@ -158,6 +159,8 @@ export function AdminOverview() {
           </Card>
         ))}
       </div>
+
+      <DashboardCharts />
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* recent activity */}

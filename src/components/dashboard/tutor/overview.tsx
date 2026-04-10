@@ -12,6 +12,7 @@ import { Booking } from "@/types";
 import { getImageUrl } from "@/lib/utils";
 import { CompleteProfile } from "./complete-profile";
 import { TutorProfileData } from "@/services/tutors.service";
+import { DashboardCharts } from "../overview-charts";
 
 export function TutorOverview() {
   const { user } = useAuth();
@@ -129,6 +130,8 @@ export function TutorOverview() {
           </Card>
         ))}
       </div>
+
+      <DashboardCharts />
 
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>

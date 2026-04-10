@@ -11,6 +11,7 @@ import { useAuth } from "@/context/auth-context";
 import { bookingsService } from "@/services";
 import { Booking } from "@/types";
 import { getImageUrl } from "@/lib/utils";
+import { DashboardCharts } from "../overview-charts";
 
 export function StudentOverview() {
   const { user } = useAuth();
@@ -103,6 +104,8 @@ export function StudentOverview() {
           </Card>
         ))}
       </div>
+
+      <DashboardCharts />
 
       <Card>
         <CardHeader className="flex-row items-center justify-between pb-4">

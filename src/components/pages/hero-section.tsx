@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Play, Users, Star, BookOpen, Loader2, ChevronDown } from "lucide-react";
@@ -10,12 +10,45 @@ import { FadeIn, SlideIn, ScaleIn } from "@/components/shared";
 import { categoriesService } from "@/services";
 import { Category } from "@/types";
 import { motion } from "framer-motion";
+import gsap from "gsap";
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const router = useRouter();
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".hero-content > *", {
+        y: 60,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.2,
+        ease: "power4.out"
+      });
+      
+      gsap.from(".hero-visual > *", {
+        scale: 0.8,
+        opacity: 0,
+        duration: 1.2,
+        delay: 0.4,
+        ease: "back.out(1.7)"
+      });
+
+      // Subtle float animation for badges
+      gsap.to(".float-element", {
+        y: -10,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+      });
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -42,7 +75,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-linear-to-b from-secondary/40 via-background to-background">
+    <section ref={heroRef} className="relative min-h-[70vh] flex items-center overflow-hidden bg-linear-to-b from-secondary/40 via-background to-background">
       {/* background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
@@ -53,7 +86,7 @@ export function HeroSection() {
       <div className="container mx-auto px-4 py-12 lg:py-20 relative">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* left content */}
-          <div className="space-y-8">
+          <div className="space-y-8 hero-content">
             <FadeIn delay={0}>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm font-medium text-primary">
                 <span className="relative flex h-2 w-2">
@@ -134,7 +167,7 @@ export function HeroSection() {
           </div>
 
           {/* right content - hero visual */}
-          <div className="relative lg:pl-8">
+          <div className="relative lg:pl-8 hero-visual">
             <SlideIn direction="right" delay={0.2} distance={60}>
               <div className="relative">
                 {/* main card */}
@@ -181,7 +214,7 @@ export function HeroSection() {
                 </div>
 
                 {/* floating badges */}
-                <ScaleIn delay={0.5} className="absolute -top-4 -right-4">
+                <ScaleIn delay={0.5} className="absolute -top-4 -right-4 float-element">
                   <div className="bg-card border rounded-xl p-3 shadow-lg flex items-center gap-2">
                     <div className="p-2 bg-amber-100 rounded-lg">
                       <Star className="w-4 h-4 text-amber-500" fill="currentColor" />
@@ -193,7 +226,7 @@ export function HeroSection() {
                   </div>
                 </ScaleIn>
 
-                <ScaleIn delay={0.6} className="absolute -bottom-4 -left-4">
+                <ScaleIn delay={0.6} className="absolute -bottom-4 -left-4 float-element">
                   <div className="bg-card border rounded-xl p-3 shadow-lg flex items-center gap-2">
                     <div className="p-2 bg-primary/10 rounded-lg">
                       <Users className="w-4 h-4 text-primary" />

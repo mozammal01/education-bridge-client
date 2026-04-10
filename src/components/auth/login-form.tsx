@@ -148,7 +148,7 @@ export function LoginForm() {
           <Button
             variant="outline"
             type="button"
-            className="w-full"
+            className="w-full h-11 border-2 hover:bg-muted"
             disabled={!!socialLoading}
             onClick={() => handleSocialLogin("google")}
           >
@@ -162,7 +162,7 @@ export function LoginForm() {
           <Button
             variant="outline"
             type="button"
-            className="w-full"
+            className="w-full h-11 border-2 hover:bg-muted"
             disabled={!!socialLoading}
             onClick={() => handleSocialLogin("github")}
           >
@@ -172,6 +172,45 @@ export function LoginForm() {
               <GitHubIcon className="mr-2" />
             )}
             GitHub
+          </Button>
+        </div>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-4 text-muted-foreground font-semibold">Demo Accounts</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-xs h-9 border-primary/20 hover:bg-primary/5 hover:text-primary"
+            onClick={() => setFormData({ email: "student@bridge.com", password: "password123" })}
+          >
+            Student
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-xs h-9 border-accent/20 hover:bg-accent/5 hover:text-accent"
+            onClick={() => setFormData({ email: "tutor@bridge.com", password: "password123" })}
+          >
+            Tutor
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-xs h-9 border-amber-500/20 hover:bg-amber-500/5 hover:text-amber-500"
+            onClick={() => setFormData({ email: "admin@bridge.com", password: "password123" })}
+          >
+            Admin
           </Button>
         </div>
       </form>
