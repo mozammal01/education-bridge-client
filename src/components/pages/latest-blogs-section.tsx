@@ -3,35 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
-const blogs = [
-  {
-    title: "10 Tips for Effective Online Learning",
-    excerpt: "Discover the best strategies to stay focused and motivated while learning from home.",
-    author: "Sarah Johnson",
-    date: "May 15, 2024",
-    image: "/blog-1.jpg",
-    category: "Education",
-  },
-  {
-    title: "How to Choose the Perfect Tutor",
-    excerpt: "What to look for when selecting a tutor to ensure your learning goals are met.",
-    author: "Mark Davis",
-    date: "May 12, 2024",
-    image: "/blog-2.jpg",
-    category: "Tips",
-  },
-  {
-    title: "The Future of AI in Education",
-    excerpt: "Exploring how artificial intelligence is changing the way we teach and learn today.",
-    author: "Alex Wilson",
-    date: "May 10, 2024",
-    image: "/blog-3.jpg",
-    category: "Technology",
-  },
-];
+import { BLOG_POSTS } from "@/constants/blogs";
 
 export function LatestBlogsSection() {
+  const blogs = BLOG_POSTS.slice(0, 3);
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -58,38 +34,44 @@ export function LatestBlogsSection() {
         <StaggerContainer className="grid md:grid-cols-3 gap-8">
           {blogs.map((blog, index) => (
             <StaggerItem key={index}>
-              <div className="group rounded-2xl overflow-hidden border bg-card hover:shadow-2xl transition-all duration-500">
-                <div className="aspect-16/10 relative overflow-hidden bg-muted">
-                  <div className="absolute inset-0 bg-primary/10 group-hover:scale-110 transition-transform duration-700" />
+              <div className="group rounded-2xl overflow-hidden border bg-card hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <Link href={`/blog/${blog.slug}`} className="aspect-16/10 relative overflow-hidden bg-muted block">
+                  <Image 
+                    src={blog.image}
+                    alt={blog.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    unoptimized
+                  />
                   <div className="absolute top-4 left-4 z-10">
-                    <span className="px-3 py-1 bg-background/90 backdrop-blur-sm text-primary text-xs font-bold rounded-full shadow-sm">
+                    <span className="px-3 py-1 bg-background/90 backdrop-blur-sm text-primary text-[10px] font-bold rounded-full shadow-sm">
                       {blog.category}
                     </span>
                   </div>
-                </div>
+                </Link>
                 
-                <div className="p-6">
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex items-center gap-4 text-[10px] text-muted-foreground mb-4">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
                       {blog.date}
                     </div>
                     <div className="flex items-center gap-1">
                       <User className="w-3.5 h-3.5" />
-                      {blog.author}
+                      {blog.author.name}
                     </div>
                   </div>
                   
                   <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                    {blog.title}
+                    <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
                   </h3>
-                  <p className="text-muted-foreground text-sm line-clamp-2 mb-6">
+                  <p className="text-muted-foreground text-sm line-clamp-2 mb-6 flex-1">
                     {blog.excerpt}
                   </p>
                   
                   <Link 
-                    href="/blog" 
-                    className="inline-flex items-center text-sm font-bold text-primary group/link"
+                    href={`/blog/${blog.slug}`} 
+                    className="inline-flex items-center text-sm font-bold text-primary group/link mt-auto"
                   >
                     Read More
                     <ArrowRight className="ml-1 w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
