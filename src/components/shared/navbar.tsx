@@ -22,10 +22,20 @@ import { getImageUrl } from "@/lib/utils";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Find Tutors", href: "/tutors" },
-  { label: "Categories", href: "/categories" },
+  { label: "Blog", href: "/blog" },
   { label: "How It Works", href: "/#how-it-works" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
+const categories = [
+  { name: "Mathematics", icon: "📐", path: "/categories/math" },
+  { name: "Science", icon: "🧬", path: "/categories/science" },
+  { name: "Languages", icon: "🌐", path: "/categories/languages" },
+  { name: "Programming", icon: "💻", path: "/categories/programming" },
+  { name: "Music", icon: "🎵", path: "/categories/music" },
+  { name: "Arts", icon: "🎨", path: "/categories/arts" },
+];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -56,15 +66,80 @@ export function Navbar() {
 
           {/* desktop nav */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
-              >
-                {link.label}
-              </Link>
-            ))}
+            <Link
+              href="/"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+            >
+              Home
+            </Link>
+
+            <Link
+              href="/tutors"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+            >
+              Find Tutors
+            </Link>
+
+            {/* Mega Menu / Advanced Dropdown for Categories */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-9 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+                  Categories <ChevronDown className="ml-1 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[400px] p-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.name}
+                      href={cat.path}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group"
+                    >
+                      <span className="text-xl group-hover:scale-110 transition-transform">{cat.icon}</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{cat.name}</span>
+                        <span className="text-xs text-muted-foreground">Browse tutors</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <DropdownMenuSeparator className="my-2" />
+                <Link
+                  href="/categories"
+                  className="flex items-center justify-center p-2 text-sm font-medium text-primary hover:underline"
+                >
+                  View All Categories
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link
+              href="/blog"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+            >
+              Blog
+            </Link>
+
+            <Link
+              href="/#how-it-works"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+            >
+              How It Works
+            </Link>
+
+            <Link
+              href="/about"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+            >
+              About
+            </Link>
+
+            <Link
+              href="/contact"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+            >
+              Contact
+            </Link>
           </div>
 
           {/* auth section */}
@@ -130,17 +205,71 @@ export function Navbar() {
                   <Logo />
                 </div>
 
-                <nav className="flex flex-col gap-1">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
+                <nav className="flex flex-col gap-1 overflow-y-auto pr-2">
+                  <Link
+                    href="/"
+                    onClick={() => setMobileOpen(false)}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    Home
+                  </Link>
+
+                  <Link
+                    href="/tutors"
+                    onClick={() => setMobileOpen(false)}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    Find Tutors
+                  </Link>
+
+                  <div className="px-4 py-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Categories</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {categories.map((cat) => (
+                        <Link
+                          key={cat.name}
+                          href={cat.path}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex flex-col items-center justify-center p-3 border rounded-xl hover:bg-muted transition-colors text-center"
+                        >
+                          <span className="text-xl mb-1">{cat.icon}</span>
+                          <span className="text-xs font-medium">{cat.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/blog"
+                    onClick={() => setMobileOpen(false)}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    Blog
+                  </Link>
+
+                  <Link
+                    href="/#how-it-works"
+                    onClick={() => setMobileOpen(false)}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    How It Works
+                  </Link>
+
+                  <Link
+                    href="/about"
+                    onClick={() => setMobileOpen(false)}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    About
+                  </Link>
+
+                  <Link
+                    href="/contact"
+                    onClick={() => setMobileOpen(false)}
+                    className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                  >
+                    Contact
+                  </Link>
                 </nav>
 
                 <div className="mt-auto pt-8 border-t">

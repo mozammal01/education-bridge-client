@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Loader2, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TutorCard, SectionHeader, FadeIn, StaggerContainer, StaggerItem } from "@/components/shared";
+import { TutorCard, TutorCardSkeleton, SectionHeader, FadeIn, StaggerContainer, StaggerItem } from "@/components/shared";
 import { tutorsService } from "@/services";
 import { TutorProfile } from "@/types";
 
@@ -48,8 +48,10 @@ export function FeaturedTutors() {
         </FadeIn>
 
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <TutorCardSkeleton key={i} />
+            ))}
           </div>
         ) : error ? (
           <div className="text-center py-12">

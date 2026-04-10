@@ -20,6 +20,7 @@ import { StarRating } from "@/components/shared";
 import { BookingCard } from "./booking-card";
 import { ReviewsList } from "./reviews-list";
 import { ReviewModal } from "@/components/reviews/review-modal";
+import { RelatedTutors } from "./related-tutors";
 import type { TutorProfile, Review } from "@/types";
 import { reviewsService, tutorsService } from "@/services";
 import Image from "next/image";
@@ -115,8 +116,8 @@ export function TutorProfileView({ tutor: initialTutor }: TutorProfileViewProps)
                         src={imageUrl}
                         alt={tutor?.user?.name || "Tutor"}
                         className="object-cover w-full h-full"
-                        width={100}
-                        height={100}
+                        width={400}
+                        height={400}
                         unoptimized
                       />
                     ) : (
@@ -269,6 +270,12 @@ export function TutorProfileView({ tutor: initialTutor }: TutorProfileViewProps)
         tutorId={tutor.id}
         tutorName={tutor?.user?.name || "Tutor"}
         onSuccess={refreshData}
+      />
+
+      {/* Suggested Items Section */}
+      <RelatedTutors 
+        category={tutor?.subjects?.[0] || ""} 
+        currentTutorId={tutor.id} 
       />
     </div>
   );

@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Play, Users, Star, BookOpen, Loader2 } from "lucide-react";
+import { Search, Play, Users, Star, BookOpen, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FadeIn, SlideIn, ScaleIn } from "@/components/shared";
 import { categoriesService } from "@/services";
 import { Category } from "@/types";
+import { motion } from "framer-motion";
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,7 +42,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-secondary/40 via-background to-background">
+    <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-linear-to-b from-secondary/40 via-background to-background">
       {/* background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
@@ -49,7 +50,7 @@ export function HeroSection() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="container mx-auto px-4 py-20 lg:py-28 relative">
+      <div className="container mx-auto px-4 py-12 lg:py-20 relative">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* left content */}
           <div className="space-y-8">
@@ -85,12 +86,12 @@ export function HeroSection() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Search by tutor name..."
-                    className="pl-10 h-12 bg-background"
+                    className="pl-10 h-12 bg-background border-primary/20 focus:border-primary shadow-sm"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button type="submit" size="lg" className="h-12 px-6">
+                <Button type="submit" size="lg" className="h-12 px-6 shadow-lg shadow-primary/20">
                   Search
                 </Button>
               </form>
@@ -99,12 +100,11 @@ export function HeroSection() {
             {/* category quick links */}
             <FadeIn delay={0.4}>
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="text-muted-foreground">Browse by category:</span>
+                <span className="text-muted-foreground mr-1">Top categories:</span>
                 {loadingCategories ? (
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 ) : categories.length > 0 ? (
                   categories.map((category) => {
-                    // Shorten long category names
                     const displayName = category.name === "Information and Communication Technology"
                       ? "ICT"
                       : category.name;
@@ -112,19 +112,18 @@ export function HeroSection() {
                       <Link
                         key={category.id}
                         href={`/tutors?category=${category.slug}`}
-                        className="px-3 py-1 bg-muted hover:bg-primary hover:text-primary-foreground rounded-full transition-colors"
+                        className="px-3 py-1 bg-white/50 border hover:bg-primary hover:text-primary-foreground hover:border-primary rounded-full transition-all"
                       >
                         {displayName}
                       </Link>
                     );
                   })
                 ) : (
-                  // Fallback if no categories from backend
-                  ["Mathematics", "Programming", "Languages", "Science"].map((cat) => (
+                  ["Mathematics", "Programming", "Languages"].map((cat) => (
                     <Link
                       key={cat}
                       href={`/tutors?category=${cat.toLowerCase()}`}
-                      className="px-3 py-1 bg-muted hover:bg-primary hover:text-primary-foreground rounded-full transition-colors"
+                      className="px-3 py-1 bg-white/50 border hover:bg-primary hover:text-primary-foreground hover:border-primary rounded-full transition-all"
                     >
                       {cat}
                     </Link>
@@ -139,7 +138,7 @@ export function HeroSection() {
             <SlideIn direction="right" delay={0.2} distance={60}>
               <div className="relative">
                 {/* main card */}
-                <div className="bg-card rounded-2xl border shadow-2xl p-6 space-y-4">
+                <div className="bg-card/80 backdrop-blur-sm rounded-2xl border shadow-2xl p-6 space-y-4">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-xl bg-linear-to-br from-primary to-primary/70 flex items-center justify-center">
                       <BookOpen className="w-8 h-8 text-primary-foreground" />
@@ -151,10 +150,10 @@ export function HeroSection() {
                   </div>
 
                   {/* fake session preview */}
-                  <div className="aspect-video bg-muted rounded-xl flex items-center justify-center relative overflow-hidden">
+                  <div className="aspect-video bg-muted rounded-xl flex items-center justify-center relative overflow-hidden group/session">
                     <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-accent/20" />
                     <div className="relative z-10 flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform">
+                      <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center cursor-pointer group-hover/session:scale-110 transition-transform shadow-lg">
                         <Play className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" />
                       </div>
                       <span className="text-sm font-medium">See how it works</span>
@@ -209,6 +208,12 @@ export function HeroSection() {
             </SlideIn>
           </div>
         </div>
+      </div>
+
+      {/* Visual Hint for next section */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Explore</span>
+        <ChevronDown className="w-5 h-5 text-primary" />
       </div>
     </section>
   );

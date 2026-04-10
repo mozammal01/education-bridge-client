@@ -1,13 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { TutorCard } from "@/components/shared";
+import Link from "next/link";
+import { TutorCard, TutorCardSkeleton } from "@/components/shared";
 import { TutorsFilter, type FilterState } from "./tutors-filter";
 import { Button } from "@/components/ui/button";
-import { Loader2, UserX } from "lucide-react";
+import { UserX, LayoutGrid, ListFilter, ArrowUpDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { tutorsService } from "@/services";
 import { TutorProfile } from "@/types";
+
+type SortOption = "newest" | "price-asc" | "price-desc" | "rating-desc";
 
 export function TutorsListing() {
   const searchParams = useSearchParams();
@@ -21,9 +30,11 @@ export function TutorsListing() {
     minRating: null,
     language: "",
   });
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
     const category = searchParams.get("category");
@@ -68,87 +79,146 @@ export function TutorsListing() {
     fetchTutors();
   }, [filters]);
 
-  const filteredTutors = tutors.filter((tutor) => {
-    // Language filter (client-side)
-    if (filters.language) {
-      const tutorLanguages = tutor.languages || [];
-      if (!tutorLanguages.includes(filters.language)) {
-        return false;
+  // Client-side filtering & sorting
+  const processedTutors = useMemo(() => {
+    let result = tutors.filter((tutor) => {
+      if (filters.language) {
+        const tutorLanguages = tutor.languages || [];
+        if (!tutorLanguages.includes(filters.language)) {
+          return false;
+        }
       }
-    }
-    return true;
-  });
+      return true;
+    });
+
+    // Sorting
+    result.sort((a, b) => {
+      if (sortBy === "price-asc") return (a.hourlyRate || 0) - (b.hourlyRate || 0);
+      if (sortBy === "price-desc") return (b.hourlyRate || 0) - (a.hourlyRate || 0);
+      if (sortBy === "rating-desc") return (b.averageRating || 0) - (a.averageRating || 0);
+      return 0; // "newest" or default
+    });
+
+    return result;
+  }, [tutors, filters.language, sortBy]);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
+    setVisibleCount(6); // Reset pagination on filter change
   };
 
   return (
     <div className="grid lg:grid-cols-[280px_1fr] gap-8">
       <aside className="hidden lg:block">
-        <div className="sticky top-24 bg-card border rounded-xl p-5">
-          <TutorsFilter
-            filters={filters}
-            onFilterChange={handleFilterChange}
-          />
-        </div>
-      </aside>
-
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-muted-foreground">
-            {isLoading ? (
-              "Loading..."
-            ) : (
-              <>
-                <span className="font-medium text-foreground">{filteredTutors.length}</span> tutors found
-              </>
-            )}
-          </p>
-
-          <div className="lg:hidden">
+        <div className="sticky top-24 space-y-6">
+          <div className="bg-card border rounded-xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4 text-primary font-semibold">
+              <ListFilter className="h-4 w-4" />
+              <span>Filter Tutors</span>
+            </div>
             <TutorsFilter
               filters={filters}
               onFilterChange={handleFilterChange}
             />
           </div>
+          
+          <div className="bg-primary/5 rounded-xl p-5 border border-primary/10">
+            <h4 className="font-bold text-sm mb-2">Need Help?</h4>
+            <p className="text-xs text-muted-foreground mb-4">Can't find the perfect tutor? Our support team can help you find a match.</p>
+            <Button size="sm" variant="outline" className="w-full text-xs" asChild>
+              <Link href="/contact">Contact Support</Link>
+            </Button>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <p className="text-muted-foreground text-sm">
+              {isLoading ? (
+                "Searching tutors..."
+              ) : (
+                <>
+                  Showing <span className="font-bold text-foreground">{Math.min(processedTutors.length, visibleCount)}</span> of <span className="font-bold text-foreground">{processedTutors.length}</span> tutors
+                </>
+              )}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-10 gap-2 px-4 shadow-sm border-gray-200">
+                  <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Sort by: {
+                    sortBy === "newest" ? "Newest" : 
+                    sortBy === "price-asc" ? "Price: Low to High" :
+                    sortBy === "price-desc" ? "Price: High to Low" : "Top Rated"
+                  }</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 p-1">
+                <DropdownMenuItem onClick={() => setSortBy("newest")}>Newest</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("price-asc")}>Price: Low to High</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("price-desc")}>Price: High to Low</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("rating-desc")}>Top Rated</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="lg:hidden">
+              <TutorsFilter
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
+            </div>
+          </div>
         </div>
 
-        {isLoading && (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <TutorCardSkeleton key={i} />
+            ))}
           </div>
-        )}
-
-        {error && !isLoading && (
-          <div className="text-center py-16 bg-red-50 rounded-xl">
-            <p className="text-red-600 mb-2">{error}</p>
-            <Button variant="link" onClick={() => window.location.reload()}>
+        ) : error ? (
+          <div className="text-center py-16 bg-red-50/50 rounded-2xl border border-red-100">
+            <p className="text-red-600 mb-4 font-medium">{error}</p>
+            <Button variant="outline" onClick={() => window.location.reload()}>
               Try again
             </Button>
           </div>
-        )}
-
-        {!isLoading && !error && filteredTutors.length > 0 && (
-          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredTutors.map((tutor) => (
-              <TutorCard key={tutor.id} tutor={tutor} />
-            ))}
+        ) : processedTutors.length > 0 ? (
+          <div className="space-y-10">
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {processedTutors.slice(0, visibleCount).map((tutor) => (
+                <TutorCard key={tutor.id} tutor={tutor} />
+              ))}
+            </div>
+            
+            {visibleCount < processedTutors.length && (
+              <div className="flex justify-center pt-4">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="px-12 rounded-full border-primary/20 text-primary hover:bg-primary/5"
+                  onClick={() => setVisibleCount(prev => prev + 6)}
+                >
+                  Load More Tutors
+                </Button>
+              </div>
+            )}
           </div>
-        )}
-
-        {!isLoading && !error && filteredTutors.length === 0 && (
-          <div className="text-center py-16 bg-muted/30 rounded-xl">
-            <UserX className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-lg font-medium mb-2">No tutors found</p>
-            <p className="text-muted-foreground mb-4">
-              {filters.search || filters.category || filters.language
-                ? "Try adjusting your filters"
-                : "No tutors have registered yet"}
+        ) : (
+          <div className="text-center py-20 bg-muted/20 rounded-2xl border border-dashed border-muted-foreground/20">
+            <UserX className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+            <p className="text-xl font-bold mb-2">No tutors found</p>
+            <p className="text-muted-foreground max-w-sm mx-auto mb-8">
+              We couldn't find any tutors matching your current filters. Try broadening your search.
             </p>
             {(filters.search || filters.category || filters.language) && (
               <Button
-                variant="outline"
+                className="rounded-full px-8"
                 onClick={() =>
                   setFilters({
                     search: "",
@@ -159,7 +229,7 @@ export function TutorsListing() {
                   })
                 }
               >
-                Clear filters
+                Clear all filters
               </Button>
             )}
           </div>
