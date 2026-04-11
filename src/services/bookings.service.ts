@@ -9,7 +9,7 @@ interface CreateBooking {
 }
 
 export const bookingsService = {
-  getBookings: () => api.get<{ bookings: Booking[] }>("/api/bookings"),
+  getBookings: () => api.get<Booking[]>("/api/bookings"),
 
   getBookingById: (id: string) => api.get<Booking>(`/api/bookings/${id}`),
 

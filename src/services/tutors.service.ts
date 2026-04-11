@@ -7,6 +7,8 @@ interface Filters {
   maxPrice?: number;
   minRating?: number;
   search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface TutorProfileData {
@@ -39,9 +41,11 @@ export const tutorsService = {
       params.append("minRating", String(filters.minRating));
     }
     if (filters?.search) params.append("search", filters.search);
+    if (filters?.page) params.append("page", String(filters.page));
+    if (filters?.limit) params.append("limit", String(filters.limit));
 
     const query = params.toString();
-    return api.get<{ tutors: TutorProfile[] }>(`/api/tutors${query ? `?${query}` : ""}`);
+    return api.get<TutorProfile[]>(`/api/tutors${query ? `?${query}` : ""}`);
   },
 
   getTutorById: (id: string) => api.get<TutorProfile>(`/api/tutors/${id}`),

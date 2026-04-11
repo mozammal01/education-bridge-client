@@ -47,9 +47,8 @@ export function StudentBookings() {
   const fetchBookings = async () => {
     try {
       const res = await bookingsService.getBookings();
-      const data = res.data;
-      if (data) {
-        setBookings(Array.isArray(data) ? data : data.bookings || []);
+      if (res && res.data) {
+        setBookings(res.data);
       }
     } catch {
       toast.error("Failed to load bookings");

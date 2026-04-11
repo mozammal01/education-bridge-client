@@ -42,9 +42,8 @@ export function UsersManagement() {
   const fetchUsers = async () => {
     try {
       const res = await adminService.getUsers();
-      const data = res.data;
-      if (data) {
-        setUsers(Array.isArray(data) ? data : data.users || []);
+      if (res && res.data) {
+        setUsers(res.data);
       }
     } catch {
       toast.error("Failed to load users");

@@ -40,9 +40,8 @@ export function TutorSessions() {
   const fetchSessions = async () => {
     try {
       const res = await bookingsService.getBookings();
-      const data = res.data;
-      if (data) {
-        setSessions(Array.isArray(data) ? data : data.bookings || []);
+      if (res && res.data) {
+        setSessions(res.data);
       }
     } catch {
       toast.error("Failed to load sessions");

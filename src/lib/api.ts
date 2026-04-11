@@ -1,6 +1,9 @@
 export const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "https://education-bridge-server.vercel.app").replace(/\/+$/, "");
 
-async function request<T>(endpoint: string, options?: RequestInit): Promise<{ data?: T; message?: string }> {
+async function request<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<{ success: boolean; data?: T; message?: string; meta?: any }> {
   let res: Response;
 
   try {
@@ -23,14 +26,19 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<{ da
     if (!res.ok) {
       throw new Error(`Server error: ${res.status} ${res.statusText}`);
     }
-    return { data: undefined, message: "Success" };
+    return { success: true, data: undefined, message: "Success" };
   }
 
   if (!res.ok) {
     throw new Error(data.message || "Something went wrong");
   }
 
-  return data;
+  return {
+    success: data.success ?? res.ok,
+    data: data.data ?? data,
+    message: data.message,
+    meta: data.meta,
+  };
 }
 
 export const api = {

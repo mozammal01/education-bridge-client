@@ -18,9 +18,7 @@ export function CategoriesSection() {
       try {
         const response = await categoriesService.getCategories();
         if (response.data) {
-          const categoryData = Array.isArray(response.data)
-            ? response.data
-            : (response.data as { categories?: Category[] }).categories || [];
+          const categoryData = response.data;
           
           // De-duplicate by name and remove misspelled 'Mathmatics'
           const uniqueCats = categoryData.filter((cat, index, self) =>

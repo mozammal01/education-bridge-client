@@ -34,6 +34,8 @@ export function TutorsListing() {
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const category = searchParams.get("category");
@@ -47,6 +49,11 @@ export function TutorsListing() {
   }, [searchParams]);
 
   useEffect(() => {
+    // Reset page when filters change
+    setPage(1);
+  }, [filters]);
+
+  useEffect(() => {
     const fetchTutors = async () => {
       setIsLoading(true);
       setError(null);
@@ -57,13 +64,20 @@ export function TutorsListing() {
           maxPrice: filters.priceRange?.max,
           minRating: filters.minRating || undefined,
           search: filters.search || undefined,
+          page: page,
+          // Limit removed to let backend decide the count
         });
 
-        if (response.data) {
-          const tutorData = Array.isArray(response.data)
-            ? response.data
-            : (response.data as { tutors?: TutorProfile[] }).tutors || [];
-          setTutors(tutorData);
+        if (response && response.success) {
+          const tutorData = response.data || [];
+          const totalCount = response.meta?.total || 0;
+          
+          if (page === 1) {
+            setTutors(tutorData);
+          } else {
+            setTutors(prev => [...prev, ...tutorData]);
+          }
+          setTotal(totalCount);
         } else {
           setTutors([]);
         }
@@ -76,20 +90,12 @@ export function TutorsListing() {
     };
 
     fetchTutors();
-  }, [filters]);
+  }, [filters, page]);
 
   // Client-side filtering & sorting
   const processedTutors = useMemo(() => {
-    const result = tutors.filter((tutor) => {
-      if (filters.language) {
-        const tutorLanguages = tutor.languages || [];
-        if (!tutorLanguages.includes(filters.language)) {
-          return false;
-        }
-      }
-      return true;
-    });
-
+    const result = [...tutors]; // Clone to sort
+    
     // Sorting
     result.sort((a, b) => {
       if (sortBy === "price-asc") return (a.hourlyRate || 0) - (b.hourlyRate || 0);
@@ -99,11 +105,13 @@ export function TutorsListing() {
     });
 
     return result;
-  }, [tutors, filters.language, sortBy]);
+  }, [tutors, sortBy]);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
   };
+
+  const hasMore = tutors.length < total;
 
   return (
     <div className="grid lg:grid-cols-[280px_1fr] gap-8">
@@ -134,11 +142,11 @@ export function TutorsListing() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
             <p className="text-muted-foreground text-sm">
-              {isLoading ? (
+              {isLoading && page === 1 ? (
                 "Searching tutors..."
               ) : (
                 <>
-                  Showing all <span className="font-bold text-foreground">{processedTutors.length}</span> tutors
+                  Showing <span className="font-bold text-foreground">{tutors.length}</span> of <span className="font-bold text-foreground">{total}</span> tutors
                 </>
               )}
             </p>
@@ -173,7 +181,7 @@ export function TutorsListing() {
           </div>
         </div>
 
-        {isLoading ? (
+        {page === 1 && isLoading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <TutorCardSkeleton key={i} />
@@ -187,10 +195,26 @@ export function TutorsListing() {
             </Button>
           </div>
         ) : processedTutors.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {processedTutors.map((tutor) => (
-              <TutorCard key={tutor.id} tutor={tutor} />
-            ))}
+          <div className="space-y-10">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {processedTutors.map((tutor) => (
+                <TutorCard key={tutor.id} tutor={tutor} />
+              ))}
+            </div>
+            
+            {hasMore && (
+              <div className="flex justify-center pt-4">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="px-12 rounded-full border-primary/20 hover:bg-primary/5"
+                  onClick={() => setPage(prev => prev + 1)}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Loading more..." : "Load More Tutors"}
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-20 bg-muted/20 rounded-2xl border border-dashed border-muted-foreground/20">

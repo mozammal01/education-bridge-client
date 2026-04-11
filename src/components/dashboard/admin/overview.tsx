@@ -42,21 +42,15 @@ export function AdminOverview() {
       try {
         // Fetch users
         const usersRes = await adminService.getUsers();
-        const users = Array.isArray(usersRes.data)
-          ? usersRes.data
-          : (usersRes.data as { users?: unknown[] })?.users || [];
+        const users = usersRes.data || [];
 
         // Fetch tutors
         const tutorsRes = await tutorsService.getTutors();
-        const tutors = Array.isArray(tutorsRes.data)
-          ? tutorsRes.data
-          : (tutorsRes.data as { tutors?: unknown[] })?.tutors || [];
+        const tutors = tutorsRes.data || [];
 
         // Fetch bookings
         const bookingsRes = await bookingsService.getBookings();
-        const fetchedBookings = Array.isArray(bookingsRes.data)
-          ? bookingsRes.data
-          : (bookingsRes.data as { bookings?: Booking[] })?.bookings || [];
+        const fetchedBookings = bookingsRes.data || [];
         
         setBookings(fetchedBookings);
 
