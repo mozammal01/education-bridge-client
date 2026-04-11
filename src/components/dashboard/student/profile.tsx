@@ -103,6 +103,20 @@ export function StudentProfile() {
     }
   };
 
+  const handleDiscard = () => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+      toast.info("Changes discarded");
+    }
+  };
+
+  const hasChanged = formData.name !== (user?.name || "") ||
+    formData.phone !== (user?.phone || "");
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -111,8 +125,14 @@ export function StudentProfile() {
           <p className="text-muted-foreground">Manage your profile information and account preferences</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">Discard Changes</Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button
+            variant="outline"
+            onClick={handleDiscard}
+            disabled={!hasChanged || saving}
+          >
+            Discard Changes
+          </Button>
+          <Button onClick={handleSave} disabled={saving || !hasChanged}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Save Profile
           </Button>
