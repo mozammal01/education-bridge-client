@@ -34,7 +34,6 @@ export function TutorsListing() {
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
     const category = searchParams.get("category");
@@ -104,7 +103,6 @@ export function TutorsListing() {
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
-    setVisibleCount(6); // Reset pagination on filter change
   };
 
   return (
@@ -140,7 +138,7 @@ export function TutorsListing() {
                 "Searching tutors..."
               ) : (
                 <>
-                  Showing <span className="font-bold text-foreground">{Math.min(processedTutors.length, visibleCount)}</span> of <span className="font-bold text-foreground">{processedTutors.length}</span> tutors
+                  Showing all <span className="font-bold text-foreground">{processedTutors.length}</span> tutors
                 </>
               )}
             </p>
@@ -189,25 +187,10 @@ export function TutorsListing() {
             </Button>
           </div>
         ) : processedTutors.length > 0 ? (
-          <div className="space-y-10">
-            <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
-              {processedTutors.slice(0, visibleCount).map((tutor) => (
-                <TutorCard key={tutor.id} tutor={tutor} />
-              ))}
-            </div>
-            
-            {visibleCount < processedTutors.length && (
-              <div className="flex justify-center pt-4">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="px-12 rounded-full border-primary/20 text-primary hover:bg-primary/5"
-                  onClick={() => setVisibleCount(prev => prev + 6)}
-                >
-                  Load More Tutors
-                </Button>
-              </div>
-            )}
+          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            {processedTutors.map((tutor) => (
+              <TutorCard key={tutor.id} tutor={tutor} />
+            ))}
           </div>
         ) : (
           <div className="text-center py-20 bg-muted/20 rounded-2xl border border-dashed border-muted-foreground/20">
