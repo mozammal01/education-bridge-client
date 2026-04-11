@@ -176,8 +176,8 @@ export function TutorsListing() {
         </div>
 
         {isLoading ? (
-          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <TutorCardSkeleton key={i} />
             ))}
           </div>
@@ -190,7 +190,7 @@ export function TutorsListing() {
           </div>
         ) : processedTutors.length > 0 ? (
           <div className="space-y-10">
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
               {processedTutors.slice(0, visibleCount).map((tutor) => (
                 <TutorCard key={tutor.id} tutor={tutor} />
               ))}

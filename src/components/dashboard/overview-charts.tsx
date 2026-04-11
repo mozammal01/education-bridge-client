@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Booking } from "@/types";
-import { useMemo } from "react";
+import { useMemo, ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface DashboardChartsProps {
@@ -17,9 +17,12 @@ export function DashboardCharts({ bookings = [], isLoading }: DashboardChartsPro
     const activity = days.map((day) => ({ name: day, sessions: 0 }));
 
     bookings.forEach((booking) => {
+      if (!booking.date) return;
       const date = new Date(booking.date);
+      if (isNaN(date.getTime())) return;
+      
       const dayIndex = date.getDay();
-      if (booking.status !== "CANCELLED") {
+      if (booking.status !== "CANCELLED" && activity[dayIndex]) {
         activity[dayIndex].sessions += 1;
       }
     });
@@ -29,16 +32,37 @@ export function DashboardCharts({ bookings = [], isLoading }: DashboardChartsPro
 
   const maxSessions = Math.max(...weeklyData.map((d) => d.sessions), 1);
 
-  // Line Chart Data (Growth trends)
+  // Line Chart Data (Growth trends derived from actual bookings)
   const lineData = useMemo(() => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    return months.map((month, idx) => ({
-      name: month,
-      value: Math.floor(Math.random() * 40) + 10 + (idx * 5)
-    }));
-  }, []);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentMonth = new Date().getMonth();
+    // Show last 6 months including current
+    const displayMonths: string[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const idx = (currentMonth - i + 12) % 12;
+      displayMonths.push(months[idx]);
+    }
 
-  const maxLineValue = Math.max(...lineData.map(d => d.value));
+    const growth = displayMonths.map((month) => ({ name: month, value: 0 }));
+    
+    // Map bookings to months
+    bookings.forEach((booking) => {
+      if (!booking.date) return;
+      const date = new Date(booking.date);
+      if (isNaN(date.getTime())) return;
+      
+      const monthName = months[date.getMonth()];
+      const monthIdx = displayMonths.indexOf(monthName);
+      if (monthIdx !== -1 && booking.status !== "CANCELLED") {
+        growth[monthIdx].value += 1;
+      }
+    });
+
+    // Ensure there's a visible baseline for the chart if data is sparse
+    return growth.map(d => ({ ...d, value: Math.max(d.value, 0) }));
+  }, [bookings]);
+
+  const maxLineValue = Math.max(...lineData.map(d => d.value), 1);
 
   // Sessions by Category Logic...
   const categoryData = useMemo(() => {
@@ -144,12 +168,12 @@ export function DashboardCharts({ bookings = [], isLoading }: DashboardChartsPro
               <>
                 <div className="relative w-44 h-44 shrink-0">
                   <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                    {categoryData.reduce((acc: any, cat, idx) => {
+                    {categoryData.reduce((acc: { elements: ReactNode[], total: number }, cat) => {
                       const offset = acc.total;
                       const strokeDasharray = `${cat.value} ${100 - cat.value}`;
-                      const strokeColor = cat.color === "bg-blue-500" ? "var(--color-blue-500, #3b82f6)" : 
-                                        cat.color === "bg-emerald-500" ? "var(--color-emerald-500, #10b981)" :
-                                        cat.color === "bg-amber-500" ? "var(--color-amber-500, #f59e0b)" : "var(--color-indigo-500, #6366f1)";
+                      const strokeColor = cat.color === "bg-blue-500" ? "#3b82f6" : 
+                                        cat.color === "bg-emerald-500" ? "#10b981" :
+                                        cat.color === "bg-amber-500" ? "#f59e0b" : "#6366f1";
                       
                       acc.elements.push(
                         <circle
@@ -162,6 +186,7 @@ export function DashboardCharts({ bookings = [], isLoading }: DashboardChartsPro
                           strokeWidth="12"
                           strokeDasharray={strokeDasharray}
                           strokeDashoffset={-offset}
+                          pathLength="100"
                           className="transition-all duration-1000 ease-out"
                         />
                       );
