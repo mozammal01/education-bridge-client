@@ -22,9 +22,10 @@ export function CategoriesSection() {
             ? response.data
             : (response.data as { categories?: Category[] }).categories || [];
           
-          // De-duplicate by name to prevent multiple entries (e.g., Mathematics)
+          // De-duplicate by name and remove misspelled 'Mathmatics'
           const uniqueCats = categoryData.filter((cat, index, self) =>
-            index === self.findIndex((c) => c.name === cat.name)
+            index === self.findIndex((c) => c.name === cat.name) && 
+            cat.name !== "Mathmatics"
           );
           setCategories(uniqueCats);
         } else {

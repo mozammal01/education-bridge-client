@@ -39,9 +39,10 @@ export function TutorsFilter({ filters, onFilterChange }: TutorsFilterProps) {
       try {
         const res = await categoriesService.getCategories();
         if (res.data && Array.isArray(res.data)) {
-          // De-duplicate categories by name to prevent multiple entries
+          // De-duplicate categories by name and remove misspelled 'Mathmatics'
           const uniqueCats = res.data.filter((cat, index, self) =>
-            index === self.findIndex((c) => c.name === cat.name)
+            index === self.findIndex((c) => c.name === cat.name) && 
+            cat.name !== "Mathmatics"
           );
           setCategories(uniqueCats);
         }
