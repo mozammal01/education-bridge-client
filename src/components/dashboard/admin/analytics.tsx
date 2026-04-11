@@ -90,13 +90,60 @@ export function AnalyticsManagement() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-64 rounded-xl" />
+            <Skeleton className="h-4 w-96 rounded-lg opacity-50" />
+          </div>
+          <div className="flex gap-3">
+            <Skeleton className="h-9 w-24 rounded-lg" />
+            <Skeleton className="h-9 w-32 rounded-lg" />
+          </div>
+        </div>
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+            <Card key={i} className="border-primary/5 shadow-sm overflow-hidden">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex justify-between items-start">
+                  <Skeleton className="h-10 w-10 rounded-xl" />
+                  <Skeleton className="h-6 w-12 rounded-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24 rounded" />
+                  <Skeleton className="h-8 w-32 rounded" />
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
-        <Skeleton className="h-[400px] w-full rounded-2xl" />
+
+        <Card className="border-primary/5 shadow-sm p-6 overflow-hidden">
+          <Skeleton className="h-8 w-48 mb-6 rounded" />
+          <div className="grid lg:grid-cols-2 gap-6">
+            <Skeleton className="h-[250px] w-full rounded-2xl" />
+            <Skeleton className="h-[250px] w-full rounded-2xl" />
+          </div>
+        </Card>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2 border-primary/5 shadow-sm p-6">
+            <Skeleton className="h-6 w-48 mb-4 rounded" />
+            <div className="space-y-6">
+              {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
+            </div>
+          </Card>
+          <Card className="border-primary/5 shadow-sm p-6">
+            <Skeleton className="h-6 w-32 mb-4 rounded" />
+            <div className="space-y-4 pt-4 flex flex-col items-center">
+              <Skeleton className="h-32 w-32 rounded-full" />
+              <div className="space-y-2 w-full pt-4">
+                {[1, 2, 3].map(i => <Skeleton key={i} className="h-4 w-full rounded" />)}
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -211,7 +258,7 @@ export function AnalyticsManagement() {
               ))}
               <div className="pt-6 flex justify-center">
                 <div className="relative h-32 w-32">
-                  <svg viewBox="0 0 36 36" className="h-full w-full rotate-[-90deg]">
+                  <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
                     <circle cx="18" cy="18" r="16" fill="none" stroke="#eee" strokeWidth="3" />
                     <circle cx="18" cy="18" r="16" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="45 100" />
                     <circle cx="18" cy="18" r="16" fill="none" stroke="#ec4899" strokeWidth="3" strokeDasharray="25 100" strokeDashoffset="-45" />

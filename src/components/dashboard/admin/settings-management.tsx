@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { SiteLoader } from "@/components/shared/site-loader";
 
 export function SettingsManagement() {
   const [saving, setSaving] = useState(false);
@@ -33,7 +34,7 @@ export function SettingsManagement() {
     setTimeout(() => {
       setSaving(false);
       toast.success("Settings updated successfully");
-    }, 1000);
+    }, 2000);
   };
 
   const tabs = [
@@ -46,6 +47,7 @@ export function SettingsManagement() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+      {saving && <SiteLoader text="Updating System Settings..." />}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>

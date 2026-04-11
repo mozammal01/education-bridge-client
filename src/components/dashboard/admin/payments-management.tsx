@@ -54,11 +54,65 @@ export function PaymentsManagement() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        <div className="grid sm:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)}
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <Skeleton className="h-10 w-64 rounded-xl" />
+            <Skeleton className="h-4 w-96 rounded-lg opacity-50" />
+          </div>
+          <div className="flex gap-3">
+            <Skeleton className="h-9 w-24 rounded-lg" />
+            <Skeleton className="h-9 w-32 rounded-lg" />
+          </div>
         </div>
-        <Skeleton className="h-[500px] w-full rounded-2xl" />
+
+        <div className="grid sm:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="border-primary/5 shadow-sm p-6 space-y-4">
+              <Skeleton className="h-10 w-10 rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-8 w-32 rounded" />
+                <Skeleton className="h-3 w-40 rounded opacity-50" />
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="border-primary/5 shadow-sm overflow-hidden">
+          <CardHeader className="bg-muted/30 pb-6 border-b">
+            <div className="flex justify-between items-center">
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-48 rounded" />
+                <Skeleton className="h-4 w-64 rounded opacity-50" />
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-48 rounded-lg" />
+                <Skeleton className="h-10 w-10 rounded-lg" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="p-4 space-y-4">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="flex items-center justify-between py-2 border-b last:border-0 border-primary/5">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="h-10 w-10 rounded-lg" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32 rounded" />
+                      <Skeleton className="h-3 w-20 rounded opacity-50" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-12">
+                    <Skeleton className="h-4 w-16 rounded" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <Skeleton className="h-8 w-8 rounded-lg" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
