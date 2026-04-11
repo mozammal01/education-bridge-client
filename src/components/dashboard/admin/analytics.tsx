@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { DashboardCharts } from "../overview-charts";
 import { Booking } from "@/types";
+import { adminService } from "@/services";
 
 export function AnalyticsManagement() {
   const [stats, setStats] = useState<any>(null);
@@ -28,11 +29,11 @@ export function AnalyticsManagement() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsRes = await api.get<any>("/api/admin/stats");
+        const statsRes = await adminService.getStats();
         const bookingsRes = await api.get<Booking[]>("/api/bookings/admin");
         
         if (statsRes && statsRes.data) {
-          setStats(statsRes.data as any);
+          setStats(statsRes.data);
         }
         
         if (bookingsRes && bookingsRes.data) {

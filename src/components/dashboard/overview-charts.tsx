@@ -78,7 +78,7 @@ export function DashboardCharts({ bookings = [], isLoading }: DashboardChartsPro
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4);
 
-    const colors = ["bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-indigo-500"];
+    const colors = ["bg-primary", "bg-primary/60", "bg-secondary-foreground", "bg-muted-foreground"];
 
     return sorted.map(([name, count], idx) => ({
       name,

@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
+import { adminService } from "@/services";
 
 export function PaymentsManagement() {
   const [payments, setPayments] = useState<any[]>([]);
@@ -35,7 +36,7 @@ export function PaymentsManagement() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const res = await api.get<any[]>("/api/admin/payments");
+        const res = await adminService.getPayments();
         setPayments(res.data || []);
       } catch (error) {
         console.error("Failed to fetch payments", error);

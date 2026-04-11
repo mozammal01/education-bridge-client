@@ -28,9 +28,9 @@ const tabs: { label: string; value: TabType }[] = [
 ];
 
 const roleColors: Record<string, string> = {
-  STUDENT: "bg-blue-100 text-blue-700",
-  TUTOR: "bg-emerald-100 text-emerald-700",
-  ADMIN: "bg-violet-100 text-violet-700",
+  STUDENT: "bg-primary/10 text-primary",
+  TUTOR: "bg-secondary text-secondary-foreground",
+  ADMIN: "bg-primary text-primary-foreground",
 };
 
 export function UsersManagement() {
@@ -153,12 +153,12 @@ export function UsersManagement() {
                     </td>
                     <td className="p-4 hidden md:table-cell">
                       {user.status === "ACTIVE" ? (
-                        <Badge variant="outline" className="text-emerald-600 border-emerald-200">
+                        <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">
                           <UserCheck className="w-3 h-3 mr-1" />
                           Active
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-red-600 border-red-200">
+                        <Badge variant="outline" className="text-destructive border-destructive/20 bg-destructive/5">
                           <UserX className="w-3 h-3 mr-1" />
                           Banned
                         </Badge>

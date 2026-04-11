@@ -40,39 +40,13 @@ export function AdminOverview() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch users
-        const usersRes = await adminService.getUsers();
-        const users = usersRes.data || [];
+        const statsRes = await adminService.getStats();
+        if (statsRes && statsRes.data) {
+          setStats(statsRes.data);
+        }
 
-        // Fetch tutors
-        const tutorsRes = await tutorsService.getTutors();
-        const tutors = tutorsRes.data || [];
-
-        // Fetch bookings
         const bookingsRes = await bookingsService.getBookings();
-        const fetchedBookings = bookingsRes.data || [];
-        
-        setBookings(fetchedBookings);
-
-        const completedBookings = fetchedBookings.filter(
-          (b) => b.status === "COMPLETED"
-        );
-        const revenue = completedBookings.reduce(
-          (acc, b) => acc + (b.totalPrice || 0),
-          0
-        );
-
-        const students = users.filter(
-          (u: any) => u.role === "STUDENT"
-        );
-
-        setStats({
-          totalUsers: users.length,
-          totalStudents: students.length,
-          totalTutors: tutors.length,
-          totalBookings: fetchedBookings.length,
-          totalRevenue: revenue,
-        });
+        setBookings(bookingsRes.data || []);
       } catch (error) {
         console.error("Failed to fetch stats:", error);
       } finally {
@@ -95,22 +69,22 @@ export function AdminOverview() {
       label: "Students",
       value: stats.totalStudents,
       icon: GraduationCap,
-      color: "text-emerald-600",
-      bg: "bg-emerald-100",
+      color: "text-primary",
+      bg: "bg-primary/10",
     },
     {
       label: "Tutors",
       value: stats.totalTutors,
       icon: BookOpen,
-      color: "text-amber-600",
-      bg: "bg-amber-100",
+      color: "text-secondary-foreground",
+      bg: "bg-secondary",
     },
     {
       label: "Revenue",
       value: `$${stats.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
-      color: "text-violet-600",
-      bg: "bg-violet-100",
+      color: "text-primary",
+      bg: "bg-primary/10",
     },
   ];
 
@@ -247,8 +221,8 @@ export function AdminOverview() {
         <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-5">
             <Link href="/admin/categories" className="flex items-center gap-4">
-              <div className="p-3 bg-amber-100 rounded-xl">
-                <BookOpen className="w-5 h-5 text-amber-600" />
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <BookOpen className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="font-medium">Categories</p>
