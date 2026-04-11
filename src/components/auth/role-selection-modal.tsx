@@ -17,7 +17,7 @@ interface RoleSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (role: UserRole) => void;
-  provider: "google" | "github";
+  provider: "google" | "github" | "facebook";
   isLoading?: boolean;
 }
 
@@ -34,7 +34,7 @@ export function RoleSelectionModal({
     onConfirm(selectedRole);
   };
 
-  const providerName = provider === "google" ? "Google" : "GitHub";
+  const providerName = provider === "google" ? "Google" : provider === "github" ? "GitHub" : "Facebook";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

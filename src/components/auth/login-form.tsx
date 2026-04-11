@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GoogleIcon, GitHubIcon } from "@/components/icons";
+import { GoogleIcon, GitHubIcon, FacebookIcon } from "@/components/icons";
 import { type LoginForm } from "@/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -48,7 +48,7 @@ export function LoginForm() {
     }
   };
 
-  const handleSocialLogin = async (provider: "google" | "github") => {
+  const handleSocialLogin = async (provider: "google" | "github" | "facebook") => {
     setSocialLoading(provider);
     try {
       const res = await fetch(`${BASE_URL}/api/auth/sign-in/social`, {
@@ -144,7 +144,7 @@ export function LoginForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <Button
             variant="outline"
             type="button"
@@ -155,9 +155,8 @@ export function LoginForm() {
             {socialLoading === "google" ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <GoogleIcon className="mr-2" />
+              <GoogleIcon />
             )}
-            Google
           </Button>
           <Button
             variant="outline"
@@ -169,9 +168,21 @@ export function LoginForm() {
             {socialLoading === "github" ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <GitHubIcon className="mr-2" />
+              <GitHubIcon />
             )}
-            GitHub
+          </Button>
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full h-11 border-2 hover:bg-muted"
+            disabled={!!socialLoading}
+            onClick={() => handleSocialLogin("facebook")}
+          >
+            {socialLoading === "facebook" ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <FacebookIcon />
+            )}
           </Button>
         </div>
 

@@ -10,7 +10,7 @@ import { UserRole } from "@/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import { GoogleIcon, GitHubIcon } from "@/components/icons";
+import { GoogleIcon, GitHubIcon, FacebookIcon } from "@/components/icons";
 import { RoleSelectionModal } from "./role-selection-modal";
 import { BASE_URL } from "@/lib/api";
 
@@ -26,7 +26,7 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [showRoleModal, setShowRoleModal] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<"google" | "github">("google");
+  const [selectedProvider, setSelectedProvider] = useState<"google" | "github" | "facebook">("google");
   const router = useRouter();
   const { login } = useAuth();
 
@@ -73,7 +73,7 @@ export function RegisterForm() {
     }
   };
 
-  const handleSocialClick = (provider: "google" | "github") => {
+  const handleSocialClick = (provider: "google" | "github" | "facebook") => {
     setSelectedProvider(provider);
     setShowRoleModal(true);
   };
@@ -267,7 +267,7 @@ export function RegisterForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <Button
             variant="outline"
             type="button"
@@ -278,9 +278,8 @@ export function RegisterForm() {
             {socialLoading === "google" ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <GoogleIcon className="mr-2" />
+              <GoogleIcon />
             )}
-            Google
           </Button>
           <Button
             variant="outline"
@@ -292,9 +291,21 @@ export function RegisterForm() {
             {socialLoading === "github" ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <GitHubIcon className="mr-2" />
+              <GitHubIcon />
             )}
-            GitHub
+          </Button>
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full h-11 border-2 hover:bg-muted"
+            disabled={!!socialLoading}
+            onClick={() => handleSocialClick("facebook")}
+          >
+            {socialLoading === "facebook" ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <FacebookIcon />
+            )}
           </Button>
         </div>
 
