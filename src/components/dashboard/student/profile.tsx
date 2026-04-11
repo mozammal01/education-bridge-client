@@ -11,7 +11,10 @@ import {
   Shield,
   Bell,
   Globe,
-  CheckCircle2
+  CheckCircle2,
+  Lock,
+  Trash2,
+  Calendar
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,27 +22,43 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/auth-context";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function StudentProfile() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<"personal" | "security" | "notifications" | "region">("personal");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   useEffect(() => {
     if (user) {
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
-      });
+      }));
     }
   }, [user]);
 
@@ -76,30 +95,54 @@ export function StudentProfile() {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    
+    if (activeTab === "personal") {
+      const hasChanged = formData.name !== (user?.name || "") || 
+                         formData.phone !== (user?.phone || "");
+                         
+      if (!hasChanged) {
+        toast.info("Nothing was updated");
+        return;
+      }
 
-    // Check if anything actually changed
-    const hasChanged = formData.name !== (user?.name || "") ||
-      formData.phone !== (user?.phone || "");
+      setSaving(true);
+      try {
+        await api.patch("/api/user/profile", {
+          name: formData.name,
+          phone: formData.phone,
+        });
+        toast.success("Profile updated successfully");
+        refreshUser();
+      } catch {
+        toast.error("Failed to update profile");
+      } finally {
+        setSaving(false);
+      }
+    } else if (activeTab === "security") {
+      if (!formData.currentPassword || !formData.newPassword) {
+        toast.error("Please fill in all password fields");
+        return;
+      }
+      if (formData.newPassword !== formData.confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
 
-    if (!hasChanged) {
-      toast.info("Nothing was updated");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      await api.patch("/api/user/profile", {
-        name: formData.name,
-        phone: formData.phone,
-      });
-      toast.success("Profile updated successfully");
-      refreshUser();
-    } catch {
-      toast.error("Failed to update profile");
-    } finally {
-      setSaving(false);
+      setSaving(true);
+      try {
+        await api.patch("/api/user/change-password", {
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+        });
+        toast.success("Password changed successfully");
+        setFormData(prev => ({ ...prev, currentPassword: "", newPassword: "", confirmPassword: "" }));
+      } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to change password");
+      } finally {
+        setSaving(false);
+      }
     }
   };
 
@@ -109,13 +152,30 @@ export function StudentProfile() {
         name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
       toast.info("Changes discarded");
     }
   };
 
-  const hasChanged = formData.name !== (user?.name || "") ||
-    formData.phone !== (user?.phone || "");
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await api.delete("/api/user/profile");
+      toast.success("Account deleted successfully");
+      logout();
+    } catch {
+      toast.error("Failed to delete account");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const hasChanged = activeTab === "personal" 
+    ? (formData.name !== (user?.name || "") || formData.phone !== (user?.phone || ""))
+    : (activeTab === "security" && formData.currentPassword !== "");
 
   return (
     <div className="space-y-8">
@@ -207,16 +267,40 @@ export function StudentProfile() {
             </CardHeader>
             <CardContent className="p-0">
               <nav className="flex flex-col">
-                <button className="flex items-center gap-3 px-6 py-3 bg-primary/5 text-primary border-l-2 border-primary font-medium transition-colors">
+                <button 
+                  onClick={() => setActiveTab("personal")}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-3 transition-colors text-left",
+                    activeTab === "personal" ? "bg-primary/5 text-primary border-l-2 border-primary font-medium" : "hover:bg-muted text-muted-foreground"
+                  )}
+                >
                   <User className="w-4 h-4" /> Personal Information
                 </button>
-                <button className="flex items-center gap-3 px-6 py-3 hover:bg-muted text-muted-foreground transition-colors text-left">
+                <button 
+                  onClick={() => setActiveTab("security")}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-3 transition-colors text-left",
+                    activeTab === "security" ? "bg-primary/5 text-primary border-l-2 border-primary font-medium" : "hover:bg-muted text-muted-foreground"
+                  )}
+                >
                   <Shield className="w-4 h-4" /> Account Security
                 </button>
-                <button className="flex items-center gap-3 px-6 py-3 hover:bg-muted text-muted-foreground transition-colors text-left">
+                <button 
+                  onClick={() => setActiveTab("notifications")}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-3 transition-colors text-left",
+                    activeTab === "notifications" ? "bg-primary/5 text-primary border-l-2 border-primary font-medium" : "hover:bg-muted text-muted-foreground"
+                  )}
+                >
                   <Bell className="w-4 h-4" /> Notifications
                 </button>
-                <button className="flex items-center gap-3 px-6 py-3 hover:bg-muted text-muted-foreground transition-colors text-left">
+                <button 
+                  onClick={() => setActiveTab("region")}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-3 transition-colors text-left",
+                    activeTab === "region" ? "bg-primary/5 text-primary border-l-2 border-primary font-medium" : "hover:bg-muted text-muted-foreground"
+                  )}
+                >
                   <Globe className="w-4 h-4" /> Language & Regions
                 </button>
               </nav>
@@ -226,6 +310,7 @@ export function StudentProfile() {
 
         {/* Right Column: Main Form */}
         <div className="lg:col-span-8 space-y-6">
+          {activeTab === "personal" && (
           <Card className="border-primary/5 shadow-sm">
             <CardHeader className="border-b bg-muted/20 pb-4">
               <CardTitle>Personal Information</CardTitle>
@@ -295,6 +380,95 @@ export function StudentProfile() {
               </form>
             </CardContent>
           </Card>
+          )}
+
+          {activeTab === "security" && (
+          <Card className="border-primary/5 shadow-sm">
+            <CardHeader className="border-b bg-muted/20 pb-4">
+              <CardTitle>Account Security</CardTitle>
+              <CardDescription>Change your password and secure your account.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 md:p-8">
+              <form onSubmit={handleSave} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Current Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="password"
+                      value={formData.currentPassword}
+                      onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                      className="pl-10 h-11"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">New Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="password"
+                        value={formData.newPassword}
+                        onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                        className="pl-10 h-11"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Confirm New Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="password"
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                        className="pl-10 h-11"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex justify-end">
+                  <Button type="submit" disabled={saving || !formData.currentPassword} className="px-8">
+                    {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Update Password
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+          )}
+
+          {activeTab === "notifications" && (
+            <Card className="border-primary/5 shadow-sm">
+              <CardHeader className="border-b bg-muted/20 pb-4">
+                <CardTitle>Notifications</CardTitle>
+                <CardDescription>Manage how you receive alerts and updates.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-12 text-center text-muted-foreground">
+                <Bell className="mx-auto h-12 w-12 opacity-20 mb-4" />
+                <p>Notification preferences coming soon.</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === "region" && (
+            <Card className="border-primary/5 shadow-sm">
+              <CardHeader className="border-b bg-muted/20 pb-4">
+                <CardTitle>Language & Region</CardTitle>
+                <CardDescription>Set your preferred language and time zone.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-12 text-center text-muted-foreground">
+                <Globe className="mx-auto h-12 w-12 opacity-20 mb-4" />
+                <p>Regional settings coming soon.</p>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="border-primary/5">
             <CardHeader className="pb-3 border-b bg-muted/10">
@@ -308,9 +482,36 @@ export function StudentProfile() {
                   <p className="font-semibold text-sm">Delete Account</p>
                   <p className="text-xs text-muted-foreground">Once you delete your account, there is no going back. Please be certain.</p>
                 </div>
-                <Button variant="destructive" size="sm" className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white border-destructive/20 transition-all">
-                  Delete Account
-                </Button>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" size="sm" className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white border-destructive/20 transition-all">
+                      <Trash2 className="w-4 h-4 mr-2" /> Delete Account
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="text-destructive flex items-center gap-2">
+                        <Trash2 className="w-5 h-5" /> Delete Account?
+                      </DialogTitle>
+                      <DialogDescription>
+                        This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                      <Button variant="outline" className="flex-1">Cancel</Button>
+                      <Button 
+                        variant="destructive" 
+                        onClick={handleDeleteAccount}
+                        disabled={deleting}
+                        className="flex-1"
+                      >
+                        {deleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Delete Permanently
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>
@@ -320,18 +521,4 @@ export function StudentProfile() {
   );
 }
 
-// Helper badge component as it might be missing
-function Badge({ children, variant, className }: { children: React.ReactNode, variant?: any, className?: string }) {
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${variant === 'secondary' ? 'bg-secondary text-secondary-foreground' : 'bg-primary text-primary-foreground'} ${className}`}>
-      {children}
-    </span>
-  );
-}
 
-// Helper calendar icon as it might be missing from search but used in plan
-function Calendar({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /></svg>
-  );
-}
