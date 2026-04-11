@@ -21,7 +21,12 @@ export function CategoriesSection() {
           const categoryData = Array.isArray(response.data)
             ? response.data
             : (response.data as { categories?: Category[] }).categories || [];
-          setCategories(categoryData);
+          
+          // De-duplicate by name to prevent multiple entries (e.g., Mathematics)
+          const uniqueCats = categoryData.filter((cat, index, self) =>
+            index === self.findIndex((c) => c.name === cat.name)
+          );
+          setCategories(uniqueCats);
         } else {
           setCategories(CATEGORIES);
         }

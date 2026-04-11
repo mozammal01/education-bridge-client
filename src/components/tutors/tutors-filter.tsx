@@ -39,7 +39,11 @@ export function TutorsFilter({ filters, onFilterChange }: TutorsFilterProps) {
       try {
         const res = await categoriesService.getCategories();
         if (res.data && Array.isArray(res.data)) {
-          setCategories(res.data);
+          // De-duplicate categories by name to prevent multiple entries
+          const uniqueCats = res.data.filter((cat, index, self) =>
+            index === self.findIndex((c) => c.name === cat.name)
+          );
+          setCategories(uniqueCats);
         }
       } catch (error) {
         console.error("Failed to fetch categories:", error);

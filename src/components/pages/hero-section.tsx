@@ -39,7 +39,11 @@ export function HeroSection() {
       try {
         const res = await categoriesService.getCategories();
         if (res.data && Array.isArray(res.data)) {
-          setCategories(res.data.slice(0, 6)); // Show first 6 categories
+          // De-duplicate by name to prevent multiple entries
+          const uniqueCats = res.data.filter((cat, index, self) =>
+            index === self.findIndex((c) => c.name === cat.name)
+          );
+          setCategories(uniqueCats.slice(0, 6)); // Show first 6 unique categories
         }
       } catch {
         // Failed to load categories
