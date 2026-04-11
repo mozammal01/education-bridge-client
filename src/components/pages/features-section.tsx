@@ -14,21 +14,8 @@ export function FeaturesSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(".feature-card", {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 80%",
-        },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power2.out"
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
+    // Entrance animations are handled by Framer Motion's StaggerContainer/StaggerItem.
+    // GSAP is only used if continuous animations are needed.
   }, []);
   const features = [
     {
