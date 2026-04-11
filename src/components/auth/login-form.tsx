@@ -184,12 +184,12 @@ export function LoginForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="text-xs h-9 border-primary/20 hover:bg-primary/5 hover:text-primary"
+            className="text-[10px] h-8 border-primary/20 hover:bg-primary/5 hover:text-primary"
             onClick={() => setFormData({ email: "student@bridge.com", password: "password123" })}
           >
             Student
@@ -198,7 +198,7 @@ export function LoginForm() {
             type="button"
             variant="outline"
             size="sm"
-            className="text-xs h-9 border-accent/20 hover:bg-accent/5 hover:text-accent"
+            className="text-[10px] h-8 border-accent/20 hover:bg-accent/5 hover:text-accent"
             onClick={() => setFormData({ email: "tutor@bridge.com", password: "password123" })}
           >
             Tutor
@@ -207,10 +207,28 @@ export function LoginForm() {
             type="button"
             variant="outline"
             size="sm"
-            className="text-xs h-9 border-amber-500/20 hover:bg-amber-500/5 hover:text-amber-500"
+            className="text-[10px] h-8 border-amber-500/20 hover:bg-amber-500/5 hover:text-amber-500"
             onClick={() => setFormData({ email: "admin@bridge.com", password: "password123" })}
           >
             Admin
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-[10px] h-8 border-emerald-500/20 hover:bg-emerald-500/5 hover:text-emerald-500 col-span-1"
+            onClick={() => setFormData({ email: "manager@bridge.com", password: "password123" })}
+          >
+            Manager
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-[10px] h-8 border-indigo-500/20 hover:bg-indigo-500/5 hover:text-indigo-500 col-span-2"
+            onClick={() => setFormData({ email: "organizer@bridge.com", password: "password123" })}
+          >
+            Organizer
           </Button>
         </div>
       </form>

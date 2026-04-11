@@ -2,6 +2,8 @@ export enum UserRole {
   STUDENT = "STUDENT",
   TUTOR = "TUTOR",
   ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  ORGANIZER = "ORGANIZER",
 }
 
 export type UserStatus = "ACTIVE" | "BANNED";

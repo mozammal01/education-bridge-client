@@ -49,9 +49,11 @@ export function Navbar() {
   const isStudent = user?.role === UserRole.STUDENT;
 
   const getDashboardLink = () => {
-    if (isAdmin) return "/admin";
-    if (isTutor) return "/tutor/dashboard";
-    if (isStudent) return "/dashboard";
+    if (user?.role === UserRole.ADMIN || user?.role === "ADMIN") return "/admin";
+    if (user?.role === UserRole.TUTOR || user?.role === "TUTOR") return "/tutor/dashboard";
+    if (user?.role === UserRole.MANAGER || user?.role === "MANAGER") return "/manager";
+    if (user?.role === UserRole.ORGANIZER || user?.role === "ORGANIZER") return "/organizer";
+    if (user?.role === UserRole.STUDENT || user?.role === "STUDENT") return "/dashboard";
     return "/login";
   };
 

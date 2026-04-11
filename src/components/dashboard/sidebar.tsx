@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/auth-context";
-import { DashboardNav, tutorNav, adminNav } from "./nav";
+import { DashboardNav, tutorNav, adminNav, managerNav, organizerNav } from "./nav";
 import { UserRole } from "@/types";
 
 export function DashboardSidebar() {
@@ -11,6 +11,8 @@ export function DashboardSidebar() {
     const role = user?.role;
     if (role === UserRole.ADMIN || role === "ADMIN") return adminNav;
     if (role === UserRole.TUTOR || role === "TUTOR") return tutorNav;
+    if (role === UserRole.MANAGER || role === "MANAGER") return managerNav;
+    if (role === UserRole.ORGANIZER || role === "ORGANIZER") return organizerNav;
     return undefined; // defaults to student nav
   };
 

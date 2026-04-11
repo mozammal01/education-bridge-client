@@ -15,6 +15,10 @@ import {
   CreditCard,
   BarChart3,
   GraduationCap,
+  Shield,
+  Globe,
+  Landmark,
+  PieChart,
   type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -56,6 +60,26 @@ export const adminNav: NavItem[] = [
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
   { label: "Profile", href: "/admin/profile", icon: User },
   { label: "Settings", href: "/admin/settings", icon: Settings },
+];
+
+export const managerNav: NavItem[] = [
+  { label: "Overview", href: "/manager", icon: LayoutDashboard },
+  { label: "Content Control", href: "/manager/content", icon: Shield },
+  { label: "Blogs/News", href: "/manager/blogs", icon: BookOpen },
+  { label: "User Reviews", href: "/manager/reviews", icon: MessageSquare },
+  { label: "Reports", href: "/manager/reports", icon: BarChart3 },
+  { label: "Profile", href: "/manager/profile", icon: User },
+  { label: "Settings", href: "/manager/settings", icon: Settings },
+];
+
+export const organizerNav: NavItem[] = [
+  { label: "Overview", href: "/organizer", icon: LayoutDashboard },
+  { label: "My Institution", href: "/organizer/institution", icon: Landmark },
+  { label: "Team/Tutors", href: "/organizer/tutors", icon: Users },
+  { label: "Student Groups", href: "/organizer/groups", icon: Globe },
+  { label: "Finance", href: "/organizer/finance", icon: PieChart },
+  { label: "Analytics", href: "/organizer/analytics", icon: BarChart3 },
+  { label: "Settings", href: "/organizer/settings", icon: Settings },
 ];
 
 interface DashboardNavProps {
