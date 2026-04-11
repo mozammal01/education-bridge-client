@@ -21,23 +21,7 @@ export function HeroSection() {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(".hero-content > *", {
-        y: 60,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.2,
-        ease: "power4.out"
-      });
-      
-      gsap.from(".hero-visual > *", {
-        scale: 0.8,
-        opacity: 0,
-        duration: 1.2,
-        delay: 0.4,
-        ease: "back.out(1.7)"
-      });
-
-      // Subtle float animation for badges
+      // Keep only the float animation for badges, entrance is handled by Framer Motion components
       gsap.to(".float-element", {
         y: -10,
         duration: 2,
