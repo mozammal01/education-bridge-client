@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { 
-  Camera, 
-  Mail, 
-  Phone, 
-  User, 
-  Loader2, 
-  Shield, 
-  Bell, 
+import {
+  Camera,
+  Mail,
+  Phone,
+  User,
+  Loader2,
+  Shield,
+  Bell,
   Globe,
   CheckCircle2
 } from "lucide-react";
@@ -78,6 +78,16 @@ export function StudentProfile() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if anything actually changed
+    const hasChanged = formData.name !== (user?.name || "") ||
+      formData.phone !== (user?.phone || "");
+
+    if (!hasChanged) {
+      toast.info("Nothing was updated");
+      return;
+    }
+
     setSaving(true);
     try {
       await api.patch("/api/user/profile", {
@@ -150,15 +160,15 @@ export function StudentProfile() {
               </div>
               <h2 className="text-xl font-bold">{user?.name}</h2>
               <p className="text-sm text-muted-foreground mb-4">{user?.role?.toLowerCase()} Account</p>
-              
+
               <div className="flex items-center justify-center gap-2 mb-6">
                 <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border-none px-3 py-1">
                   <CheckCircle2 className="w-3 h-3 mr-1" /> Verified
                 </Badge>
               </div>
-              
+
               <Separator className="my-6 opacity-50" />
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -302,6 +312,6 @@ function Badge({ children, variant, className }: { children: React.ReactNode, va
 // Helper calendar icon as it might be missing from search but used in plan
 function Calendar({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /></svg>
   );
 }
