@@ -9,7 +9,17 @@ import { Button } from "@/components/ui/button";
 import type { TutorProfile } from "@/types";
 import { cn, getImageUrl } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+} from "@/components/ui/context-menu";
+import { toast } from "sonner";
+import { Share2, ExternalLink } from "lucide-react";
 
 interface TutorCardProps {
   tutor: TutorProfile;
@@ -18,14 +28,23 @@ interface TutorCardProps {
 
 export function TutorCard({ tutor, className }: TutorCardProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const isOwnProfile = user?.id === tutor?.userId || user?.id === tutor?.user?.id;
 
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}/tutors/${tutor.id}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Profile link copied to clipboard!");
+  };
+
   return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-    >
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <motion.div
+          whileHover={{ y: -4, scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        >
       <Card
         className={cn(
           "group overflow-hidden border-0 bg-card h-full flex flex-col shadow-sm hover:shadow-xl transition-all duration-300",
@@ -151,6 +170,27 @@ export function TutorCard({ tutor, className }: TutorCardProps) {
           </Button>
         </div>
       </Card>
-    </motion.div>
+        </motion.div>
+      </ContextMenuTrigger>
+      <ContextMenuContent className="w-56">
+        <ContextMenuItem onClick={() => router.push(`/tutors/${tutor.id}`)}>
+          <User className="mr-2 h-4 w-4" />
+          <span>View Full Profile</span>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => router.push(`/tutors/${tutor.id}#booking`)}>
+          <Clock className="mr-2 h-4 w-4" />
+          <span>Quick Book Session</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onClick={handleCopyLink}>
+          <Share2 className="mr-2 h-4 w-4" />
+          <span>Copy Profile Link</span>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => window.open(`/tutors/${tutor.id}`, '_blank')}>
+          <ExternalLink className="mr-2 h-4 w-4" />
+          <span>Open in New Tab</span>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }

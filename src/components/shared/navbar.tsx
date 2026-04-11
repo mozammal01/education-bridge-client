@@ -91,29 +91,63 @@ export function Navbar() {
                   Categories <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-[400px] p-4">
-                <div className="grid grid-cols-2 gap-2">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.name}
-                      href={cat.path}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group"
-                    >
-                      <span className="text-xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">{cat.name}</span>
-                        <span className="text-xs text-muted-foreground">Browse tutors</span>
+              <DropdownMenuContent align="start" className="w-[600px] p-0 overflow-hidden rounded-xl shadow-2xl border-primary/10">
+                <div className="flex">
+                  {/* Left Side: Main Categories */}
+                  <div className="w-1/2 p-6 bg-muted/30">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 px-2">Popular Categories</h3>
+                    <div className="grid gap-1">
+                      {categories.map((cat) => (
+                        <Link
+                          key={cat.name}
+                          href={cat.path}
+                          className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-background hover:shadow-sm transition-all group"
+                        >
+                          <span className="text-xl group-hover:scale-110 transition-transform">{cat.icon}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold">{cat.name}</span>
+                            <span className="text-[10px] text-muted-foreground">Find expert tutors in {cat.name}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Side: Featured/Quick Action */}
+                  <div className="w-1/2 p-6 border-l bg-background">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">Featured Subjects</h3>
+                    <div className="space-y-4">
+                      <div className="group cursor-pointer">
+                        <Link href="/tutors?search=Physics" className="block p-3 rounded-xl border border-dashed border-primary/20 hover:border-primary/50 hover:bg-primary/5 transition-colors">
+                          <p className="text-sm font-bold text-primary mb-1">Advanced Physics</p>
+                          <p className="text-xs text-muted-foreground">Quantum mechanics, relativity and more.</p>
+                        </Link>
                       </div>
-                    </Link>
-                  ))}
+                      <div className="group cursor-pointer">
+                        <Link href="/tutors?search=IELTS" className="block p-3 rounded-xl border border-dashed border-accent/20 hover:border-accent/50 hover:bg-accent/5 transition-colors">
+                          <p className="text-sm font-bold text-accent mb-1">IELTS Preparation</p>
+                          <p className="text-xs text-muted-foreground">Get ready for your global journey.</p>
+                        </Link>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <Button asChild variant="link" className="p-0 h-auto text-primary text-xs font-bold group">
+                          <Link href="/categories">
+                            Explore All 500+ Subjects
+                            <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                      <p className="text-xs font-medium mb-2">New to EduBridge?</p>
+                      <Button size="sm" variant="default" className="w-full text-[10px] h-8 rounded-lg" asChild>
+                        <Link href="/register">Join as Student</Link>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <DropdownMenuSeparator className="my-2" />
-                <Link
-                  href="/categories"
-                  className="flex items-center justify-center p-2 text-sm font-medium text-primary hover:underline"
-                >
-                  View All Categories
-                </Link>
               </DropdownMenuContent>
             </DropdownMenu>
 
