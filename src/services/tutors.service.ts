@@ -7,6 +7,8 @@ interface Filters {
   maxPrice?: number;
   minRating?: number;
   search?: string;
+  location?: string;
+  dayOfWeek?: number;
   page?: number;
   limit?: number;
 }
@@ -41,6 +43,8 @@ export const tutorsService = {
       params.append("minRating", String(filters.minRating));
     }
     if (filters?.search) params.append("search", filters.search);
+    if (filters?.location) params.append("location", filters.location);
+    if (filters?.dayOfWeek !== undefined) params.append("dayOfWeek", String(filters.dayOfWeek));
     if (filters?.page) params.append("page", String(filters.page));
     if (filters?.limit) params.append("limit", String(filters.limit));
 

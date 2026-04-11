@@ -29,6 +29,8 @@ export function TutorsListing() {
     priceRange: null,
     minRating: null,
     language: "",
+    location: "",
+    dayOfWeek: null,
   });
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
@@ -64,8 +66,9 @@ export function TutorsListing() {
           maxPrice: filters.priceRange?.max,
           minRating: filters.minRating || undefined,
           search: filters.search || undefined,
+          location: filters.location || undefined,
+          dayOfWeek: filters.dayOfWeek !== null ? filters.dayOfWeek : undefined,
           page: page,
-          // Limit removed to let backend decide the count
         });
 
         if (response && response.success) {
@@ -233,6 +236,8 @@ export function TutorsListing() {
                     priceRange: null,
                     minRating: null,
                     language: "",
+                    location: "",
+                    dayOfWeek: null,
                   })
                 }
               >

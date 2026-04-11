@@ -28,6 +28,8 @@ export interface FilterState {
   priceRange: { min: number; max: number } | null;
   minRating: number | null;
   language: string;
+  location: string;
+  dayOfWeek: number | null;
 }
 
 export function TutorsFilter({ filters, onFilterChange }: TutorsFilterProps) {
@@ -64,6 +66,8 @@ export function TutorsFilter({ filters, onFilterChange }: TutorsFilterProps) {
       priceRange: null,
       minRating: null,
       language: "",
+      location: "",
+      dayOfWeek: null,
     });
   };
 
@@ -72,6 +76,8 @@ export function TutorsFilter({ filters, onFilterChange }: TutorsFilterProps) {
     filters.priceRange,
     filters.minRating,
     filters.language,
+    filters.location,
+    filters.dayOfWeek !== null,
   ].filter(Boolean).length;
 
   const filterContent = (
@@ -142,6 +148,32 @@ export function TutorsFilter({ filters, onFilterChange }: TutorsFilterProps) {
             >
               {opt.label}
             </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="font-medium mb-3">Location</h4>
+        <Input
+          placeholder="e.g. Dhaka, Remote"
+          value={filters.location}
+          onChange={(e) => updateFilter("location", e.target.value)}
+          className="bg-card"
+        />
+      </div>
+
+      <div>
+        <h4 className="font-medium mb-3">Availability</h4>
+        <div className="grid grid-cols-4 gap-2">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, idx) => (
+            <Badge
+              key={day}
+              variant={filters.dayOfWeek === idx ? "default" : "outline"}
+              className="cursor-pointer justify-center py-1.5"
+              onClick={() => updateFilter("dayOfWeek", filters.dayOfWeek === idx ? null : idx)}
+            >
+              {day}
+            </Badge>
           ))}
         </div>
       </div>
