@@ -112,7 +112,7 @@ export function RegisterForm() {
     <div className="w-full max-w-md">
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-2">Create your account</h1>
-        <p className="text-muted-foreground">Join SkillBridge and start your learning journey</p>
+        <p className="text-muted-foreground">Join EduBridge and start your learning journey</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">

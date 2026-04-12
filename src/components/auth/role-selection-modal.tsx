@@ -42,7 +42,7 @@ export function RoleSelectionModal({
         <DialogHeader>
           <DialogTitle>Choose your account type</DialogTitle>
           <DialogDescription>
-            How would you like to use SkillBridge with your {providerName} account?
+            How would you like to use EduBridge with your {providerName} account?
           </DialogDescription>
         </DialogHeader>
 

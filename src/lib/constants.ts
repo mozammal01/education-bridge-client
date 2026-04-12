@@ -12,8 +12,8 @@ export const CATEGORIES: Category[] = [
 ];
 
 export const TESTIMONIALS = [
-  { id: "1", name: "Rahim Uddin", role: "Engineering Student, BUET", image: "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=400&h=400&fit=crop&crop=face", content: "SkillBridge helped me excel in my engineering admission. The math and physics sessions were game-changers. I got admitted to BUET!", rating: 5 },
-  { id: "2", name: "Fatima Khatun", role: "Software Developer", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face", content: "I learned full-stack development on SkillBridge. Within 4 months, I landed my first job as a junior developer. Best investment I've made!", rating: 5 },
+  { id: "1", name: "Rahim Uddin", role: "Engineering Student, BUET", image: "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=400&h=400&fit=crop&crop=face", content: "EduBridge helped me excel in my engineering admission. The math and physics sessions were game-changers. I got admitted to BUET!", rating: 5 },
+  { id: "2", name: "Fatima Khatun", role: "Software Developer", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face", content: "I learned full-stack development on EduBridge. Within 4 months, I landed my first job as a junior developer. Best investment I've made!", rating: 5 },
   { id: "3", name: "Kamal Hossain", role: "Studying Abroad, UK", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face", content: "The IELTS preparation helped me achieve 7.5 in just 2 months. The tips for speaking and writing were incredible. Now I'm studying in the UK!", rating: 5 },
 ];
 
