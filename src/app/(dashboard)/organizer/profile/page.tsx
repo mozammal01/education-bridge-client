@@ -1,5 +1,5 @@
 import { ProfileView } from "@/components/dashboard/profile/profile-view";
 
-export default function AdminProfilePage() {
+export default function OrganizerProfilePage() {
   return <ProfileView />;
 }

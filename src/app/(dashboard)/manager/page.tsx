@@ -13,6 +13,7 @@ import {
   Activity
 } from "lucide-react";
 import { managerService } from "@/services/manager-service";
+import { DashboardOverviewSkeleton } from "@/components/dashboard/overview-skeleton";
 import { DashboardCharts } from "@/components/dashboard/overview-charts";
 
 export default function ManagerOverview() {
@@ -34,12 +35,7 @@ export default function ManagerOverview() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm font-medium animate-pulse text-muted-foreground">Initializing Manager HQ...</p>
-      </div>
-    );
+    return <DashboardOverviewSkeleton />;
   }
 
   const statCards = [
@@ -64,19 +60,19 @@ export default function ManagerOverview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, i) => (
-          <Card key={i} className="group border-none shadow-lg shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 rounded-[2rem] overflow-hidden relative">
-            <div className={`absolute top-0 right-0 p-6 opacity-10 group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-500`}>
-                <stat.icon className="w-20 h-20" />
+          <Card key={i} className="group border-none shadow-lg shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 rounded-3xl overflow-hidden relative">
+            <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-500`}>
+                <stat.icon className="w-16 h-16" />
             </div>
-            <CardContent className="p-8 relative z-10">
-                <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4 shadow-inner`}>
-                    <stat.icon className="w-6 h-6" />
+            <CardContent className="p-6 relative z-10">
+                <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-3 shadow-inner`}>
+                    <stat.icon className="w-5 h-5" />
                 </div>
                 <div>
-                   <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em]">{stat.label}</p>
-                   <p className="text-3xl font-black mt-1 text-foreground">{stat.value}</p>
+                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{stat.label}</p>
+                   <p className="text-2xl font-black mt-0.5 text-foreground">{stat.value}</p>
                 </div>
             </CardContent>
           </Card>

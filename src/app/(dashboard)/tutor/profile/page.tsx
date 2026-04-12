@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { TutorProfileSettings } from "@/components/dashboard/tutor/profile-settings";
+import { ProfileView } from "@/components/dashboard/profile/profile-view";
 
 export const metadata: Metadata = {
   title: "Tutor Profile",
-  description: "Manage your tutor profile and settings",
+  description: "Manage your professional tutor profile and teaching settings",
 };
 
 export default function TutorProfilePage() {
-  return <TutorProfileSettings />;
+  return <ProfileView />;
 }

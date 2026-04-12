@@ -14,6 +14,8 @@ import { CompleteProfile } from "./complete-profile";
 import { TutorProfileData } from "@/services/tutors.service";
 import { DashboardCharts } from "../overview-charts";
 
+import { DashboardOverviewSkeleton } from "../overview-skeleton";
+
 export function TutorOverview() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -93,11 +95,7 @@ export function TutorOverview() {
   ];
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardOverviewSkeleton />;
   }
 
   if (!profileComplete) {

@@ -79,6 +79,7 @@ export const organizerNav: NavItem[] = [
   { label: "Student Groups", href: "/organizer/groups", icon: Globe },
   { label: "Finance", href: "/organizer/finance", icon: PieChart },
   { label: "Analytics", href: "/organizer/analytics", icon: BarChart3 },
+  { label: "Profile", href: "/organizer/profile", icon: User },
   { label: "Settings", href: "/organizer/settings", icon: Settings },
 ];
 

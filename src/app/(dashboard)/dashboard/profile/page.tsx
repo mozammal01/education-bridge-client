@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { StudentProfile } from "@/components/dashboard/student/profile";
+import { ProfileView } from "@/components/dashboard/profile/profile-view";
 
 export const metadata: Metadata = {
   title: "My Profile",
-  description: "Manage your account settings",
+  description: "View and manage your personal account settings",
 };
 
 export default function ProfilePage() {
-  return <StudentProfile />;
+  return <ProfileView />;
 }

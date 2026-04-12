@@ -6,6 +6,7 @@ import { Landmark, Users, Globe, PieChart, BarChart3, Loader2 } from "lucide-rea
 import { useAuth } from "@/context/auth-context";
 import { DashboardCharts } from "@/components/dashboard/overview-charts";
 import { organizerService } from "@/services/organizer-service";
+import { DashboardOverviewSkeleton } from "@/components/dashboard/overview-skeleton";
 
 export default function OrganizerOverview() {
   const { user } = useAuth();
@@ -39,12 +40,7 @@ export default function OrganizerOverview() {
   ];
 
   if (loading) {
-    return (
-      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">Loading institutional data...</p>
-      </div>
-    );
+    return <DashboardOverviewSkeleton />;
   }
 
   return (

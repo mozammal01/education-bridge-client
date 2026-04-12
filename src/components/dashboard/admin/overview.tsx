@@ -26,6 +26,8 @@ interface Stats {
   totalRevenue: number;
 }
 
+import { DashboardOverviewSkeleton } from "../overview-skeleton";
+
 export function AdminOverview() {
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
@@ -97,11 +99,7 @@ export function AdminOverview() {
   ];
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardOverviewSkeleton />;
   }
 
   return (
