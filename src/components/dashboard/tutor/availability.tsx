@@ -142,11 +142,14 @@ export function TutorAvailability() {
         }
       );
 
-      if (!response.ok) throw new Error("Failed to save");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to save");
+      }
 
       toast.success("Availability saved successfully!");
-    } catch {
-      toast.error("Failed to save availability");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save availability");
     } finally {
       setSaving(false);
     }

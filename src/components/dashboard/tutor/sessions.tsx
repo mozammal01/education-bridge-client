@@ -43,8 +43,8 @@ export function TutorSessions() {
       if (res && res.data) {
         setSessions(res.data);
       }
-    } catch {
-      toast.error("Failed to load sessions");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to load sessions");
     } finally {
       setIsLoading(false);
     }
@@ -59,8 +59,8 @@ export function TutorSessions() {
       await bookingsService.updateBookingStatus(id, "COMPLETED");
       toast.success("Session marked complete");
       fetchSessions();
-    } catch {
-      toast.error("Failed to update");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update session status");
     }
   };
 

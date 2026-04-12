@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Loader2 } from "lucide-react";
+import { Star, Loader2, LogIn } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
+import { UserRole } from "@/types";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +27,8 @@ interface Props {
 }
 
 export function ReviewModal({ isOpen, onClose, tutorId, tutorName, onSuccess }: Props) {
+  const { user } = useAuth();
+  const router = useRouter();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
@@ -32,6 +37,24 @@ export function ReviewModal({ isOpen, onClose, tutorId, tutorName, onSuccess }: 
   const ratingLabels = ["", "Poor", "Fair", "Good", "Very Good", "Excellent"];
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Please login to submit a review", {
+        description: "You need an account to share your feedback.",
+        action: {
+          label: "Login",
+          onClick: () => router.push("/login"),
+        },
+      });
+      return;
+    }
+
+    if (user.role !== UserRole.STUDENT && user.role !== "STUDENT") {
+      toast.error("Action restricted", {
+        description: "Only students can submit reviews on this platform.",
+      });
+      return;
+    }
+
     if (!rating) {
       toast.error("Please select a rating");
       return;
@@ -44,11 +67,11 @@ export function ReviewModal({ isOpen, onClose, tutorId, tutorName, onSuccess }: 
     setLoading(true);
     try {
       await reviewsService.createReview({ tutorId, rating, comment: comment.trim() });
-      toast.success("Review submitted!");
+      toast.success("Review submitted! Thank you for your feedback.");
       onSuccess?.();
       handleClose();
-    } catch {
-      toast.error("Failed to submit review");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to submit review. Please try again later.");
     } finally {
       setLoading(false);
     }

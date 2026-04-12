@@ -74,8 +74,8 @@ export function TutorProfileSettings() {
         languages: formData.languages,
       });
       toast.success("Profile updated successfully");
-    } catch {
-      toast.error("Failed to update profile");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -123,8 +123,8 @@ export function TutorProfileSettings() {
 
       toast.success("Photo uploaded successfully");
       refreshUser();
-    } catch {
-      toast.error("Failed to upload photo");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload photo");
     } finally {
       setUploadingPhoto(false);
       if (fileInputRef.current) {

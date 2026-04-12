@@ -50,8 +50,8 @@ export function StudentBookings() {
       if (res && res.data) {
         setBookings(res.data);
       }
-    } catch {
-      toast.error("Failed to load bookings");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to load bookings");
     } finally {
       setIsLoading(false);
     }
@@ -66,8 +66,8 @@ export function StudentBookings() {
       await bookingsService.updateBookingStatus(id, "CANCELLED");
       toast.success("Booking cancelled");
       fetchBookings();
-    } catch {
-      toast.error("Failed to cancel");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to cancel booking");
     }
   };
 

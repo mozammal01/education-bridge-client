@@ -34,9 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(data.data);
           toast.success("Welcome! Your tutor account is ready. Please complete your profile.");
         }
-      } catch {
+      } catch (error: any) {
         localStorage.removeItem("pendingRole");
-        toast.error("Failed to set up tutor account. You can update your role later.");
+        toast.error(error.message || "Failed to set up tutor account. You can update your role later.");
       }
     } else {
       localStorage.removeItem("pendingRole");
@@ -86,9 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) throw new Error("Failed to logout");
       setUser(null);
       toast.success("Logged out successfully");
-    } catch {
+    } catch (error: any) {
       setUser(null);
-      toast.error("Logout failed, but session cleared locally");
+      toast.error(error.message || "Logout failed, but session cleared locally");
     }
   };
 

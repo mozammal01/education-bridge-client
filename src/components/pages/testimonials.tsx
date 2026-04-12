@@ -10,8 +10,14 @@ import { reviewsService } from "@/services";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewModal } from "../reviews/review-modal";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/auth-context";
+import { UserRole } from "@/types";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function Testimonials() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +57,25 @@ export function Testimonials() {
           
           <FadeIn delay={0.2}>
             <Button 
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  if (!user) {
+                    toast.error("Please login to submit a review", {
+                      description: "You need to be signed in as a student to share your feedback.",
+                      action: {
+                        label: "Login",
+                        onClick: () => router.push("/login")
+                      }
+                    });
+                    return;
+                  }
+                  if (user.role !== UserRole.STUDENT && user.role !== "STUDENT") {
+                    toast.error("Action restricted", {
+                      description: "Only students can submit reviews on this platform."
+                    });
+                    return;
+                  }
+                  setIsModalOpen(true);
+                }}
                 className="rounded-full shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
             >
                 <MessageSquarePlus className="mr-2 h-4 w-4" />
