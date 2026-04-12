@@ -1,4 +1,4 @@
-import { AnalyticsView } from "@/components/dashboard/tutor/analytics-view";
+import { UnderConstruction } from "@/components/shared/under-construction";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,5 +7,10 @@ export const metadata: Metadata = {
 };
 
 export default function TutorAnalyticsPage() {
-  return <AnalyticsView />;
+  return (
+    <UnderConstruction 
+      title="Tutor Performance Insights" 
+      message="We're building an advanced data visualization suite to help you track student engagement and revenue growth with precision."
+    />
+  );
 }
