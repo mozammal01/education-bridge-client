@@ -90,10 +90,10 @@ export interface Booking {
 
 export interface Review {
   id: string;
-  bookingId: string;
+  bookingId?: string;
   studentId: string;
   student: User;
-  tutorId: string;
+  tutorId?: string;
   rating: number;
   comment: string;
   createdAt: string;
@@ -174,7 +174,8 @@ export interface BookingForm {
 }
 
 export interface ReviewForm {
-  bookingId: string;
+  bookingId?: string;
+  tutorId?: string;
   rating: number;
   comment: string;
 }

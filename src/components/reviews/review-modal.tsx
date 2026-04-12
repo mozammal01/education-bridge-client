@@ -18,8 +18,8 @@ import { toast } from "sonner";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  tutorId: string;
-  tutorName: string;
+  tutorId?: string | null;
+  tutorName?: string | null;
   onSuccess?: () => void;
 }
 
@@ -65,8 +65,12 @@ export function ReviewModal({ isOpen, onClose, tutorId, tutorName, onSuccess }: 
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Leave a Review</DialogTitle>
-          <DialogDescription>Share your experience with {tutorName}</DialogDescription>
+          <DialogTitle>{tutorId ? "Review Your Session" : "Rate Your Experience"}</DialogTitle>
+          <DialogDescription>
+            {tutorId 
+              ? `Share your experience with ${tutorName}` 
+              : "Help us improve EduBridge by sharing your feedback"}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">

@@ -5,6 +5,7 @@ import { FeaturedTutors } from "../../components/pages/featured-tutors";
 import { FeaturesSection } from "../../components/pages/features-section";
 import { HowItWorks } from "../../components/pages/how-it-works";
 import { Testimonials } from "../../components/pages/testimonials";
+import { StudentReviewsSection } from "../../components/pages/student-reviews-section";
 import { FAQSection } from "../../components/pages/faq-section";
 import { LatestBlogsSection } from "../../components/pages/latest-blogs-section";
 import { NewsletterSection } from "../../components/pages/newsletter-section";
@@ -18,6 +19,7 @@ export default function HomePage() {
       <FeaturedTutors />
       <FeaturesSection />
       <HowItWorks />
+      <StudentReviewsSection />
       <Testimonials />
       <FAQSection />
       <LatestBlogsSection />
