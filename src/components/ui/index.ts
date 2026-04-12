@@ -11,4 +11,5 @@ export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 export * from "./table";
 export * from "./tabs";
 export { Switch } from "./switch";
+export { Progress } from "./progress";
 

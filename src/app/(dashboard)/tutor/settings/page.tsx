@@ -2,6 +2,6 @@
 
 import { SettingsView } from "@/components/dashboard/shared/settings-view";
 
-export default function SettingsPage() {
+export default function TutorSettingsPage() {
   return <SettingsView />;
 }
