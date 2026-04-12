@@ -93,8 +93,8 @@ export function DashboardNav({ items = studentNav, onNavigate }: DashboardNavPro
   return (
     <nav className="p-4 space-y-1">
       {items.map((item) => {
-        const isActive = pathname === item.href ||
-          (item.href !== "/dashboard" && item.href !== "/tutor/dashboard" && item.href !== "/admin" && pathname.startsWith(item.href));
+        const isBaseRoute = ["/dashboard", "/tutor/dashboard", "/admin", "/manager", "/organizer"].includes(item.href);
+        const isActive = isBaseRoute ? pathname === item.href : pathname.startsWith(item.href);
 
         return (
           <Link
