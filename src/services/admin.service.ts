@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { User } from "@/types";
+import { User, TutorProfile } from "@/types";
 
 interface UpdateUser {
   status?: "ACTIVE" | "BANNED";
@@ -15,4 +15,9 @@ export const adminService = {
 
   updateUser: (id: string, data: UpdateUser) =>
     api.patch<User>(`/api/admin/users/${id}`, data),
+
+  getTutors: () => api.get<TutorProfile[]>("/api/admin/tutors"),
+
+  toggleVerification: (id: string, isVerified: boolean) =>
+    api.patch<TutorProfile>(`/api/admin/tutors/${id}/verify`, { isVerified }),
 };
