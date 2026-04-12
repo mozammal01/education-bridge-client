@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { SiteLoader } from "@/components/shared/site-loader";
+import { UnderConstruction } from "@/components/shared/under-construction";
 
 export function SettingsManagement() {
   const [saving, setSaving] = useState(false);
@@ -139,6 +140,13 @@ export function SettingsManagement() {
             </div>
           )}
 
+          {activeTab === "seo" && (
+            <UnderConstruction 
+              title="SEO & Social Intelligence" 
+              message="We are currently architecting a sophisticated meta-tag management system and social graph optimization engine."
+            />
+          )}
+
           {activeTab === "security" && (
             <div className="space-y-6">
               <Card className="border-primary/5 shadow-sm">
@@ -182,6 +190,13 @@ export function SettingsManagement() {
                 </CardContent>
               </Card>
             </div>
+          )}
+
+          {activeTab === "email" && (
+            <UnderConstruction 
+              title="Email SMTP Node" 
+              message="The platform's secure SMTP relay and automated template distribution system is currently being calibrated for high-volume delivery."
+            />
           )}
 
           {activeTab === "system" && (
